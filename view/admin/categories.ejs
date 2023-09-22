@@ -1,0 +1,145 @@
+<%- include("header") %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Categories</h2>
+            <p>Add, edit, or delete a category</p>
+        </div>
+        <div>
+            <input type="text" placeholder="Search Categories" class="form-control bg-white">
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <% if (message) { %>
+                        <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
+                            <%= message %>
+                        </div>
+                    <% } %>
+                    <% if (errMessage) { %>
+                        <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                            <%= errMessage %>
+                        </div>
+                    <% } %>
+                    <form method="post" id="createCategoryForm" onsubmit="return categoryErrorValidation()">
+                        <div class="mb-4">
+                            <label for="categoryName" class="form-label">New Category Name</label>
+                            <input type="text" placeholder="Type here" name="categoryName" class="form-control"
+                                id="categoryName" />
+                            <small id="categoryNameError"></small>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Create category</button>
+                        </div>
+                    </form>
+                    <!-- <form method="post" id="editCategoryForm" style="display: none;">
+                        <div class="mb-4">
+                            <label for="editCategoryName" class="form-label">Edit Category Name</label>
+                            <input type="text" placeholder="Type here" name="editCategoryName"
+                                class="form-control" id="editCategoryName" />
+                            <small id="editCategoryNameError"></small>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form> -->
+                    <form method="post" action="/admin/editCategory" id="editCategoryForm" style="display: none;" onsubmit="return editCategoryErrorValidation()">
+                        <!-- Add a hidden input field to store the category ID -->
+                        <input type="hidden" id="editCategoryId" name="editCategoryId">
+                        <div class="mb-4">
+                            <label for="editCategoryName" class="form-label">Edit Category Name</label>
+                            <input type="text" placeholder="Type here" name="editCategoryName"
+                                class="form-control" id="editCategoryName" />
+                            <small id="editCategoryNameError"></small>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Edit</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% categories.forEach(function(category) { %>
+                                    <tr>
+                                        <td>
+                                            <%= category.name %>
+                                        </td>
+                                        <td>
+                                            <!-- Edit Info Button -->
+                                            <button class="btn btn-light rounded btn-sm font-sm"
+                                            onclick="showEditCategoryForm('<%= category._id %>', '<%= category.name %>')">Edit</button>
+                                        </td>
+                                        <td>
+                                            <!-- Conditionally render the Block or Unblock button -->
+                                            <% if (category.blocked) { %>
+                                                <!-- Unblock Button -->
+                                                <button class="btn btn-success rounded btn-sm font-sm"
+                                                    onclick="toggleBlockUnblock('<%= category._id %>', false)">Unblock</button>
+                                            <% } else { %>
+                                                <!-- Block Button -->
+                                                <button class="btn btn-danger rounded btn-sm font-sm"
+                                                    onclick="toggleBlockUnblock('<%= category._id %>', true)">Block</button>
+                                            <% } %>
+                                        </td>
+                        
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- .col// -->
+            </div> <!-- .row // -->
+        </div> <!-- card body .// -->
+    </div> <!-- card .// -->
+</section> <!-- content-main end// -->
+<%- include("footer") %>
+
+<script>
+    // Function to show the edit category form and hide the create category form
+    function showEditCategoryForm(categoryId, categoryName) {
+    // Hide the create category form
+    document.getElementById('createCategoryForm').style.display = 'none';
+    // Show the edit category form
+    document.getElementById('editCategoryForm').style.display = 'block';
+    // Set the current category name in the edit form
+    document.getElementById('editCategoryName').value = categoryName;
+    // Set the category ID in the hidden input field
+    document.getElementById('editCategoryId').value = categoryId;
+    }
+    function toggleBlockUnblock(categoryId, blockStatus) {
+        // Send an AJAX request to toggle the block status
+        fetch(`/admin/toggleBlockStatus/${categoryId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ blocked: blockStatus })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page or update the UI as needed
+                location.reload(); // Reload the page to reflect the updated status
+            } else {
+                alert('Failed to toggle block status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while toggling block status');
+        });
+    }
+</script>
+

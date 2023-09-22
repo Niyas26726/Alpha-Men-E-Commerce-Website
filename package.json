@@ -1,0 +1,29 @@
+{
+  "name": "week9project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "hbs": "^4.2.0",
+    "moment": "^2.29.4",
+    "mongoose": "^7.4.4",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nocache": "^4.0.0",
+    "nodemailer": "^6.9.5",
+    "nodemon": "^3.0.1",
+    "otp-generator": "^4.0.1",
+    "sweetalert2": "^11.6.13"
+  }
+}
