@@ -1,11 +1,11 @@
 const User = require('../models/userModel');
 const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
-const category = require('../models/categoryModel'); 
-const product = require('../models/productModel'); 
+const category = require('../models/categoryModel');
+const product = require('../models/productModel');
 
- let generatedOTP = '';
- let globalEmail = '';
+let generatedOTP = '';
+let globalEmail = '';
 
 const loadRegister = async (req, res) => {
    try {
@@ -16,12 +16,12 @@ const loadRegister = async (req, res) => {
       const msg = req.query.msg;
       console.log(typeof err);
       if (err == "true") {
-         res.render('signup', { product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg })
+         res.render('signup', { product: productData, categories: categorieData, isAuthenticated: false, message: '', errMessage: msg })
       } else {
-         res.render('signup', { product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' })
+         res.render('signup', { product: productData, categories: categorieData, isAuthenticated: false, message: msg, errMessage: '' })
       }
    } catch (error) {
-      console.log(error.message) 
+      console.log(error.message)
    }
 }
 
@@ -64,14 +64,18 @@ const insertUser = async (req, res) => {
 
 const loadLogin = async (req, res) => {
    try {
+
       const err = req.query.err;
+
       const productData = await product.find({});
+
       const categorieData = await category.find({});
-      const msg = req.query.msg;
-      if(err){
-         res.render('login', { product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
-      }else{
-         res.render('login', { product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
+      const msg = req.query.msg;  
+
+      if (err) {
+         res.render('login', { product: productData, categories: categorieData, isAuthenticated: false, message: '', errMessage: msg });
+      } else {
+         res.render('login', { product: productData, categories: categorieData, isAuthenticated: false, message: msg, errMessage: '' });
       }
    } catch (error) {
       console.log(error.message);
@@ -84,12 +88,12 @@ const loadHome = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('home', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('home', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('home', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -102,12 +106,30 @@ const formals = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('formals', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('formals', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('formals', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('formals', { product: productData, categories: categorieData, isAuthenticated: false });
+      }
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const userAccount = async (req, res) => {
+   console.log("Reached userAccount");
+   try {
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      if (req.session.user_id) {
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('userAccount', { product: productData, categories: categorieData, isAuthenticated: true });
+      } else {
+         console.log("else case req.session.user_id is " + req.session.user_id);
+
+         res.render('userAccount', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -120,12 +142,12 @@ const special = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('special', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('special', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('special', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('special', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -138,12 +160,12 @@ const all = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('all', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('all', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('all', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('all', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -156,12 +178,12 @@ const about = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('about', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('about', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('about', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('about', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -174,12 +196,12 @@ const contact = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('contact', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('contact', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('contact', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('contact', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -192,12 +214,12 @@ const displayProduct = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('displayProduct', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('displayProduct', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('displayProduct', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('displayProduct', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -210,12 +232,12 @@ const cart = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('cart', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('cart', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('cart', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('cart', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -228,10 +250,10 @@ const wishlist = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('wishlist', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('wishlist', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
          res.redirect(`/login?err=${true}&msg=Login to see wishlist`);
       }
@@ -242,38 +264,42 @@ const wishlist = async (req, res) => {
 
 const addtowishlist = async (req, res) => {
    console.log("Reached addtowishlist");
-   console.log("req.session.user_id is "+req.session.user_id);
-   try {
-      const { productId } = req.body;
-      console.log("productId is "+productId);
+   let user_id = req.session.user_id
+   console.log("req.session.user_id is " + req.session.user_id);
+
+   if (user_id) {
+      const productId = req.body.productId;
+      console.log("productId is " + productId);
 
       const categorieData = await category.find({});
       const productData = await product.find({});
       const user = await User.findById(req.session.user_id);
 
-      if (!user) {
-         console.log("if case worked no user");
-         res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
-         console.log("after if case worked no user");
-         console.log("user in if case "+user);
-      } else {
-         // Add the product ID to the user's wishlist array
-         console.log("user in else case "+user);
-         user.wishlist.push(productId);
+      // Add the product ID to the user's wishlist array
+      console.log("user in else case " + user);
+      user.wishlist.push(productId);
+      user.save().then((data) => {
+         // console.log("if case worked saved");
+         // console.log("req.session.user_id is " + req.session.user_id);
+         // res.redirect('/wishlist');
+         res.json({ status: true })
+      }).catch((err) => {
+         res.json({ status: false, msg: "Something went wrong" })
+      })
 
-         // Save the updated user information back to the database
-         const saved = await user.save();
-
-         if (saved) {
-            console.log("if case worked saved");
-            console.log("req.session.user_id is "+req.session.user_id);
-            res.redirect('/wishlist');
-         }
-      }
-   } catch (error) {
-      console.log(error.message);
+      // if (saved) {x
+      //     console.log("if case worked saved");
+      //     console.log("req.session.user_id is " + req.session.user_id);
+      //     res.redirect('/wishlist');
+      // } 
+   } else {
+      res.json({ status: false, msg: "Login first to add product to wishlist" })
+      // console.log("if case worked no user");
+      // res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
+      // console.log("after if case worked no user");
    }
 }
+
 
 
 const loadHomeAfterLogin = async (req, res) => {
@@ -283,12 +309,12 @@ const loadHomeAfterLogin = async (req, res) => {
       const productData = await product.find({});
 
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('home', { product:productData, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('home', { product: productData, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.render('home', { product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -304,12 +330,12 @@ const filteredByCatagoryFromHome = async (req, res) => {
       const filteredProducts = await product.find({ categoryId });
 
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('home', { product:filteredProducts, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('home', { product: filteredProducts, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product:filteredProducts, categories:categorieData, isAuthenticated: false });
+         res.render('home', { product: filteredProducts, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -325,12 +351,12 @@ const filteredByCatagoryFromOther = async (req, res) => {
       const filteredProducts = await product.find({ categoryId });
 
       if (req.session.user_id) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.render('formals', { product:filteredProducts, categories:categorieData, isAuthenticated: true });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('formals', { product: filteredProducts, categories: categorieData, isAuthenticated: true });
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('formals', { product:filteredProducts, categories:categorieData, isAuthenticated: false });
+         res.render('formals', { product: filteredProducts, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -353,7 +379,7 @@ const verfiyUser = async (req, res) => {
          }
          // Invalid email or password
       } else {
-            res.redirect(`/login?err=${true}&msg=Invalid email or password`);
+         res.redirect(`/login?err=${true}&msg=Invalid email or password`);
       }
 
    } catch (error) {
@@ -395,9 +421,9 @@ const sendOtp = async (req, res) => {
       // Function to generate and send OTP
       function sendOTP() {
          generatedOTP = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-      
+
          console.log("generatedOTP " + generatedOTP);
-         req.session.generatedOTP=generatedOTP;
+         req.session.generatedOTP = generatedOTP;
          console.log("Session Stored OTP " + req.session.generatedOTP);
 
          const mailOptions = {
@@ -417,7 +443,7 @@ const sendOtp = async (req, res) => {
 
          // Invalidate the OTP after 1 minute
          setTimeout(() => {
-            generatedOTP=null;
+            generatedOTP = null;
             console.log("OTP invalidated after 1 minute");
          }, 1 * 60 * 1000);
          // }
@@ -438,10 +464,10 @@ const forgotpassword = async (req, res) => {
       console.log("Reached forgotpassword");
       const err = req.query.err;
       const msg = req.query.msg;
-      if(err){
-         res.render('forgotpassword', {  product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
-      }else{
-         res.render('forgotpassword', {  product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
+      if (err) {
+         res.render('forgotpassword', { product: productData, categories: categorieData, isAuthenticated: false, message: '', errMessage: msg });
+      } else {
+         res.render('forgotpassword', { product: productData, categories: categorieData, isAuthenticated: false, message: msg, errMessage: '' });
       }
    } catch (error) {
       console.error(error.message);
@@ -449,28 +475,28 @@ const forgotpassword = async (req, res) => {
 };
 
 const verifyOTP = async (req, res) => {
-   console.log("Reached verifyOTP  "+ generatedOTP);
+   console.log("Reached verifyOTP  " + generatedOTP);
    try {
-       const { email, otp } = req.body;
+      const { email, otp } = req.body;
       const user = await User.findOne({ email });
       if (!user) {
-            res.json({ isAuthenticated :false, errMessage: 'User not found', message:'' });
+         res.json({ isAuthenticated: false, errMessage: 'User not found', message: '' });
          console.log("Error User not found");
       }
       if (otp !== generatedOTP) {
-         res.json({ isAuthenticated :false, errMessage: 'Invalid OTP', message: '' });
+         res.json({ isAuthenticated: false, errMessage: 'Invalid OTP', message: '' });
          console.log("Error Invalid OTP");
       }
-      console.log("User OTP  "+otp);
-      console.log("User  "+user);
-      if(user && otp == generatedOTP){
-         res.json({isAuthenticated :false, errMessage: '', message: ''})
-         globalEmail=email;
+      console.log("User OTP  " + otp);
+      console.log("User  " + user);
+      if (user && otp == generatedOTP) {
+         res.json({ isAuthenticated: false, errMessage: '', message: '' })
+         globalEmail = email;
          console.log("Success go to reset password");
       }
-      } catch (error) {
-         console.error(error.message);
-      }
+   } catch (error) {
+      console.error(error.message);
+   }
 };
 
 const resetpassword = async (req, res) => {
@@ -479,10 +505,10 @@ const resetpassword = async (req, res) => {
       const categorieData = await category.find({});
       const err = req.query.err;
       const msg = req.query.msg;
-      if(err){
-         res.render('resetpassword', { product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
-      }else{
-         res.render('resetpassword', { product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
+      if (err) {
+         res.render('resetpassword', { product: productData, categories: categorieData, isAuthenticated: false, message: '', errMessage: msg });
+      } else {
+         res.render('resetpassword', { product: productData, categories: categorieData, isAuthenticated: false, message: msg, errMessage: '' });
       }
    } catch (error) {
       console.log(error.message)
@@ -493,24 +519,24 @@ const changepassword = async (req, res) => {
    console.log("Reached changepassword");
    try {
       const confirmPassword = req.body.confirmPassword;
-      const email=globalEmail;
-      globalEmail=null;
+      const email = globalEmail;
+      globalEmail = null;
 
       const checkData = await User.findOne({ email: email });
-      
-      if (checkData.password==confirmPassword) {
+
+      if (checkData.password == confirmPassword) {
          res.redirect(`/resetpassword?err=${true}&msg=New password cannot be same as old password`);
 
       } else {
-             checkData.password=confirmPassword
+         checkData.password = confirmPassword
 
-            const userData = await checkData.save();
-         
-         if(userData){
-         res.redirect(`/login?err=${""}&msg=Password reset successfull`);
+         const userData = await checkData.save();
 
-         }else{
-         res.redirect(`/resetpassword?err=""&msg=An error occured try again`);
+         if (userData) {
+            res.redirect(`/login?err=${""}&msg=Password reset successfull`);
+
+         } else {
+            res.redirect(`/resetpassword?err=""&msg=An error occured try again`);
 
          }
       }
@@ -546,6 +572,7 @@ module.exports = {
    wishlist,
    addtowishlist,
    filteredByCatagoryFromHome,
-   filteredByCatagoryFromOther
+   filteredByCatagoryFromOther,
+   userAccount
 }
 

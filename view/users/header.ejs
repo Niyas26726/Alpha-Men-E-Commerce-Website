@@ -196,7 +196,7 @@
                                         <option value="<%= category._id %>">
                                             <%= category.name %>
                                         </option>
-                                        <% }); %>
+                                    <% }); %>
                                 </select>
                                 <input type="text" placeholder="Search for items...">
                             </form>
@@ -215,15 +215,16 @@
                                 </div>
                                 <div class="header-action-icon-2">
                                     <% if (isAuthenticated==true) { %>
-                                        <a href="/logout">
+                                        <!-- <a href="/logout">
                                             <p>Logout</p>
-                                        </a>
+                                        </a> -->
+                                        <a href="/userAccount"><img src="/admin-assets/imgs/icons/user.png"alt="" style="height: 25px; width: 25px;"></a>
                                         <% } else { %>
                                             <a href="/login">
                                                 <p>Login</p>
                                             </a>
-                                            <% } %>
-                                                <!-- <p><%isAuthenticated%></p> -->
+                                    <% } %>
+                                        <!-- <p><%isAuthenticated%></p> -->
                                 </div>
                             </div>
                         </div>
