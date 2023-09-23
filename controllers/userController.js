@@ -233,10 +233,10 @@ const wishlist = async (req, res) => {
       } else {
          console.log("else case req.session.user_id is "+req.session.user_id);
 
-         res.render('wishlist', { product:productData, categories:categorieData, isAuthenticated: false });
+         res.redirect(`/login?err=${true}&msg=Login to see wishlist`);
       }
    } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
    }
 }
 
@@ -245,34 +245,36 @@ const addtowishlist = async (req, res) => {
    console.log("req.session.user_id is "+req.session.user_id);
    try {
       const { productId } = req.body;
-   console.log("productId is "+productId);
+      console.log("productId is "+productId);
 
       const categorieData = await category.find({});
       const productData = await product.find({});
       const user = await User.findById(req.session.user_id);
 
       if (!user) {
-         res.redirect('/wishlist')
-      }
-  
-      // Add the product ID to the user's wishlist array
-      user.wishlist.push(productId);
-  
-      // Save the updated user information back to the database
-      const saved = await user.save();
-  
-      if (saved) {
-         console.log("req.session.user_id is "+req.session.user_id);
-         res.redirect('/wishlist');
+         console.log("if case worked no user");
+         res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
+         console.log("after if case worked no user");
+         console.log("user in if case "+user);
       } else {
-         console.log("else case req.session.user_id is "+req.session.user_id);
+         // Add the product ID to the user's wishlist array
+         console.log("user in else case "+user);
+         user.wishlist.push(productId);
 
-         res.redirect('/wishlist');
+         // Save the updated user information back to the database
+         const saved = await user.save();
+
+         if (saved) {
+            console.log("if case worked saved");
+            console.log("req.session.user_id is "+req.session.user_id);
+            res.redirect('/wishlist');
+         }
       }
    } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
    }
 }
+
 
 const loadHomeAfterLogin = async (req, res) => {
    console.log("Reached loadHomeAfterLogin");
@@ -293,8 +295,8 @@ const loadHomeAfterLogin = async (req, res) => {
    }
 }
 
-const filteredByCatagory = async (req, res) => {
-   console.log("Reached filteredByCatagory");
+const filteredByCatagoryFromHome = async (req, res) => {
+   console.log("Reached filteredByCatagoryFromHome");
    try {
       const categoryId = req.query.categoryId;
       const categorieData = await category.find({});
@@ -308,6 +310,27 @@ const filteredByCatagory = async (req, res) => {
          console.log("else case req.session.user_id is "+req.session.user_id);
 
          res.render('home', { product:filteredProducts, categories:categorieData, isAuthenticated: false });
+      }
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const filteredByCatagoryFromOther = async (req, res) => {
+   console.log("Reached filteredByCatagoryFromOther");
+   try {
+      const categoryId = req.query.categoryId;
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const filteredProducts = await product.find({ categoryId });
+
+      if (req.session.user_id) {
+         console.log("req.session.user_id is "+req.session.user_id);
+         res.render('formals', { product:filteredProducts, categories:categorieData, isAuthenticated: true });
+      } else {
+         console.log("else case req.session.user_id is "+req.session.user_id);
+
+         res.render('formals', { product:filteredProducts, categories:categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -411,13 +434,14 @@ const forgotpassword = async (req, res) => {
 
    try {
       const categorieData = await category.find({});
+      const productData = await product.find({});
       console.log("Reached forgotpassword");
       const err = req.query.err;
       const msg = req.query.msg;
       if(err){
-         res.render('forgotpassword', { categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
+         res.render('forgotpassword', {  product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
       }else{
-         res.render('forgotpassword', { categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
+         res.render('forgotpassword', {  product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
       }
    } catch (error) {
       console.error(error.message);
@@ -451,13 +475,14 @@ const verifyOTP = async (req, res) => {
 
 const resetpassword = async (req, res) => {
    try {
+      const productData = await product.find({});
       const categorieData = await category.find({});
       const err = req.query.err;
       const msg = req.query.msg;
       if(err){
-         res.render('resetpassword', { categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
+         res.render('resetpassword', { product:productData, categories:categorieData, isAuthenticated :false, message: '', errMessage: msg });
       }else{
-         res.render('resetpassword', { categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
+         res.render('resetpassword', { product:productData, categories:categorieData, isAuthenticated :false, message: msg , errMessage: '' });
       }
    } catch (error) {
       console.log(error.message)
@@ -520,6 +545,7 @@ module.exports = {
    cart,
    wishlist,
    addtowishlist,
-   filteredByCatagory
+   filteredByCatagoryFromHome,
+   filteredByCatagoryFromOther
 }
 

@@ -31,7 +31,34 @@ userRouter.get('/login',auth.ifLogout,userController.loadLogin);
 userRouter.post('/login',auth.isLogout,userController.verfiyUser);
 
 userRouter.get('/home',auth.isLogin,userController.loadHomeAfterLogin);
-userRouter.get('/category',userController.filteredByCatagory )
+userRouter.get('/category',userController.filteredByCatagoryFromHome )
+userRouter.get('/categoryOther',userController.filteredByCatagoryFromOther )
+// Define a route handler for /search
+userRouter.get('/search', async (req, res) => {
+   try {
+      const { query, searchBy } = req.query;
+
+      // Define a regex pattern for a case-insensitive search
+      const regexPattern = new RegExp(query, 'i');
+      let productData;
+
+      // Perform a database query based on the selected search criteria
+      if (searchBy === 'brand') {
+         productData = await product.find({ brand_name: regexPattern });
+      } else if (searchBy === 'category') {
+         productData = await product.find({ 'categoryId.name': regexPattern });
+      } else if (searchBy === 'product') {
+         productData = await product.find({ product_name: regexPattern });
+      }
+
+      // Render a page with the search results
+      res.render('search-results', { product: productData, query, searchBy });
+   } catch (error) {
+      console.error(error.message);
+      // Handle errors appropriately, e.g., send an error response
+      res.status(500).send('Internal Server Error');
+   }
+});
 
 userRouter.get('/formals',userController.formals);
 userRouter.get('/special',userController.special);
