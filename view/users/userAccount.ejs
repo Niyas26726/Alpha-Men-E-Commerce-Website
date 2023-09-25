@@ -1,5 +1,44 @@
 ﻿<%-include("header")-%>
 
+<style>
+    /* Style for the profile image preview container */
+.profile-image-preview {
+    width: 150px; /* Adjust the size as needed */
+    height: 150px; /* Adjust the size as needed */
+    border-radius: 50%; /* Makes the container circular */
+    margin: 0 auto; /* Center the container horizontally */
+    overflow: hidden; /* Hide overflowing image parts */
+    background-color: #ffffff; /* Background color for the circular area */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for the profile image inside the circular container */
+.profile-image-preview img {
+    max-width: 100%; /* Make sure the image fits within the container */
+    max-height: 100%; /* Make sure the image fits within the container */
+    border-radius: 50%; /* Maintain the circular shape */
+}
+
+/* CSS to display the images side by side */
+.profile-images-container {
+    display: flex; /* Use flexbox for horizontal alignment */
+    align-items: center; /* Vertically center the images */
+    gap: 20px; /* Adjust the gap between images as needed */
+}
+
+/* Adjust the styles for each image container if necessary */
+.profile-image-preview {
+    max-width: 80%; /* Adjust the width of each container */
+    text-align: center; /* Center the images horizontally */
+}
+
+/* You can add more CSS styles as needed to customize the appearance */
+
+
+</style>
+
     <main class="main">
         <div class="page-header breadcrumb-wrap">
             <div class="container">
@@ -15,39 +54,70 @@
                 <div class="row">
                     <div class="col-lg-10 m-auto">
                         <div class="row">
+                            <% if (message) { %>
+                                <div id="successMessage"
+                                    class="alert alert-success text-center mt-5" role="alert">
+                                    <%= message %>
+                                </div>
+                                <% } %>
+                                    <% if (errMessage) { %>
+                                        <div id="errorMessage"
+                                            class="alert alert-danger text-center mt-5"
+                                            role="alert">
+                                            <%= errMessage %>
+                                        </div>
+                                        <% } %>
+
                             <div class="col-md-4">
                                 <div class="dashboard-menu">
                                     <ul class="nav flex-column" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false"><i class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
+                                            <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab"
+                                                href="#dashboard" role="tab" aria-controls="dashboard"
+                                                aria-selected="false"><i
+                                                    class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                                            <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders"
+                                                role="tab" aria-controls="orders" aria-selected="false"><i
+                                                    class="fi-rs-shopping-bag mr-10"></i>Orders</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab" aria-controls="track-orders" aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order</a>
+                                            <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
+                                                href="#track-orders" role="tab" aria-controls="track-orders"
+                                                aria-selected="false"><i
+                                                    class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
+                                            <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address"
+                                                role="tab" aria-controls="address" aria-selected="true"><i
+                                                    class="fi-rs-marker mr-10"></i>My Address</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                            <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab"
+                                                href="#account-detail" role="tab" aria-controls="account-detail"
+                                                aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
+                                            <a class="nav-link" href="/logout"><i
+                                                    class="fi-rs-sign-out mr-10"></i>Logout</a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="tab-content dashboard-content">
-                                    <div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                                    <div class="tab-pane fade active show" id="dashboard" role="tabpanel"
+                                        aria-labelledby="dashboard-tab">
                                         <div class="card">
                                             <div class="card-header">
-                                                <h5 class="mb-0">Hello Rosie! </h5>
+                                                <h5 class="mb-0">Hello <%=user.display_name%>! </h5>
                                             </div>
                                             <div class="card-body">
-                                                <p>From your account dashboard. you can easily check &amp; view your <a href="#">recent orders</a>, manage your <a href="#">shipping and billing addresses</a> and <a href="#">edit your password and account details.</a></p>
+                                                <p>From your account dashboard. you can easily check &amp; view your <a
+                                                        href="#">recent orders</a>, manage your <a href="#">shipping and
+                                                        billing addresses</a> and <a href="#">edit your password and
+                                                        account details.</a></p>
                                             </div>
                                         </div>
                                     </div>
@@ -96,32 +166,42 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                                    <div class="tab-pane fade" id="track-orders" role="tabpanel"
+                                        aria-labelledby="track-orders-tab">
                                         <div class="card">
                                             <div class="card-header">
                                                 <h5 class="mb-0">Orders tracking</h5>
                                             </div>
                                             <div class="card-body contact-from-area">
-                                                <p>To track your order please enter your OrderID in the box below and press "Track" button. This was given to you on your receipt and in the confirmation email you should have received.</p>
+                                                <p>To track your order please enter your OrderID in the box below and
+                                                    press "Track" button. This was given to you on your receipt and in
+                                                    the confirmation email you should have received.</p>
                                                 <div class="row">
                                                     <div class="col-lg-8">
-                                                        <form class="contact-form-style mt-30 mb-50" action="#" method="post">
+                                                        <form class="contact-form-style mt-30 mb-50" action="#"
+                                                            method="post">
                                                             <div class="input-style mb-20">
                                                                 <label>Order ID</label>
-                                                                <input name="order-id" placeholder="Found in your order confirmation email" type="text" class="square">
+                                                                <input name="order-id"
+                                                                    placeholder="Found in your order confirmation email"
+                                                                    type="text" class="square">
                                                             </div>
                                                             <div class="input-style mb-20">
                                                                 <label>Billing email</label>
-                                                                <input name="billing-email" placeholder="Email you used during checkout" type="email" class="square">
+                                                                <input name="billing-email"
+                                                                    placeholder="Email you used during checkout"
+                                                                    type="email" class="square">
                                                             </div>
-                                                            <button class="submit submit-auto-width" type="submit">Track</button>
+                                                            <button class="submit submit-auto-width"
+                                                                type="submit">Track</button>
                                                         </form>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                                    <div class="tab-pane fade" id="address" role="tabpanel"
+                                        aria-labelledby="address-tab">
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="card mb-3 mb-lg-0">
@@ -129,7 +209,9 @@
                                                         <h5 class="mb-0">Billing Address</h5>
                                                     </div>
                                                     <div class="card-body">
-                                                        <address>3522 Interstate<br> 75 Business Spur,<br> Sault Ste. <br>Marie, MI 49783</address>
+                                                        <address>3522 Interstate<br> 75 Business Spur,<br> Sault Ste.
+                                                            <br>Marie, MI 49783
+                                                        </address>
                                                         <p>New York</p>
                                                         <a href="#" class="btn-small">Edit</a>
                                                     </div>
@@ -142,7 +224,8 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <address>4299 Express Lane<br>
-                                                            Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444</address>
+                                                            Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444
+                                                        </address>
                                                         <p>Sarasota</p>
                                                         <a href="#" class="btn-small">Edit</a>
                                                     </div>
@@ -150,49 +233,119 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
+                                    <div class="tab-pane fade" id="account-detail" role="tabpanel"
+                                        aria-labelledby="account-detail-tab">
                                         <div class="card">
                                             <div class="card-header">
                                                 <h5>Account Details</h5>
                                             </div>
+    
                                             <div class="card-body">
-                                                <p>Already have an account? <a href="page-login-register.html">Log in instead!</a></p>
-                                                <form method="post" name="enq">
-                                                    <div class="row">
-                                                        <div class="form-group col-md-6">
-                                                            <label>First Name <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="name" type="text">
-                                                        </div>
-                                                        <div class="form-group col-md-6">
-                                                            <label>Last Name <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="phone">
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Display Name <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="dname" type="text">
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Email Address <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="email" type="email">
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Current Password <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="password" type="password">
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>New Password <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="npassword" type="password">
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Confirm Password <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="cpassword" type="password">
-                                                        </div>
-                                                        <div class="col-md-12">
-                                                            <button type="submit" class="btn btn-fill-out submit" name="submit" value="Submit">Save</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
+                                                <form method="post" onsubmit="return userAccountValidation()"
+                                                enctype="multipart/form-data">
+                                                <!-- <form method="post" onsubmit="return handleFormSubmission()"> -->
+                                                            <div class="profile-images-container">
+                                                                <!-- Existing profile image -->
+                                                                <div class="profile-image-preview">
+                                                                    <img id="existingProfileImage" src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="Profile Image">
+                                                                </div>
+                                                            
+                                                                <!-- Selected profile image preview (hidden by default) -->
+                                                                <div class="profile-image-preview" id="selectedProfileImageContainer">
+                                                                    <img id="profileImagePreview" src="" alt="Chose an image">
+                                                                </div>
+                                                            </div>
+                                                            
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Profile Image</label>
+                                                                    <input class="form-control square" name="profileImage" type="file" id="profileImage">
+                                                                    <small id="profileImageError" class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>First Name <span
+                                                                            class="required"></span></label>
+                                                                    <input value="<%=user.first_name%>"
+                                                                        class="form-control square" name="name"
+                                                                        type="text" id="firstName">
+                                                                    <small id="firstNameError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>Last Name <span
+                                                                            class="required"></span></label>
+                                                                    <input value="<%=user.last_name%>"
+                                                                        class="form-control square" name="lName"
+                                                                        id="lastName">
+                                                                    <small id="lastNameError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Display Name <span
+                                                                            class="required"></span></label>
+                                                                    <input value="<%=user.display_name%>"
+                                                                        class="form-control square" name="dname"
+                                                                        type="text" id="displayName">
+                                                                    <small id="displayNameError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Email Address <span
+                                                                            class="required"></span></label>
+                                                                    <input value="<%=user.email%>"
+                                                                        class="form-control square" name="email"
+                                                                        type="email" id="emailAddress">
+                                                                    <small id="emailAddressError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Mobile Number <span
+                                                                            class="required"></span></label>
+                                                                    <input value="<%=user.mobile%>"
+                                                                        class="form-control square" name="mobile"
+                                                                        type="mobile" id="mobile">
+                                                                    <small id="mobileError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Current Password <span
+                                                                            class="required"></span></label>
+                                                                    <input value="" class="form-control square"
+                                                                        name="currentPassword" type="password"
+                                                                        id="currentPassword">
+                                                                    <input type="hidden" value="user.password"
+                                                                        id="userPassword">
+                                                                    <small id="currentPasswordError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>New Password <span
+                                                                            class="required"></span></label>
+                                                                    <input value="" class="form-control square"
+                                                                        name="npassword" type="password"
+                                                                        id="newPassword">
+                                                                    <small id="newPasswordError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-12">
+                                                                    <label>Confirm Password <span
+                                                                            class="required"></span></label>
+                                                                    <input value="" class="form-control square"
+                                                                        name="cpassword" type="password"
+                                                                        id="confirmPassword">
+                                                                    <small id="confirmPasswordError"
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <button type="submit"
+                                                                        class="btn btn-fill-out submit"
+                                                                        name="submit" value="Submit">Save</button>
+                                                                </div>
+                                            </form>
+                                                <!-- <p>Already have an account? <a href="page-login-register.html">Log in instead!</a></p> -->
+                                                
                                             </div>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -201,7 +354,60 @@
                     </div>
                 </div>
             </div>
+            <!-- </div>
+            </div> -->
         </section>
     </main>
+<script>
+    // JavaScript code to update the profile image preview
+const profileImageInput = document.getElementById('profileImage');
+const profileImagePreview = document.getElementById('profileImagePreview');
+
+profileImageInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const url = URL.createObjectURL(file);
+        profileImagePreview.src = url;
+    } else {
+        // Clear the preview if no file is selected
+        profileImagePreview.src = '';
+    }
+});
+
+// Assuming you have jQuery included
+
+// Hide the selected profile image preview initially
+$("#selectedProfileImageContainer").hide();
+
+// Listen for changes in the profile image input
+$("#profileImage").on("change", function() {
+    const input = this;
+    const selectedProfileImageContainer = $("#selectedProfileImageContainer");
+    const existingProfileImage = $("#existingProfileImage");
     
-<%-include("footer")-%>
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            // Display the selected image in selectedProfileImageContainer
+            $("#profileImagePreview").attr("src", e.target.result);
+            selectedProfileImageContainer.show();
+            
+            // Hide the existing profile image
+            existingProfileImage.hide();
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        // Clear the selected image and hide selectedProfileImageContainer
+        $("#profileImagePreview").attr("src", "");
+        selectedProfileImageContainer.hide();
+
+        // Show the existing profile image or placeholder
+        existingProfileImage.show();
+    }
+});
+
+
+</script>
+    <%-include("footer")-%>

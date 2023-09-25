@@ -40,39 +40,33 @@ adminRouter.use(session({
 }))
 
 adminRouter.get('/',auth.isLogout,adminController.loadLogin);
-adminRouter.post('/',adminController.verifyUser);
-adminRouter.get('/home',adminController.loadhome);
+adminRouter.post('/',auth.isLogout,adminController.verifyUser);
+adminRouter.get('/home',auth.isLogin,adminController.loadhome);
 adminRouter.get('/logout',auth.isLogin,adminController.logout);
-adminRouter.get('/dashboard',auth.isLogin,adminController.loadDashboard);
-adminRouter.get('/categories',adminController.categories);
-adminRouter.post('/categories',adminController.addCategories);
-adminRouter.post('/editCategory', adminController.editCategory);
-adminRouter.post('/toggleBlockStatus/:categoryId', adminController.toggleBlockStatus);
-adminRouter.post('/toggleBlockStatusProducts/:categoryId', adminController.toggleBlockStatusProducts);
-adminRouter.get('/productsList',adminController.productsList);
-adminRouter.get('/addProduct',adminController.addProduct);
-adminRouter.post('/addProduct', upload.array('images'), adminController.publishProduct);
-adminRouter.get('/editProducts/',adminController.editProducts);
-adminRouter.post("/updateImage/:index", upload.single("image"), (req, res) => {
-   try {
-       const index = req.params.index;
-       const imageUrl = `/admin/productImages/${req.file.filename}`;
+adminRouter.get('/categories',auth.isLogin,adminController.categories);
+adminRouter.post('/categories',auth.isLogin,adminController.addCategories);
+adminRouter.post('/editCategory',auth.isLogin, adminController.editCategory);
+adminRouter.post('/toggleBlockStatus/:categoryId',auth.isLogin, adminController.toggleBlockStatus);
+adminRouter.post('/toggleBlockStatusProducts/:categoryId',auth.isLogin, adminController.toggleBlockStatusProducts);
+adminRouter.get('/productsList',auth.isLogin,adminController.productsList);
+adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
+adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
+adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
+// adminRouter.post("/updateImage/:index",auth.isLogin, upload.single("image"), (req, res) => {
+//    try {
+//        const index = req.params.index;
+//        const imageUrl = `/admin/productImages/${req.file.filename}`;
 
-       // You can save the image URL to your database if needed
-       // Update the image URL in your database for the corresponding index
+//        // You can save the image URL to your database if needed
+//        // Update the image URL in your database for the corresponding index
 
-       res.json({ success: true, imageUrl });
-   } catch (error) {
-       console.error(error);
-       res.json({ success: false, error: "Failed to update image" });
-   }
-});
-adminRouter.post('/editProducts', upload.array('images'), adminController.updateProduct);
-// adminRouter.get('/newUser',auth.isLogin,adminController.loadAddUser);
-// adminRouter.post('/newUser',auth.isLogin,adminController.addUser);
-// adminRouter.get('/editUser/:id', auth.isLogin, adminController.editUserLoad);
-// adminRouter.post('/editUser/:id',auth.isLogin,adminController.updateUser);
-// adminRouter.get('/deleteUser/:id',auth.isLogin,adminController.deleteUser);
+//        res.json({ success: true, imageUrl });
+//    } catch (error) {
+//        console.error(error);
+//        res.json({ success: false, error: "Failed to update image" });
+//    }
+// });
+adminRouter.post('/editProducts',auth.isLogin, upload.array('images'), adminController.updateProduct);
 
 adminRouter.post('/searchUser',auth.isLogin,adminController.searchUser);
 

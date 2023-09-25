@@ -8,7 +8,8 @@ function userloginValidation() {
   const passwordError = document.getElementById('passwordError');
 
   // Regex
-  const emailRegex = /^[a-z0-9._%+-]+@gmail+\.[a-z]{3}$/;
+//   const emailRegex = /^[a-z0-9._%+-]+@gmail+\.[a-z]{3}$/;
+   const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/;
 
   let isValid = true; // A flag to track overall validation
@@ -42,7 +43,7 @@ function userloginValidation() {
         clearErrorWithDelay(passwordError);
         isValid = false;
      } else if (!passwordRegex.test(password.value)) {
-        passwordError.innerHTML = 'Please enter a strong password';
+        passwordError.innerHTML = 'Invalid password format';
         clearErrorWithDelay(passwordError);
         isValid = false;
      } else {

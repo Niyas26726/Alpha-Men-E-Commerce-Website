@@ -74,13 +74,13 @@
                             <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
                               <%= message %>
                             </div>
-                          <% } %>
+                        <% } %>
                           
-                          <% if (errMessage) { %>
-                            <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
-                              <%= errMessage %>
-                            </div>
-                          <% } %> 
+                        <% if (errMessage) { %>
+                        <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                            <%= errMessage %>
+                        </div>
+                        <% } %>
                     </div>
                     <form method="post" onsubmit="return userloginValidation()">
                         <div class="form-group">

@@ -118,8 +118,8 @@
                                                     <div class="product-action-1 show">
                                                         <% if (product.stock> 0) { %>
                                                             <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                                href="shop-cart.html"><i
-                                                                    class="fi-rs-shopping-bag-add"></i></a>
+                                                                        href="#"
+                                                                        onclick="addToCart('<%= product._id %>')"><i class="fi-rs-shopping-bag-add"></i></a>
                                                             <% } else { %>
                                                                 <span class="out-of-stock">Out of Stock</span>
                                                                 <% } %>
@@ -138,3 +138,53 @@
     </main>
 
     <%-include("footer")-%>
+    <script>
+        function addToWishlist(productId) {
+            $.ajax({
+                url: '/wishlist',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productId }),
+                success: function (data) {
+                    
+                    console.log(data)
+                    
+                    if (data.status) {
+                        
+                       // window.location.href = '/wishlist'
+                    } else {
+                        
+                        window.location.href = `/login?err=${true}&msg=` + data.msg
+                    }
+                },
+                error: function (error) { 
+                    window.location.href = `/login?err=${true}&msg=` + error.message
+                }
+            });
+        }
+
+        function addToCart(productId) {
+            $.ajax({
+                url: '/addToCart',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productId }),
+                success: function (data) {
+                    
+                    console.log(data)
+                    
+                    if (data.status) {
+                        
+                       // window.location.href = '/wishlist'
+                    } else {
+                        
+                        window.location.href = `/login?err=${true}&msg=` + data.msg
+                    }
+                },
+                error: function () { 
+                    window.location.href = `/login?err=${true}&msg=Login first to add to cart`
+                }
+            });
+        }
+
+    </script>

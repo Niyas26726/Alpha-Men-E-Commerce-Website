@@ -19,7 +19,8 @@ function userRegisterValidation() {
 
    // Regex
    const nameRegex = /^[A-Z]/;
-   const emailRegex = /^[a-z0-9._%+-]+@gmail+\.[a-z]{3}$/;
+   // const emailRegex = /^[a-z0-9._%+-]+@gmail+\.[a-z]{3}$/;
+   const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
    const mobileRegex = /^[0-9]{10}$/;
 

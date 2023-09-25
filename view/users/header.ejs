@@ -196,7 +196,7 @@
                                         <option value="<%= category._id %>">
                                             <%= category.name %>
                                         </option>
-                                    <% }); %>
+                                        <% }); %>
                                 </select>
                                 <input type="text" placeholder="Search for items...">
                             </form>
@@ -214,17 +214,27 @@
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
-                                    <% if (isAuthenticated==true) { %>
+                                    <% if (isAuthenticated) { %>
                                         <!-- <a href="/logout">
                                             <p>Logout</p>
                                         </a> -->
-                                        <a href="/userAccount"><img src="/admin-assets/imgs/icons/user.png"alt="" style="height: 25px; width: 25px;"></a>
-                                        <% } else { %>
-                                            <a href="/login">
-                                                <p>Login</p>
+                                        <% if (user.user_profile) { %>
+                                            <a href="/userAccount">
+                                                <img src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="/admin-assets/imgs/icons/user.png" style="height: 30px; width: 30px; border-radius: 100%;">
                                             </a>
+                                            
+                                        <% } else { %>
+                                            <a href="/userAccount">
+                                                <img src="/admin-assets/imgs/icons/user.png" alt="" style="height: 30px; width: 30px; border-radius: 50%;">
+                                            </a>
+                                            
+                                        <% } %>
+                                    <% } else { %>
+                                        <a href="/login">
+                                            <p>Login</p>
+                                        </a>
                                     <% } %>
-                                        <!-- <p><%isAuthenticated%></p> -->
+                                                                            <!-- <p><%isAuthenticated%></p> -->
                                 </div>
                             </div>
                         </div>

@@ -87,13 +87,16 @@ const loadHome = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user=1
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user ,product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -105,49 +108,140 @@ const formals = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1;
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('formals', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('formals', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('formals', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('formals', { user, product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
    }
 }
+
+
 
 const userAccount = async (req, res) => {
    console.log("Reached userAccount");
    try {
+      const user_id = req.session.user_id
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const userData = await User.findOne({ _id: user_id });
+      console.log("userData "+userData);
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('userAccount', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage: "" });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('userAccount', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: false, message:"", errMessage: "" });
       }
    } catch (error) {
       console.log(error.message)
    }
 }
+
+const updateUserAccount = async (req, res) => {
+   console.log("Reached updateUserAccount");
+   try {
+      const user_id = req.session.user_id;
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const userData = await User.findOne({ _id: user_id });
+      console.log("userData " + userData);
+
+      const uploadedFile = req.file;
+      let updatedUserData = {
+         first_name: req.body.name,
+         last_name: req.body.lName,
+         display_name: req.body.dname,
+         email: req.body.email,
+         mobile: req.body.mobile,
+         password: req.body.npassword // Assuming you're updating the password as well
+      };
+
+      if (uploadedFile) {
+        console.log("Uploaded profile picture filename: " + uploadedFile.filename);
+        updatedUserData.user_profile = uploadedFile.filename;
+      }
+
+      if (!userData) {
+         return res.status(404).render('userAccount', {
+            user: false, product: productData, categories: categorieData, isAuthenticated: false, message: "", errMessage: "User not found"
+         });
+      }
+
+      if (!req.session.user_id) {
+         console.log("Session user_id is not set");
+         return res.status(403).render('userAccount', {
+            user: userData,
+            product: productData,
+            categories: categorieData,
+            isAuthenticated: false,
+            message: "",
+            errMessage: "Unauthorized"
+         });
+      }
+
+      const currentPassword = req.body.currentPassword
+      const lName = req.body.lName
+      console.log(req.body);
+      console.log("currentPassword "+currentPassword+" userData.password "+userData.password+" lName "+lName);
+      if (currentPassword !== userData.password) {
+         return res.status(400).render('userAccount', {
+            user: userData,
+            product: productData,
+            categories: categorieData,
+            isAuthenticated: true,
+            message: "",
+            errMessage: "Current password does not match"
+         });
+      }
+
+      // Use Mongoose to update the user data
+      const updatedUser = await User.findByIdAndUpdate(user_id, updatedUserData, { new: true });
+
+      // Update user details in the database with the values from the form
+      // Your update logic here...
+
+      // Redirect or render the success view if the update is successful
+      console.log("updatedUserData ");
+      res.render('userAccount', {
+         user: updatedUserData, // Replace with the updated user data
+         product: productData,
+         categories: categorieData,
+         isAuthenticated: true,
+         message: "User details updated successfully",
+         errMessage: ""
+      });
+   } catch (error) {
+      console.log(error.message);
+      // Handle other errors as needed...
+   }
+}
+
 
 const special = async (req, res) => {
    console.log("Reached special");
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1;
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('special', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('special', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('special', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('special', { user, product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -159,9 +253,12 @@ const all = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('all', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('all', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
@@ -177,9 +274,12 @@ const about = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('about', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('about', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
@@ -195,9 +295,13 @@ const contact = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1
+
       if (req.session.user_id) {
+         const user_ID= req.session.user_id
+         const userData = await User.findById({_id:user_ID})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('contact', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('contact', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
@@ -212,17 +316,29 @@ const displayProduct = async (req, res) => {
    console.log("Reached displayProduct");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({});
+      const product_id = req.query.product_id;
+      // const userData = await User.findById({_id:req.session.user_id})
+      // Use product.findOne to retrieve a single product by its _id
+      const productData = await product.findOne({ _id: product_id });
+      const user = 1
+
+      if (!productData) {
+         // Handle the case where the product is not found
+         return res.status(404).send('Product not found');
+      }
+
       if (req.session.user_id) {
+         const user_id = req.session.user_id
+         const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('displayProduct', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('displayProduct', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('displayProduct', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('displayProduct', { user,product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
    }
 }
 
@@ -231,16 +347,47 @@ const cart = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user = 1
+
       if (req.session.user_id) {
+         const user_id = req.session.user_id
+         const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('cart', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('cart', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('cart', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.redirect(`/login?err=${true}&msg=Login to see your cart`);
+
+         // res.render('cart', { user,product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
+   }
+}
+
+const addToCart = async (req, res) => {
+   console.log("Reached addToCart");
+   let user_id = req.session.user_id
+   console.log("req.session.user_id is " + req.session.user_id);
+
+   if (user_id) {
+      const productId = req.body.productId;
+      console.log("productId is " + productId);
+
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const user = await User.findById(req.session.user_id);
+
+      console.log("user in else case " + user);
+      user.wishlist.push(productId);
+      user.save().then((data) => {
+         res.json({ status: true })
+      }).catch((err) => {
+         res.json({ status: false, msg: "Something went wrong" })
+      })
+   } else {
+      res.json({ status: false, msg: "Login first to add to cart" })
    }
 }
 
@@ -250,8 +397,10 @@ const wishlist = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       if (req.session.user_id) {
+         const user_id = req.session.user_id
+         const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('wishlist', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('wishlist', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
@@ -275,46 +424,33 @@ const addtowishlist = async (req, res) => {
       const productData = await product.find({});
       const user = await User.findById(req.session.user_id);
 
-      // Add the product ID to the user's wishlist array
       console.log("user in else case " + user);
       user.wishlist.push(productId);
       user.save().then((data) => {
-         // console.log("if case worked saved");
-         // console.log("req.session.user_id is " + req.session.user_id);
-         // res.redirect('/wishlist');
          res.json({ status: true })
       }).catch((err) => {
          res.json({ status: false, msg: "Something went wrong" })
       })
-
-      // if (saved) {x
-      //     console.log("if case worked saved");
-      //     console.log("req.session.user_id is " + req.session.user_id);
-      //     res.redirect('/wishlist');
-      // } 
    } else {
       res.json({ status: false, msg: "Login first to add product to wishlist" })
-      // console.log("if case worked no user");
-      // res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
-      // console.log("after if case worked no user");
    }
 }
-
-
 
 const loadHomeAfterLogin = async (req, res) => {
    console.log("Reached loadHomeAfterLogin");
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
+      const user_ID= req.session.user_id
+      const userData = await User.findById({_id:user_ID})
 
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user: userData,product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -328,14 +464,18 @@ const filteredByCatagoryFromHome = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       const filteredProducts = await product.find({ categoryId });
+      const user= 1;
+
 
       if (req.session.user_id) {
+         const user_id = req.session.user_id
+         const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { product: filteredProducts, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData,product: filteredProducts, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { product: filteredProducts, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user,product: filteredProducts, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -349,14 +489,17 @@ const filteredByCatagoryFromOther = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       const filteredProducts = await product.find({ categoryId });
+      const user= 1;
 
       if (req.session.user_id) {
+         const user_id = req.session.user_id
+         const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('formals', { product: filteredProducts, categories: categorieData, isAuthenticated: true });
+         res.render('formals', { user: userData, product: filteredProducts, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('formals', { product: filteredProducts, categories: categorieData, isAuthenticated: false });
+         res.render('formals', { user, product: filteredProducts, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -569,10 +712,12 @@ module.exports = {
    contact,
    displayProduct,
    cart,
+   addToCart,
    wishlist,
    addtowishlist,
    filteredByCatagoryFromHome,
    filteredByCatagoryFromOther,
-   userAccount
+   userAccount,
+   updateUserAccount
 }
 

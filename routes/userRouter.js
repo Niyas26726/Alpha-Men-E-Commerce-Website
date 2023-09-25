@@ -2,11 +2,29 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const nocache = require('nocache')
+const multer = require('multer');
 const logger = require('morgan')
+const path = require('path')
 const userRouter = express();
 const auth = require('../middleware/userAuth')
 const userController = require('../controllers/userController');
 const config = require('../config/config')
+
+const storage = multer.diskStorage({
+   destination: function (req, file, cb) {
+     cb(null, 'public/admin-assets/imgs/people') // Set the destination folder where uploaded files will be stored
+   },
+   filename: function (req, file, cb) {
+      const originalname = file.originalname;
+      const extension = path.extname(originalname);
+      const timestamp = Date.now();
+      const uniqueFilename = `${timestamp}${extension}`;
+      cb(null, uniqueFilename);
+    }
+ })
+
+const upload = multer({ storage: storage })
+
 
 userRouter.use(nocache());
 userRouter.use(session({
@@ -22,8 +40,8 @@ userRouter.set('view engine','ejs');
 userRouter.set('views','./view/users');
 
 // registration user
-userRouter.get('/register',userController.loadRegister);
-userRouter.post('/register',userController.insertUser);
+userRouter.get('/register',auth.isLogout,userController.loadRegister);
+userRouter.post('/register',auth.isLogout,userController.insertUser);
 
 // login user
 userRouter.get('/', userController.loadHome);
@@ -31,10 +49,11 @@ userRouter.get('/login',auth.ifLogout,userController.loadLogin);
 userRouter.post('/login',auth.isLogout,userController.verfiyUser);
 
 userRouter.get('/home',auth.isLogin,userController.loadHomeAfterLogin);
+
 userRouter.get('/category',userController.filteredByCatagoryFromHome )
 userRouter.get('/categoryOther',userController.filteredByCatagoryFromOther )
-
-userRouter.get('/userAccount',userController.userAccount);
+userRouter.get('/userAccount',auth.isLogin,userController.userAccount);
+userRouter.post('/userAccount',auth.isLogin,upload.single('profileImage'),userController.updateUserAccount);
 userRouter.get('/formals',userController.formals);
 userRouter.get('/special',userController.special);
 userRouter.get('/all',userController.all);
@@ -42,8 +61,10 @@ userRouter.get('/about',userController.about);
 userRouter.get('/contact',userController.contact);
 userRouter.get('/displayProduct',userController.displayProduct);
 userRouter.get('/cart',userController.cart);
+userRouter.post('/cart',userController.addToCart);
 userRouter.get('/wishlist',userController.wishlist);
 userRouter.post('/wishlist',userController.addtowishlist);
+
 userRouter.get('/logout',auth.isLogin,userController.userLogout);
 userRouter.post('/send-otp',auth.isLogout,userController.sendOtp)
 userRouter.get('/forgotpassword',auth.isLogout,userController.forgotpassword)

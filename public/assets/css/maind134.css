@@ -4420,7 +4420,8 @@ table .product-thumbnail img {
 }
 
 .detail-extralink > div {
-  display: inline-block;
+  /* display: inline-block; */
+  display: flex;
   vertical-align: top;
 }
 

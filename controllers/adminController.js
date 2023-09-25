@@ -1,5 +1,4 @@
 const User = require('../models/adminModel');
-const { use } = require('../routes/userRouter');
 const category = require('../models/categoryModel'); 
 const product = require('../models/productModel'); 
 const admin = require('../models/adminModel'); 
@@ -42,8 +41,6 @@ const verifyUser = async (req, res) => {
    } catch (error) {
       console.log(error.message);
    }
-
-
 }
 
 const loadhome = async (req, res) => {
@@ -57,16 +54,7 @@ const loadhome = async (req, res) => {
 const logout = async (req, res) => {
    try {
       req.session.admin_id = null;
-      res.redirect('/admin')
-   } catch (error) {
-      console.log(error.message)
-   }
-}
-
-const loadDashboard = async (req, res) => {
-   try {
-      const usersData = await User.find({ is_admin: { $ne: 1 } });
-      res.render('dashboard', { users: usersData })
+      res.redirect('/')
    } catch (error) {
       console.log(error.message)
    }
@@ -94,25 +82,20 @@ const addCategories = async (req, res) => {
   console.log("Reached addCategories");
 
    try {
-      const categoryName = req.body.categoryName.trim(); // Assuming your form field is named "categoryName"
+      const categoryName = req.body.categoryName.trim();
   console.log("categoryName is "+categoryName);
-      // Create a new category document
       const newCategory = new category({
         name: categoryName,
       });
 
-      // Check if the category name already exists in the database
       const existingCategory = await category.findOne({ name: categoryName });
   
       if (existingCategory) {
-        // If the category name already exists, send an error response
          res.redirect(`/admin/categories?err=${true}&msg=Category name already exists`);
       }else{
   
-      // Save the new category to the database
       const savedCategory = await newCategory.save();
   
-      // Redirect with a success message
       res.redirect(`/admin/categories?err=${""}&msg=Category created successfully`);
 
       }
@@ -133,19 +116,14 @@ const editCategory = async (req, res) => {
       const existingCategory = await category.findOne({ name: newName });
   
       if (existingCategory) {
-        // If the category name already exists, send an error response
          res.redirect(`/admin/categories?err=${true}&msg=Category name already exists`);
       }else{
-       // Update the category in the database
        const updatedCategory = await category.findByIdAndUpdate(categoryId, { name: newName }, { new: true });
        console.log("Reached editCategory and finished updating the category name");
 
-       // Redirect back to the categories page with a success message
        res.redirect(`/admin/categories?err=${""}msg=Category updated successfully`);
       }
    } catch (error) {
-       // Handle errors and redirect with an error message
-       console.error('Error:', error);
        res.redirect(`/admin/categories?err=${true}&msg=Failed to update category`);
    }
 }
@@ -161,7 +139,6 @@ const toggleBlockStatus = async (req, res) => {
       console.log("blockStatus is "+blockStatus);
       console.log(typeof blockStatus);
   
-      // Find the category by ID
       const categoryData = await category.findById(categoryId);
 
       console.log("categoryData "+categoryData);
@@ -170,13 +147,10 @@ const toggleBlockStatus = async (req, res) => {
         return res.status(404).json({ message: 'Category not found' });
       }
   
-      // Update the block status
       categoryData.blocked = blockStatus;
   
-      // Save the updated category
       await categoryData.save();
   
-      // Respond with a success message
       return res.status(200).json({ message: 'Block status updated successfully' });
     } catch (error) {
       console.error('Error:', error);
@@ -190,12 +164,10 @@ const toggleBlockStatusProducts = async (req, res) => {
 
       const categoryId = req.params.categoryId;
       const blockStatus = req.body.blocked;
-      // const images = req.files.images;
       console.log("categoryId is "+categoryId);
       console.log("blockStatus is "+blockStatus);
       console.log(typeof blockStatus);
   
-      // Find the category by ID
       const categoryData = await product.findById(categoryId);
 
       console.log("categoryData "+categoryData);
@@ -204,13 +176,10 @@ const toggleBlockStatusProducts = async (req, res) => {
         return res.status(404).json({ message: 'Category not found' });
       }
   
-      // Update the block status
       categoryData.blocked = blockStatus;
   
-      // Save the updated category
       await categoryData.save();
   
-      // Respond with a success message
       return res.status(200).json({ message: 'Block status updated successfully' });
     } catch (error) {
       console.error('Error:', error);
@@ -232,7 +201,6 @@ const addProduct = async (req, res) => {
    try {
       const err = req.query.err;
       const msg = req.query.msg;
-      //  console.log("req.files.images " + req.files.images);
       console.log(typeof err);
       const categorieData = await category.find({});
       if (err) {
@@ -251,10 +219,8 @@ const publishProduct = async (req, res) => {
       if (!req.files[0] || req.files.length === 0) {
          res.redirect(`/admin/addProduct?err=${true}&msg=No images were uploaded`);
       }else if (req.files.length > 4) {
-         // If more than 3 images were uploaded, return an error response
          res.redirect(`/admin/addProduct?err=${true}&msg=You can upload up to 3 images`);
      }else{
-      // Extract other data from the form submission
       const {
          product_name,
          description,
@@ -275,7 +241,6 @@ const publishProduct = async (req, res) => {
          console.log("req.files " + req.files[0]);
          const img = [];
             
-         // Check if files were uploaded
 
          for (let i = 0; i < req.files.length; i++) {
             img.push(req.files[i].filename);
@@ -316,10 +281,8 @@ const editProducts = async (req, res) => {
       const msg = req.query.msg;
       const productId = req.query.productId;
       console.log("productId "+productId);
-      // const productData = await product.findById(productId);
       const productData = await product.findById(productId).populate('categoryId');
 
-      //  console.log("req.files.images " + req.files.images);
       console.log(typeof err);
       const categorieData = await category.find({});
       if (err) {
@@ -489,7 +452,6 @@ module.exports = {
    verifyUser,
    loadhome,
    logout,
-   loadDashboard,
    loadAddUser,
    addUser,
    editUserLoad,

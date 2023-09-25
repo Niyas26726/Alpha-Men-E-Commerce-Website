@@ -167,7 +167,7 @@
                                                 <div class="product-cart-wrap mb-30">
                                                     <div class="product-img-action-wrap">
                                                         <div class="product-img product-img-zoom">
-                                                            <a href="shop-product-right.html">
+                                                            <a href="/displayProduct?product_id=<%= product._id %>">
                                                                 <img class="default-img"
                                                                     src="/admin/productImages/<%= product.images[0] %>"
                                                                     alt="<%= product.product_name %>">
@@ -213,9 +213,13 @@
                                                         </div>
                                                         <div class="product-action-1 show">
                                                             <% if (product.stock> 0) { %>
-                                                                <a aria-label="Add To Cart" class="action-btn hover-up"
+                                                                <!-- <a aria-label="Add To Cart" class="action-btn hover-up"
                                                                     href="shop-cart.html"><i
-                                                                        class="fi-rs-shopping-bag-add"></i></a>
+                                                                        class="fi-rs-shopping-bag-add"></i></a> -->
+                                                                        <a aria-label="Add To Cart" class="action-btn hover-up"
+                                                                        href="#"
+                                                                        onclick="addToCart('<%= product._id %>')"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                                     
                                                                 <% } else { %>
                                                                     <span class="out-of-stock">Out of Stock</span>
                                                                     <% } %>
@@ -2476,7 +2480,6 @@
 
 
 <%-include("footer")-%>
-
         <script>
             function addToWishlist(productId) {
                 $.ajax({
@@ -2498,6 +2501,30 @@
                     },
                     error: function (error) { 
                         window.location.href = `/login?err=${true}&msg=` + error.message
+                    }
+                });
+            }
+
+            function addToCart(productId) {
+                $.ajax({
+                    url: '/addToCart',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ productId }),
+                    success: function (data) {
+                        
+                        console.log(data)
+                        
+                        if (data.status) {
+                            
+                           // window.location.href = '/wishlist'
+                        } else {
+                            
+                            window.location.href = `/login?err=${true}&msg=` + data.msg
+                        }
+                    },
+                    error: function () { 
+                        window.location.href = `/login?err=${true}&msg=Login first to add to cart`
                     }
                 });
             }
