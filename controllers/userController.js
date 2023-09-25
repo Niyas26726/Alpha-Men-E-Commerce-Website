@@ -241,40 +241,38 @@ const wishlist = async (req, res) => {
 }
 
 const addtowishlist = async (req, res) => {
-    console.log("Reached addtowishlist");
-    let user_id = req.session.user_id
-    console.log("req.session.user_id is " + req.session.user_id);
+   console.log("Reached addtowishlist");
+   console.log("req.session.user_id is "+req.session.user_id);
+   try {
+      const { productId } = req.body;
+      console.log("productId is "+productId);
 
-    if (user_id) {
-        const productId = req.body.productId;
-        console.log("productId is " + productId);
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const user = await User.findById(req.session.user_id);
 
-        const categorieData = await category.find({});
-        const productData = await product.find({});
-        const user = await User.findById(req.session.user_id);
+      if (!user) {
+         console.log("if case worked no user");
+         res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
+         console.log("after if case worked no user");
+         console.log("user in if case "+user);
+      } else {
+         // Add the product ID to the user's wishlist array
+         console.log("user in else case "+user);
+         user.wishlist.push(productId);
 
-        // Add the product ID to the user's wishlist array
-        console.log("user in else case " + user);
-        user.wishlist.push(productId);
-        user.save().then((data) => {
+         // Save the updated user information back to the database
+         const saved = await user.save();
+
+         if (saved) {
             console.log("if case worked saved");
-            console.log("req.session.user_id is " + req.session.user_id);
+            console.log("req.session.user_id is "+req.session.user_id);
             res.redirect('/wishlist');
-        }).catch((err) => {
-            console.log("Something went wrong")
-            console.log(err.message);
-        })
-
-        // if (saved) {
-        //     console.log("if case worked saved");
-        //     console.log("req.session.user_id is " + req.session.user_id);
-        //     res.redirect('/wishlist');
-        // } 
-    } else {
-        console.log("if case worked no user");
-        res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
-        console.log("after if case worked no user");
-    }
+         }
+      }
+   } catch (error) {
+      console.log(error.message);
+   }
 }
 
 
