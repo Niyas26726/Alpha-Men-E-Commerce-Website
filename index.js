@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1:27017/Alpha-Men-E-commerce');
+const env = require('dotenv').config()
+console.log("env "+process.env.MongoURL);
+
+mongoose.connect(process.env.MongoURL);
 
 mongoose.connection.on('open', () => {
   console.log("Connected Successfully");
@@ -23,4 +26,4 @@ const adminRouter =require('./routes/adminRouter');
 app.use('/admin',adminRouter);
 
 
-app.listen(26726,()=>console.log('Server running at http://localhost:26726'))
+app.listen(process.env.PORT,()=>console.log('Server running at http://localhost:26726'))
