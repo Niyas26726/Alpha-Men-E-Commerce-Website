@@ -52,25 +52,12 @@ adminRouter.get('/productsList',auth.isLogin,adminController.productsList);
 adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
 adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
 adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
-// adminRouter.post("/updateImage/:index",auth.isLogin, upload.single("image"), (req, res) => {
-//    try {
-//        const index = req.params.index;
-//        const imageUrl = `/admin/productImages/${req.file.filename}`;
 
-//        // You can save the image URL to your database if needed
-//        // Update the image URL in your database for the corresponding index
-
-//        res.json({ success: true, imageUrl });
-//    } catch (error) {
-//        console.error(error);
-//        res.json({ success: false, error: "Failed to update image" });
-//    }
-// });
 adminRouter.post('/editProducts',auth.isLogin, upload.array('images'), adminController.updateProduct);
 
 adminRouter.post('/searchUser',auth.isLogin,adminController.searchUser);
 
-// adminRouter.get('*',(req,res)=>{res.redirect('/admin')})
+// adminRouter.get('*',(req,res)=>{res.render('page-404')})
 
 module.exports = adminRouter;
 

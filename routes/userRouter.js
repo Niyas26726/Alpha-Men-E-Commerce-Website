@@ -12,7 +12,7 @@ const config = require('../config/config')
 
 const storage = multer.diskStorage({
    destination: function (req, file, cb) {
-     cb(null, 'public/admin-assets/imgs/people') // Set the destination folder where uploaded files will be stored
+     cb(null, 'public/admin-assets/imgs/people')
    },
    filename: function (req, file, cb) {
       const originalname = file.originalname;
@@ -28,7 +28,6 @@ const upload = multer({ storage: storage })
 
 userRouter.use(nocache());
 userRouter.use(session({
-   // secret:config.sessionSecretId,mysitesecretId
    secret: config.sessionSecretId,
    resave: false,
    saveUninitialized: false
@@ -73,6 +72,7 @@ userRouter.get('/resetpassword',auth.isLogout,userController.resetpassword)
 userRouter.post('/resetpassword',auth.isLogout,userController.changepassword)
 
 
+// userRouter.get('*',(req,res)=>{res.render('page-404')})
 // userRouter.get('*',(req,res)=>{res.redirect('/')})
 
 module.exports = userRouter;

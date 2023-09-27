@@ -45,7 +45,11 @@ const verifyUser = async (req, res) => {
 
 const loadhome = async (req, res) => {
    try {
-      res.render('home');
+      if(req.session.admin_id){
+         res.render('home');
+      }else{
+         res.redirect('/admin')
+      }
    } catch (error) {
       console.log(error.message)
    }
@@ -54,7 +58,7 @@ const loadhome = async (req, res) => {
 const logout = async (req, res) => {
    try {
       req.session.admin_id = null;
-      res.redirect('/')
+      res.redirect('/admin')
    } catch (error) {
       console.log(error.message)
    }
