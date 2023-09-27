@@ -412,7 +412,6 @@ const wishlist = async (req, res) => {
 }
 
 const addtowishlist = async (req, res) => {
-<<<<<<< HEAD
    console.log("Reached addtowishlist");
    let user_id = req.session.user_id
    console.log("req.session.user_id is " + req.session.user_id);
@@ -420,17 +419,17 @@ const addtowishlist = async (req, res) => {
    if (user_id) {
       const productId = req.body.productId;
       console.log("productId is " + productId);
-=======
     console.log("Reached addtowishlist");
     let user_id = req.session.user_id
     console.log("req.session.user_id is " + req.session.user_id);
->>>>>>> bfac0e7032abc61329b58bb413acdd488b032f7e
 
     if (user_id) {
         const productId = req.body.productId;
         console.log("productId is " + productId);
 
-<<<<<<< HEAD
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const user = await User.findById(req.session.user_id);
       console.log("user in else case " + user);
       user.wishlist.push(productId);
       user.save().then((data) => {
@@ -441,7 +440,6 @@ const addtowishlist = async (req, res) => {
    } else {
       res.json({ status: false, msg: "Login first to add product to wishlist" })
    }
-=======
         const categorieData = await category.find({});
         const productData = await product.find({});
         const user = await User.findById(req.session.user_id);
@@ -457,18 +455,11 @@ const addtowishlist = async (req, res) => {
             console.log("Something went wrong")
             console.log(err.message);
         })
-
-        // if (saved) {
-        //     console.log("if case worked saved");
-        //     console.log("req.session.user_id is " + req.session.user_id);
-        //     res.redirect('/wishlist');
-        // } 
     } else {
         console.log("if case worked no user");
         res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
         console.log("after if case worked no user");
     }
->>>>>>> bfac0e7032abc61329b58bb413acdd488b032f7e
 }
 
 const loadHomeAfterLogin = async (req, res) => {

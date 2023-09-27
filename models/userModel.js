@@ -14,7 +14,6 @@ const userModel = new mongoose.Schema({
    },
    display_name: {
       type: String,
-      required: true
    },
    mobile: {
       type: Number,

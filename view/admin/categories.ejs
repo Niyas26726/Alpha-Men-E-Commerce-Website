@@ -6,9 +6,9 @@
             <h2 class="content-title card-title">Categories</h2>
             <p>Add, edit, or delete a category</p>
         </div>
-        <div>
+        <!-- <div>
             <input type="text" placeholder="Search Categories" class="form-control bg-white">
-        </div>
+        </div> -->
     </div>
     <div class="card">
         <div class="card-body">
@@ -47,7 +47,6 @@
                         </div>
                     </form> -->
                     <form method="post" action="/admin/editCategory" id="editCategoryForm" style="display: none;" onsubmit="return editCategoryErrorValidation()">
-                        <!-- Add a hidden input field to store the category ID -->
                         <input type="hidden" id="editCategoryId" name="editCategoryId">
                         <div class="mb-4">
                             <label for="editCategoryName" class="form-label">Edit Category Name</label>
@@ -78,19 +77,15 @@
                                             <%= category.name %>
                                         </td>
                                         <td>
-                                            <!-- Edit Info Button -->
                                             <button class="btn btn-light rounded btn-sm font-sm"
                                             onclick="showEditCategoryForm('<%= category._id %>', '<%= category.name %>')">Edit</button>
                                         </td>
                                         <td>
-                                            <!-- Conditionally render the Block or Unblock button -->
                                             <% if (category.blocked) { %>
-                                                <!-- Unblock Button -->
                                                 <button class="btn btn-success rounded btn-sm font-sm"
                                                     onclick="toggleBlockUnblock('<%= category._id %>', false)">Unblock</button>
                                             <% } else { %>
                                                 <!-- Block Button -->
-                                                <button class="btn btn-danger rounded btn-sm font-sm"
                                                     onclick="toggleBlockUnblock('<%= category._id %>', true)">Block</button>
                                             <% } %>
                                         </td>
@@ -105,22 +100,15 @@
         </div> <!-- card body .// -->
     </div> <!-- card .// -->
 </section> <!-- content-main end// -->
-<%- include("footer") %>
 
 <script>
-    // Function to show the edit category form and hide the create category form
     function showEditCategoryForm(categoryId, categoryName) {
-    // Hide the create category form
     document.getElementById('createCategoryForm').style.display = 'none';
-    // Show the edit category form
     document.getElementById('editCategoryForm').style.display = 'block';
-    // Set the current category name in the edit form
     document.getElementById('editCategoryName').value = categoryName;
-    // Set the category ID in the hidden input field
     document.getElementById('editCategoryId').value = categoryId;
     }
     function toggleBlockUnblock(categoryId, blockStatus) {
-        // Send an AJAX request to toggle the block status
         fetch(`/admin/toggleBlockStatus/${categoryId}`, {
             method: 'POST',
             headers: {
@@ -130,7 +118,6 @@
         })
         .then(response => {
             if (response.ok) {
-                // Reload the page or update the UI as needed
                 location.reload(); // Reload the page to reflect the updated status
             } else {
                 alert('Failed to toggle block status');

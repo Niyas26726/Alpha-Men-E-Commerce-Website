@@ -2496,11 +2496,11 @@
                            // window.location.href = '/wishlist'
                         } else {
                             
-                            window.location.href = `/login?err=${true}&msg=` + data.msg
+                            window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`
                         }
                     },
                     error: function (error) { 
-                        window.location.href = `/login?err=${true}&msg=` + error.message
+                        window.location.href = `/login?err=${true}&msg=` + err.message
                     }
                 });
             }
