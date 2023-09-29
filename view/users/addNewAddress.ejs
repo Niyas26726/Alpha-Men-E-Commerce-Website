@@ -1,0 +1,98 @@
+<%- include("header") %>
+
+  <section class="content-main align-items-center d-flex justify-content-center">
+    <form action="/addNewAddress" method="POST" class="col-lg-8">
+      <div class="row">
+        <div class="col-12">
+          <!-- Center the title vertically -->
+          <div class="content-header d-flex justify-content-center align-items-center" style="margin: 30px;">
+            <h2 class="content-title">Add New Address</h2>
+            <% if (message) { %>
+              <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
+                <%= message %>
+              </div>
+            <% } %>
+            <% if (errMessage) { %>
+              <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                <%= errMessage %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <div class="col-lg-6 mx-auto">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="mb-4">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" placeholder="Type here" class="form-control" id="name" name="name" required>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Address</label>
+                <textarea placeholder="Type here" class="form-control" rows="4" name="address" required></textarea>
+              </div>
+              <div class="row">
+                <div class="col-lg-4">
+                  <div class="mb-4">
+                    <label class="form-label">City/ Town/ District</label>
+                    <div class="row gx-2">
+                      <input placeholder="Type here" type="text" class="form-control" name="city_town_district" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="mb-4">
+                    <label class="form-label">State</label>
+                    <input placeholder="Type here" type="text" class="form-control" name="state" required>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="mb-4">
+                    <label class="form-label">Pincode</label>
+                    <input placeholder="Type here" type="text" class="form-control" name="pincode" required>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-4">
+                  <div class="mb-4">
+                    <label class="form-label">Mobile Number</label>
+                    <div class="row gx-2">
+                      <input placeholder="Type here" type="text" class="form-control" name="mobile" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-8">
+                  <div class="mb-4">
+                    <label class="form-label">Landmark</label>
+                    <textarea placeholder="Type here" class="form-control" rows="4" name="landmark" required></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-5">
+                  <div class="mb-4">
+                    <label class="form-label">Type</label>
+                    <select name="type" class="form-select">
+                      <option value="Billing Address">Billing Address</option>
+                      <option value="Shipping Address">Shipping Address</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="mb-4">
+                    <label class="form-label">Alternate Mobile Number</label>
+                    <input placeholder="Type here" type="text" class="form-control" name="alt_mobile" required>
+                  </div>
+                </div>
+              </div>
+              <div class="align-items-middle text-center mt-4">
+                <button class="btn btn-md rounded font-sm hover-up">Create</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section> <!-- content-main end// -->
+
+  <%- include("footer") %>

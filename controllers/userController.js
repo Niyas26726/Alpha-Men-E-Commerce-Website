@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
 const category = require('../models/categoryModel');
 const product = require('../models/productModel');
+const Address = require('../models/addressModel')
 
 let generatedOTP = '';
 let globalEmail = '';
@@ -102,6 +103,53 @@ const loadHome = async (req, res) => {
       console.log(error.message)
    }
 }
+
+const addNewAddress = async (req, res) => {
+   console.log("Reached addNewAddress");
+   try {
+      const userData = await User.find({});
+         res.render('addNewAddress', { User ,product: userData, categories: userData, isAuthenticated: false,message:"",errMessage:"" })
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const createNewAddress = async (req, res) => {
+   console.log("Reached createNewAddress");
+   try {
+      // Here, you can access the form data sent in the POST request
+      // and create a new address record in your database using the data.
+      // For example:
+      const { name, city_town_district, state, address, pincode, landmark, mobile, alt_mobile, type } = req.body;
+      const userId = req.session.user_id; // Assuming you have the user ID available in the request
+
+      // Create a new address record using the data from the request
+      const newAddress = new Address({
+         name,
+         city_town_district,
+         state,
+         address,
+         pincode,
+         landmark,
+         mobile,
+         alt_mobile,
+         userId,
+         type,
+         blocked: false, // You can set other fields as needed
+      });
+
+      // Save the new address record to the database
+      await newAddress.save();
+
+      // Redirect or respond as needed
+      res.redirect('/addNewAddress'); // Redirect to the addNewAddress page, for example
+   } catch (error) {
+      console.log(error.message);
+      // Handle errors appropriately
+   }
+}
+
+
 
 const formals = async (req, res) => {
    console.log("Reached formals");
@@ -744,6 +792,8 @@ module.exports = {
    filteredByCatagoryFromHome,
    filteredByCatagoryFromOther,
    userAccount,
-   updateUserAccount
+   updateUserAccount,
+   addNewAddress,
+   createNewAddress
 }
 

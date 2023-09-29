@@ -64,6 +64,10 @@ userRouter.post('/cart',userController.addToCart);
 userRouter.get('/wishlist',userController.wishlist);
 userRouter.post('/wishlist',userController.addtowishlist);
 
+userRouter.get('/addNewAddress',userController.addNewAddress);
+userRouter.post('/addNewAddress',userController.createNewAddress);
+
+
 userRouter.get('/logout',auth.isLogin,userController.userLogout);
 userRouter.post('/send-otp',auth.isLogout,userController.sendOtp)
 userRouter.get('/forgotpassword',auth.isLogout,userController.forgotpassword)

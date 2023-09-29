@@ -54,7 +54,6 @@ adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
 adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
 adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
 adminRouter.get('/userList',auth.isLogin,adminController.userList);
-adminRouter.post('/addNewAddress',auth.isLogin,adminController.addNewAddress);
 
 adminRouter.post('/editProducts/:productId',auth.isLogin, upload.array('images'), adminController.updateProduct);
 

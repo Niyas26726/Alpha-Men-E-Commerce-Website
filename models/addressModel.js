@@ -7,10 +7,6 @@ const addressModel = new mongoose.Schema({
       type: String,
       required: true
    },
-   house_name: {
-     type: String,
-    required: true
-   },
    city_town_district: {
      type: String,
     required: true
@@ -24,7 +20,7 @@ const addressModel = new mongoose.Schema({
     required: true
    },
    pincode: {
-     type: String,
+     type: Number,
     required: true
    },
    landmark: {
@@ -32,17 +28,18 @@ const addressModel = new mongoose.Schema({
     required: true
    },
    mobile: {
-     type: String,
+     type: Number,
     required: true
    },
    alt_mobile: {
-     type: String,
+     type: Number,
     required: true
    },
-   email: {
-     type: String,
-    required: true
-   },
+   userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user', // Reference to the User model
+    required: true,
+  },
    type: {
      type: String,
       required: true

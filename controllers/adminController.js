@@ -138,7 +138,6 @@ const toggleBlockStatus = async (req, res) => {
 
       const categoryId = req.params.categoryId;
       const blockStatus = req.body.blocked;
-      const images = req.files.images;
       console.log("categoryId is "+categoryId);
       console.log("blockStatus is "+blockStatus);
       console.log(typeof blockStatus);
@@ -417,16 +416,6 @@ const userList = async (req, res) => {
    }
 }
 
-const addNewAddress = async (req, res) => {
-   try {
-      // const categorieData = await category.find({});
-      const userData = await User.find({});
-      console.log("users "+userData);
-         res.render('userList', {users:userData})
-   } catch (error) {
-      console.log(error.message)
-   }
-}
 
 const addUser = async (req, res) => {
    try {
@@ -530,6 +519,5 @@ module.exports = {
    updateProduct,
    userList,
    toggleBlockStatusUsers,
-   addNewAddress
 }
 
