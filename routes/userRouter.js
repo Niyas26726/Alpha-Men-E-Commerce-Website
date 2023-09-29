@@ -66,7 +66,8 @@ userRouter.post('/wishlist',userController.addtowishlist);
 
 userRouter.get('/addNewAddress',userController.addNewAddress);
 userRouter.post('/addNewAddress',userController.createNewAddress);
-
+userRouter.get('/editAddress',userController.editAddress);
+userRouter.post('/editAddress',userController.updateAddress);
 
 userRouter.get('/logout',auth.isLogin,userController.userLogout);
 userRouter.post('/send-otp',auth.isLogout,userController.sendOtp)

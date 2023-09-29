@@ -107,23 +107,30 @@ const loadHome = async (req, res) => {
 const addNewAddress = async (req, res) => {
    console.log("Reached addNewAddress");
    try {
-      const userData = await User.find({});
-         res.render('addNewAddress', { User ,product: userData, categories: userData, isAuthenticated: false,message:"",errMessage:"" })
+      const err = req.query.err;
+      const msg = req.query.msg; 
+      const userData = await User.findById({_id:req.session.user_id})
+      const productData = await product.find({});
+      const categorieData = await category.find({});
+      if (req.session.user_id) {
+
+         if (err) {
+            res.render('addNewAddress', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: '', errMessage: msg });
+         } else {
+            res.render('addNewAddress', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg, errMessage: '' });
+         }
+      }
    } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
    }
 }
 
 const createNewAddress = async (req, res) => {
    console.log("Reached createNewAddress");
    try {
-      // Here, you can access the form data sent in the POST request
-      // and create a new address record in your database using the data.
-      // For example:
       const { name, city_town_district, state, address, pincode, landmark, mobile, alt_mobile, type } = req.body;
-      const userId = req.session.user_id; // Assuming you have the user ID available in the request
+      const userId = req.session.user_id;
 
-      // Create a new address record using the data from the request
       const newAddress = new Address({
          name,
          city_town_district,
@@ -135,21 +142,74 @@ const createNewAddress = async (req, res) => {
          alt_mobile,
          userId,
          type,
-         blocked: false, // You can set other fields as needed
+         blocked: false, 
       });
 
-      // Save the new address record to the database
       await newAddress.save();
 
-      // Redirect or respond as needed
-      res.redirect('/addNewAddress'); // Redirect to the addNewAddress page, for example
+      let savedAddress = await User.findByIdAndUpdate(userId, { $push: { addresses: newAddress._id } });
+      if(savedAddress){
+         res.redirect(`/userAccount?err=${""}&msg=New address added successfully`); 
+      }else{
+         res.redirect(`/addNewAddress?err=${true}&msg=An error occured`); 
+      }
+      
    } catch (error) {
       console.log(error.message);
-      // Handle errors appropriately
    }
 }
 
+const editAddress = async (req, res) => {
+   console.log("Reached addNewAddress");
+   try {
+      const addressID = req.query.addressID
+      const err = req.query.err;
+      const msg = req.query.msg; 
+      const userData = await User.findById({_id:req.session.user_id})
+      const productData = await product.find({});
+      const categorieData = await category.find({});
+      const addressData = await Address.findById(addressID);
+      if (req.session.user_id) {
 
+         if (err) {
+            res.render('editAddress', { address: addressData ,user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: '', errMessage: msg });
+         } else {
+            res.render('editAddress', { address: addressData ,user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg, errMessage: '' });
+         }
+      }
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+const updateAddress = async (req, res) => {
+   console.log("Reached updateAddress");
+   const addressID = req.body.addressID; // Retrieve addressID from the request body
+   try {
+     if (req.session.user_id) {
+       const { name, address, city_town_district, state, pincode, mobile, landmark, type, alt_mobile } = req.body;
+ 
+       await Address.findByIdAndUpdate({ _id: addressID }, {
+         name,
+         address,
+         city_town_district,
+         state,
+         pincode,
+         mobile,
+         landmark,
+         type,
+         alt_mobile
+       });
+ 
+       res.redirect(`/userAccount?err=${true}&msg=Address updated successfully`);
+     }
+   } catch (error) {
+     console.log(error.message);
+ 
+     res.redirect(`/editAddress?addressID=${addressID}&err=${true}&msg=Error updating address`);
+   }
+ };
+ 
 
 const formals = async (req, res) => {
    console.log("Reached formals");
@@ -174,26 +234,55 @@ const formals = async (req, res) => {
 
 
 
+// const userAccount = async (req, res) => {
+//    console.log("Reached userAccount");
+//    try {
+//       const user_id = req.session.user_id
+//       const categorieData = await category.find({});
+//       const productData = await product.find({});
+//       const userData = await User.findOne({ _id: user_id });
+//       console.log("userData "+userData);
+//       if (req.session.user_id) {
+//          console.log("req.session.user_id is " + req.session.user_id);
+//          res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage: "" });
+//       } else {
+//          console.log("else case req.session.user_id is " + req.session.user_id);
+
+//          res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: false, message:"", errMessage: "" });
+//       }
+//    } catch (error) {
+//       console.log(error.message)
+//    }
+// }
+
 const userAccount = async (req, res) => {
    console.log("Reached userAccount");
    try {
-      const user_id = req.session.user_id
+      const user_id = req.session.user_id;
       const categorieData = await category.find({});
       const productData = await product.find({});
-      const userData = await User.findOne({ _id: user_id });
-      console.log("userData "+userData);
+      const err = req.query.err;
+      const msg = req.query.msg;
+      // Fetch user data including their addresses using populate
+      const userData = await User.findOne({ _id: user_id }).populate('addresses');
+
+      console.log("userData " + userData);
+
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage: "" });
-      } else {
-         console.log("else case req.session.user_id is " + req.session.user_id);
+         if(err==true){
+            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage:  msg  });
+         } else {
+            console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: false, message:"", errMessage: "" });
-      }
+            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: false, message: msg , errMessage: "" });
+         }
+   }
    } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
    }
 }
+
 
 const updateUserAccount = async (req, res) => {
    console.log("Reached updateUserAccount");
@@ -794,6 +883,8 @@ module.exports = {
    userAccount,
    updateUserAccount,
    addNewAddress,
-   createNewAddress
+   createNewAddress,
+   editAddress,
+   updateAddress
 }
 

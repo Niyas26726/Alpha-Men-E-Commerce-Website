@@ -1,12 +1,12 @@
 <%- include("header") %>
 
 <section class="content-main align-items-center d-flex justify-content-center">
-  <form action="/addNewAddress" method="POST" class="col-lg-8" onsubmit="return createNewAddressValidation()">
+  <form action="/editAddress" method="POST" class="col-lg-8" onsubmit="return createNewAddressValidation()">
     <div class="row">
       <div class="col-12">
         <!-- Center the title vertically -->
         <div class="content-header d-flex justify-content-center align-items-center" style="margin: 30px;">
-          <h2 class="content-title">Add New Address</h2>
+          <h2 class="content-title">Edit Address</h2>
         </div>
         <% if (message) { %>
           <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
@@ -24,12 +24,12 @@
           <div class="card-body">
             <div class="mb-4">
               <label for="name" class="form-label">Name</label>
-              <input type="text" placeholder="Type here" class="form-control" id="name" name="name" >
+              <input type="text" placeholder="Type here" class="form-control" id="name" name="name" value="<%= address.name %>">
               <small id="nameError" class="text-danger"></small>
             </div>
             <div class="mb-4">
               <label class="form-label">Address</label>
-              <textarea placeholder="Type here" class="form-control" rows="4" id="address" name="address" ></textarea>
+              <textarea placeholder="Type here" class="form-control" rows="4" id="address" name="address"><%= address.address %></textarea>
               <small id="addressError" class="text-danger"></small>
             </div>
             <div class="row">
@@ -37,7 +37,7 @@
                 <div class="mb-4">
                   <label class="form-label">City/ Town/ District</label>
                   <div class="row gx-2">
-                    <input placeholder="Type here" type="text" class="form-control" id="city_town_district" name="city_town_district" >
+                    <input placeholder="Type here" type="text" class="form-control" id="city_town_district" name="city_town_district" value="<%= address.city_town_district %>">
                     <small id="cityError" class="text-danger"></small>
                   </div>
                 </div>
@@ -45,14 +45,14 @@
               <div class="col-lg-4">
                 <div class="mb-4">
                   <label class="form-label">State</label>
-                  <input placeholder="Type here" type="text" class="form-control" id="state" name="state" >
+                  <input placeholder="Type here" type="text" class="form-control" id="state" name="state" value="<%= address.state %>">
                   <small id="stateError" class="text-danger"></small>
                 </div>
               </div>
               <div class="col-lg-4">
                 <div class="mb-4">
                   <label class="form-label">Pincode</label>
-                  <input placeholder="Type here" type="text" class="form-control" id="pincode" name="pincode" >
+                  <input placeholder="Type here" type="text" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>">
                   <small id="pincodeError" class="text-danger"></small>
                 </div>
               </div>
@@ -62,7 +62,7 @@
                 <div class="mb-4">
                   <label class="form-label">Mobile Number</label>
                   <div class="row gx-2">
-                    <input placeholder="Type here" type="text" class="form-control" id="mobile" name="mobile" >
+                    <input placeholder="Type here" type="text" class="form-control" id="mobile" name="mobile" value="<%= address.mobile %>">
                     <small id="mobileError" class="text-danger"></small>
                   </div>
                 </div>
@@ -70,7 +70,7 @@
               <div class="col-lg-8">
                 <div class="mb-4">
                   <label class="form-label">Landmark</label>
-                  <textarea placeholder="Type here" class="form-control" rows="4" id="landmark" name="landmark" ></textarea>
+                  <textarea placeholder="Type here" class="form-control" rows="4" id="landmark" name="landmark"><%= address.landmark %></textarea>
                   <small id="landmarkError" class="text-danger"></small>
                 </div>
               </div>
@@ -80,21 +80,22 @@
                 <div class="mb-4">
                   <label class="form-label">Type</label>
                   <select name="type" class="form-select">
-                    <option value="Billing Address">Billing Address</option>
-                    <option value="Shipping Address">Shipping Address</option>
+                    <option value="Billing Address" <% if (address.type === 'Billing Address') { %>selected<% } %>>Billing Address</option>
+                    <option value="Shipping Address" <% if (address.type === 'Shipping Address') { %>selected<% } %>>Shipping Address</option>
                   </select>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-4">
                   <label class="form-label">Alternate Mobile Number</label>
-                  <input placeholder="Type here" type="text" class="form-control" id="alt_mobile" name="alt_mobile" >
+                  <input placeholder="Type here" type="text" class="form-control" id="alt_mobile" name="alt_mobile" value="<%= address.alt_mobile %>">
                   <small id="altMobileError" class="text-danger"></small>
                 </div>
               </div>
             </div>
+            <input type="hidden" name="addressID" id="addressID" value="<%= address._id %>">
             <div class="align-items-middle text-center mt-4">
-              <button class="btn btn-md rounded font-sm hover-up">Create</button>
+              <button class="btn btn-md rounded font-sm hover-up" type="submit">Update</button>
             </div>
           </div>
         </div>
@@ -104,5 +105,3 @@
 </section> <!-- content-main end// -->
 
 <%- include("footer") %>
-
-

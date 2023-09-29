@@ -27,9 +27,10 @@ const userModel = new mongoose.Schema({
       type: String,
       requird: true
    },
-   addresses: {
-      type:Array
-   },
+   addresses: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'address', // Reference to the Address model
+   }],
    cart: {
       type:Array
    },
