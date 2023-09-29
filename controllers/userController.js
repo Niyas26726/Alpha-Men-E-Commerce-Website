@@ -210,6 +210,27 @@ const updateAddress = async (req, res) => {
    }
  };
  
+ const updateAddressStatus = async (req, res) => {
+   console.log("Reached updateAddressStatus");
+   try {
+      const addressID = req.query.addressID;
+  
+      // Update the address's status to true
+      let isblocked = await Address.findByIdAndUpdate(addressID, { blocked: true });
+  
+      // Send a success response
+      if(isblocked){
+         res.redirect(`/userAccount?err=${""}&msg=Address delsted successfully`);
+      }else{
+         res.redirect(`/userAccount?err=${true}&msg=An error occured while deleting the address`);
+      }
+    } catch (error) {
+      console.error(error.message);
+      // Send an error response
+      res.status(500).json({ success: false, error: "Error updating address status" });
+    }
+  
+ };
 
 const formals = async (req, res) => {
    console.log("Reached formals");
@@ -885,6 +906,7 @@ module.exports = {
    addNewAddress,
    createNewAddress,
    editAddress,
-   updateAddress
+   updateAddress,
+   updateAddressStatus
 }
 

@@ -212,6 +212,7 @@
                                         <div class="row">
                                             <% if (user.addresses && user.addresses.length > 0) { %>
                                                 <% user.addresses.forEach(address => { %>
+                                                    <%if(address.blocked == false){%>
                                                         <div class="col-lg-6" style="margin-top: 20px;">
                                                             <div class="card mb-3 mb-lg-0">
                                                                 <div class="card-header">
@@ -228,10 +229,14 @@
                                                                         <p>Mobile No:- <%=address.mobile%></p>
                                                                         <p>Alternate No:- <%=address.alt_mobile%></p>
                                                                     </address>
-                                                                    <a href="/editAddress?addressID=<%=address._id%>" class="btn btn-small" style="margin-top: 10px;">Edit</a>
+                                                                    <div class="text-center" style="display: flex;">
+                                                                        <a href="/editAddress?addressID=<%=address._id%>" class="btn btn-small" style="margin-top: 10px;">Edit</a>
+                                                                        <a href="/updateAddressStatus?addressID=<%=address._id%>" class="btn btn-small btn-danger" style="background-color: red; margin-left: 50%; margin-top: 10px;">Delete</a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    <%}%>
                                                 <% }); %>
                                             <%}%>
                                             <!-- <div class="col-lg-6">
@@ -424,7 +429,6 @@ $("#profileImage").on("change", function() {
         existingProfileImage.show();
     }
 });
-
 
 </script>
     <%-include("footer")-%>

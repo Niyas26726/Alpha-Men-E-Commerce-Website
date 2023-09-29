@@ -31,10 +31,13 @@ const userModel = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'address', // Reference to the Address model
    }],
-   cart: {
-      type:Array
-   },
-   wishlist: {
+   cart: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'product', // Reference to the Product model
+      },
+    ],
+     wishlist: {
       type:Array
    },
    blocked: {
