@@ -1,4 +1,4 @@
-const User = require('../models/adminModel');
+const User = require('../models/userModel');
 const category = require('../models/categoryModel'); 
 const product = require('../models/productModel'); 
 const admin = require('../models/adminModel'); 
@@ -191,6 +191,35 @@ const toggleBlockStatusProducts = async (req, res) => {
     }
 }
 
+const toggleBlockStatusUsers = async (req, res) => {
+   console.log("Reached toggleBlockStatusUsers");
+   try {
+
+      const userID = req.params.userID;
+      const blockStatus = req.body.blocked;
+      console.log("userID is "+userID);
+      console.log("blockStatus is "+blockStatus);
+      console.log(typeof blockStatus);
+  
+      const userData = await User.findById(userID);
+
+      console.log("categoryData "+userData);
+  
+      if (!userData) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+  
+      userData.blocked = blockStatus;
+  
+      await userData.save();
+  
+      return res.status(200).json({ message: 'Block status updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 const productsList = async (req, res) => {
    try {
       const categorieData = await category.find({});
@@ -300,34 +329,24 @@ const editProducts = async (req, res) => {
 }
 
 const updateProduct = async (req, res) => {
-   const productId = req.body.editID;
+   const productId = req.params.productId;
    console.log("Reached updateProduct ");
-   console.log("productId "+productId);
+   console.log("productId " + productId);
+   console.log("Received JSON data:", req.body.removeImageIndices);
+   const removeImageIndices = JSON.parse(req.body.removeImageIndices);
+   
    try {
- 
      const existingProduct = await product.findById(productId);
-     console.log("existingProduct "+existingProduct);
+     console.log("existingProduct " + existingProduct);
      
-     const img = [];
- 
-     for (let i = 0; i < req.files.length; i++) {
-       img.push(req.files[i]);
-     }
-     console.log("img "+img);
-
      if (!existingProduct) {
         console.log("redirect to editProduct Product not found ");
-       return res.redirect(`/admin/editProduct?productId=${productId}?err=${true}&msg=Product not found`);
-     }else if (!req.files[0] || req.files.length === 0) {
-      console.log("redirect to editProduct No images were uploaded ");
-
-       return res.redirect(`/admin/editProduct?productId=${productId}?err=${true}&msg=No images were uploaded`);
-     } else if (req.files.length > 3) {
+        res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=Product not found`);
+      }else if (req.files.length > 5) {
       console.log("redirect to editProduct You can upload up to 3 images ");
+      res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=You can onlyupload upto 4 images`);
+   }
 
-       return res.redirect(`/admin/editProduct?productId=${productId}?err=${true}&msg=You can upload up to 3 images`);
-     }
- 
      const {
        product_name,
        description,
@@ -342,7 +361,14 @@ const updateProduct = async (req, res) => {
        tax_rate,
        categoryId,
      } = req.body;
- 
+
+     // Parse the removeImageIndices JSON string back to an array
+
+   //   console.log("removeImageIndices " + removeImageIndices);
+
+     // Remove images from the `img` array based on the indices
+     const updatedImages = existingProduct.images.filter((_, index) => !removeImageIndices.includes(index));
+
      existingProduct.product_name = product_name;
      existingProduct.description = description;
      existingProduct.categoryId = categoryId;
@@ -355,20 +381,19 @@ const updateProduct = async (req, res) => {
      existingProduct.material = material;
      existingProduct.shipping_fee = shipping_fee;
      existingProduct.tax_rate = tax_rate;
-     existingProduct.images = img;
- 
+     existingProduct.images = updatedImages; // Update the images with the filtered array
+
      await existingProduct.save();
      console.log("redirect to editProduct Product and image updated successfully ");
-     
      res.redirect(`/admin/editProduct/${productId}?err=${""}&msg=Product and image updated successfully`);
 
    } catch (error) {
      console.error(error);
      console.log("redirect to editProduct Internal server error ");
-
      res.redirect(`/admin/editProduct/${productId}?err=${true}&msg=Internal server error`);
    }
  }
+
  
 
 const loadAddUser = async (req, res) => {
@@ -376,6 +401,28 @@ const loadAddUser = async (req, res) => {
 
       res.render('newUser', { message: '', errMessage: '' })
 
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const userList = async (req, res) => {
+   try {
+      // const categorieData = await category.find({});
+      const userData = await User.find({});
+      console.log("users "+userData);
+         res.render('userList', {users:userData})
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const addNewAddress = async (req, res) => {
+   try {
+      // const categorieData = await category.find({});
+      const userData = await User.find({});
+      console.log("users "+userData);
+         res.render('userList', {users:userData})
    } catch (error) {
       console.log(error.message)
    }
@@ -442,10 +489,19 @@ const deleteUser = async (req, res) => {
 }
 
 const searchUser = async (req, res) => {
+   console.log("Reached searchUser");
    try {
-      const name = (req.body.name);
-      const usersData = await User.find({ is_admin: 0, name: { $regex: name, $options: 'i' } }).sort({ name: 1 });
-      res.render('dashboard', { users: usersData });
+      const searchInput = (req.body.name);
+      console.log("searchInput "+searchInput);
+      const usersData = await User.find({
+         $or: [
+           { first_name: { $regex: searchInput, $options: 'i' } },
+           { last_name: { $regex: searchInput, $options: 'i' } },
+           { display_name: { $regex: searchInput, $options: 'i' } },
+           { email: { $regex: searchInput, $options: 'i' } }
+         ]
+       }).sort({ name: 1 });
+             res.render('userList', { users: usersData });
    } catch (error) {
       console.log(error.message)
    }
@@ -472,5 +528,8 @@ module.exports = {
    toggleBlockStatusProducts,
    editProducts,
    updateProduct,
+   userList,
+   toggleBlockStatusUsers,
+   addNewAddress
 }
 

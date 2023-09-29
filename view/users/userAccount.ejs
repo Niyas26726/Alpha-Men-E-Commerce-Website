@@ -231,6 +231,9 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <form class="text-center mt-3" action="/admin/addNewAddress">
+                                                <button class="btn btn-primary" type="submit">+ Add New Address</button>
+                                            </form>
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="account-detail" role="tabpanel"
@@ -243,16 +246,13 @@
                                             <div class="card-body">
                                                 <form method="post" onsubmit="return userAccountValidation()"
                                                 enctype="multipart/form-data">
-                                                <!-- <form method="post" onsubmit="return handleFormSubmission()"> -->
                                                             <div class="profile-images-container">
-                                                                <!-- Existing profile image -->
                                                                 <div class="profile-image-preview">
                                                                     <img id="existingProfileImage" src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="Profile Image">
                                                                 </div>
                                                             
-                                                                <!-- Selected profile image preview (hidden by default) -->
                                                                 <div class="profile-image-preview" id="selectedProfileImageContainer">
-                                                                    <img id="profileImagePreview" src="" alt="Chose an image">
+                                                                    <img id="profileImagePreview" src="">
                                                                 </div>
                                                             </div>
                                                             

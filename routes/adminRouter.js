@@ -47,13 +47,16 @@ adminRouter.get('/categories',auth.isLogin,adminController.categories);
 adminRouter.post('/categories',auth.isLogin,adminController.addCategories);
 adminRouter.post('/editCategory',auth.isLogin, adminController.editCategory);
 adminRouter.post('/toggleBlockStatus/:categoryId',auth.isLogin, adminController.toggleBlockStatus);
+adminRouter.post('/toggleBlockStatusUsers/:userID',auth.isLogin, adminController.toggleBlockStatusUsers);
 adminRouter.post('/toggleBlockStatusProducts/:categoryId',auth.isLogin, adminController.toggleBlockStatusProducts);
 adminRouter.get('/productsList',auth.isLogin,adminController.productsList);
 adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
 adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
 adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
+adminRouter.get('/userList',auth.isLogin,adminController.userList);
+adminRouter.post('/addNewAddress',auth.isLogin,adminController.addNewAddress);
 
-adminRouter.post('/editProducts',auth.isLogin, upload.array('images'), adminController.updateProduct);
+adminRouter.post('/editProducts/:productId',auth.isLogin, upload.array('images'), adminController.updateProduct);
 
 adminRouter.post('/searchUser',auth.isLogin,adminController.searchUser);
 

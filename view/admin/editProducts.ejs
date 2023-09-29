@@ -2,7 +2,7 @@
 
 <section class="content-main">
     <!-- <form action="/admin/editProducts/<%= products._id %>" method="POST" > -->
-      <form action="/admin/editProducts" method="POST" enctype="multipart/form-data">
+        <form action="/admin/editProducts/<%= products._id %>" method="POST" enctype="multipart/form-data">
 
         <input type="hidden"  value="<%= products._id %>" name="editID" id="">
         <div class="row">
@@ -20,7 +20,7 @@
                     </div>
                 <% } %>
                 <div>
-                    <button class="btn btn-md rounded font-sm hover-up">Publish</button>
+                    <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
                 </div>
             </div>
         </div>
@@ -111,32 +111,36 @@
             </div> <!-- card end// -->
         </div>
         <div class="col-lg-3">
-          <div class="card mb-4">
-            <div class="card-header">
-                <h4>Media</h4>
-            </div>
-            <div class="card-body">
-                <div class="input-upload">
-                    <label for="">Images:</label>
-                    <% if (products.images && products.images.length > 0) { %>
-                      <% products.images.forEach(function(image, index) { %>
-                        <div class="image-container">
-                          <img src="/admin/productImages/<%= image %>" alt="Product Image" class="product-image">
-                          <input type="file" class="image-input" data-index="<%= index %>" accept="image/*">
-                          <button class="replace-image-btn" data-index="<%= index %>">Replace</button>
-                        </div>
-                      <% }); %>
-                      <input type="hidden" id="image-index">
-                      <div class="selected-image-container">
-                        <img src="" alt="Selected Image" class="selected-image" style="display: none;">
-                      </div>
-                    <% } else { %>
-                      <p>No images available for this product.</p>
-                    <% } %>
-                    
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Media</h4>
                 </div>
-          </div>
-        </div> <!-- card end// -->
+                <div class="card-body">
+                    <div class="input-upload">
+                        <label for="">Images:</label>
+                        <% if (products.images && products.images.length > 0) { %>
+                            <div class="row">
+                                <% products.images.forEach(function(image, index) { %>
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="image-container">
+                                            <img src="/admin/productImages/<%= image %>" alt="Product Image" class="product-image">
+                                            <button class="remove-image-btn" data-index="<%= index %>" type="button">Remove</button>
+                                            <input type="hidden" id="remove-image-indices" name="removeImageIndices" value="">
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                            <input type="hidden" id="image-index">
+                            <div class="selected-image-container">
+                                <img src="" alt="Selected Image" class="selected-image" style="display: none;">
+                            </div>
+                        <% } else { %>
+                            <p>No images available for this product.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <!-- card end// -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h4>Organization</h4>
@@ -146,84 +150,74 @@
                         <div class="col-sm-6 mb-3">
                             <label class="form-label">Category</label>
                             <select name="categoryId" class="form-select">
-                              <!-- Add an option for the current product's category -->
                               <option value="<%= products.categoryId._id %>" selected><%= products.categoryId.name %></option>
-                              
-                              <!-- Loop through other categories -->
                               <% categories.forEach(function(category) { %>
-                                  <!-- Skip the current category, which is already the default -->
                                   <% if (category._id.toString() !== products.categoryId._id.toString()) { %>
                                       <option value="<%= category._id %>"><%= category.name %></option>
                                   <% } %>
                               <% }); %>
                           </select>
-                          
-                          
                         </div>
                     </div> <!-- row.// -->
                 </div>
             </div> <!-- card end// -->
         </div>
-    </div>
 </form>
 </section> <!-- content-main end// -->
        
 <%- include("footer") %>
- <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const imageInputs = document.querySelectorAll(".image-input");
-    const replaceImageBtns = document.querySelectorAll(".replace-image-btn");
-    const imageGallery = document.querySelector(".image-gallery");
-    const imageIndexInput = document.getElementById("image-index");
-    const selectedImageContainer = document.querySelector(".selected-image-container");
-    const selectedImage = document.querySelector(".selected-image");
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const removeImageButtons = document.querySelectorAll(".remove-image-btn");
+    const removeImageIndices = new Set();
 
-    replaceImageBtns.forEach(function (btn) {
-        btn.addEventListener("click", function () {
+    removeImageButtons.forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
             const index = btn.getAttribute("data-index");
-            imageIndexInput.value = index;
-            const input = imageInputs[index];
 
-            // Trigger the click event on the input element to open the file dialog
-            input.click();
+            if (removeImageIndices.has(index)) {
+                removeImageIndices.delete(index);
+                btn.textContent = "Remove";
+            } else {
+                removeImageIndices.add(index);
+                btn.textContent = "Cancel";
+            }
+            // Assuming removeImageIndices is your string array ["1", "2"]
+            const numericArray = Array.from(removeImageIndices, item => parseInt(item)); // or parseFloat(item) for floating-point numbers
 
-            // Listen for changes to the input field
-            input.addEventListener("change", function () {
-                const file = input.files[0];
-                if (file) {
-                    const formData = new FormData();
-                    formData.append("image", file);
+            const jsonString = JSON.stringify(numericArray);
+            // console.log("JSON String:", jsonString);
 
-                    // Send an AJAX request to update the image
-                    fetch(`/admin/updateImage/${index}`, {
-                        method: "POST",
-                        body: formData,
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data.success) {
-                                // Update the selected image source and display it
-                                selectedImage.src = data.imageUrl;
-                                selectedImage.style.display = "block";
+            // const jsonString = JSON.stringify([...removeImageIndices]);
+            // console.log("JSON String:", jsonString);
+            alert("jsonString "+jsonString)
 
-                                // Hide the original image
-                                const productImage = document.querySelector(`.product-image[data-index="${index}"]`);
-                                productImage.style.display = "none";
-                            } else {
-                                // Handle the error
-                                console.error(data.error);
-                            }
-                        })
-                        .catch((error) => {
-                            console.error(error);
-                        });
-                }
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function () {
+        const formData = new FormData(form);
+        formData.append("removeImageIndices", jsonString);
+
+        fetch("/admin/editProducts/<%= products._id %>", {
+            method: "POST",
+            body: formData,
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                // Handle the response from the server, if needed
+            })
+            .catch((error) => {
+                // Handle errors, if any
             });
-        });
     });
 });
+        });
+    });
 
 
 </script>
+
+
+
 
 
