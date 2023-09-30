@@ -3,3 +3,5 @@ public/admin/productImages
 public/admin-assets/imgs/people
 .env
 package-lock.json
+.vscode
+test.js
