@@ -88,22 +88,23 @@ const loadHome = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
-      const user=1
+      
+      // Initialize a placeholder user object with an empty wishlist
+      const user = { wishlist: [] };
+
       if (req.session.user_id) {
-         const user_ID= req.session.user_id
-         const userData = await User.findById({_id:user_ID})
+         const user_ID = req.session.user_id;
+         const userData = await User.findById({_id: user_ID});
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-
-         res.render('home', { user ,product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user, product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
    }
 }
-
 const addNewAddress = async (req, res) => {
    console.log("Reached addNewAddress");
    try {
