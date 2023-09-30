@@ -6,7 +6,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
-                            <table class="table shopping-summery text-center clean">
+                            <!-- <table class="table shopping-summery text-center clean">
                                 <thead>
                                     <tr class="main-heading">
                                         <th scope="col">Image</th>
@@ -45,11 +45,55 @@
                                         </td>
                                     </tr>
                                 </tbody>
+                            </table> -->
+                            <table class="table shopping-summery text-center clean">
+                                <thead>
+                                    <tr class="main-heading">
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Subtotal</th>
+                                        <th scope="col">Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% user.cart.forEach(cartItem => { %>
+                                        <tr>
+                                            <td class="image product-thumbnail"><img src="/admin/productImages/<%= cartItem.product.images[0] %>" alt="<%= cartItem.product.product_name %>"></td>
+                                            <td class="product-des product-name">
+                                                <h5 class="product-name"><a href="shop-product-right.html"><%= cartItem.product.product_name %></a></h5>
+                                                <p class="font-xs"><%= cartItem.product.description %></p>
+                                            </td>
+                                            <td class="price" data-title="Price" id="price_<%= cartItem._id %>"><span>$<%= cartItem.product.sales_price.toFixed(2) %></span></td>
+                                            <td class="text-center" data-title="Quantity">
+                                                <div class="detail-qty border radius m-auto">
+                                                    <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-angle-small-down"></i></a>
+                                                    <!-- Use a <span> to display the quantity to the user -->
+                                                    <span class="qty-display_<%= cartItem._id %>"><%= cartItem.quantity %></span>
+                                                    <!-- Keep a hidden <input> to store the value -->
+                                                    <input type="number" class="qty-val" value="<%= cartItem.quantity %>" id="quantity_<%= cartItem._id %>" readonly style="display: none;">
+                                                    <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
+                                                </div>
+                                            </td>
+                                                                                                                                    
+                                            <td class="text-right" data-title="Subtotal" id="subtotal_<%= cartItem._id %>">
+                                                <span>$<%= (cartItem.product.sales_price * cartItem.quantity).toFixed(2) %></span>
+                                            </td>
+                                            <td class="action" data-title="Remove"><a href="#" class="text-muted" onclick="removeCartItem('<%= cartItem._id %>')"><i class="fi-rs-trash"></i></a></td>
+                                        </tr>
+                                    <% }); %>
+                                    <tr>
+                                        <td colspan="6" class="text-end">
+                                            <a href="#" class="text-muted" onclick="clearCart()"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="cart-action text-end">
                             <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a>
-                            <a class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                            <a class="btn " href="/home"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
                         </div>
                         <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
                         <div class="row mb-50">
@@ -382,3 +426,108 @@
     </main>
     
 <%-include("footer")-%>
+<script>
+function updateQuantity(cartItemId, change) {
+    const quantityInput = document.getElementById(`quantity_${cartItemId}`);
+    let newQuantity = parseInt(quantityInput.value) + change;
+
+    // Ensure the new quantity is at least 1
+    newQuantity = Math.max(1, newQuantity);
+
+    // Update the input field with the new quantity
+    quantityInput.value = newQuantity;
+
+    // Update the displayed <span> element with the new quantity
+    const quantityDisplay = document.querySelector(`.qty-display_${cartItemId}`);
+    if (quantityDisplay) {
+        quantityDisplay.textContent = newQuantity;
+    }
+
+    // Send an AJAX request to update the quantity in the database
+    fetch(`/updateCartQuantity/${cartItemId}/${newQuantity}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Handle successful update, e.g., update the subtotal
+            updateSubtotal(cartItemId, newQuantity);
+        } else {
+            alert('Failed to update quantity');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating quantity');
+    });
+}
+
+function removeCartItem(cartItemId) {
+    // Send an AJAX request to remove the item from the cart
+    fetch(`/removeCartItem/${cartItemId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Handle successful removal, e.g., remove the table row
+            const rowToRemove = document.getElementById(`cartItemRow_${cartItemId}`);
+            if (rowToRemove) {
+                rowToRemove.remove();
+            }
+        } else {
+            alert('Failed to remove item from the cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing item from the cart');
+    });
+}
+
+function clearCart() {
+    // Send an AJAX request to clear the entire cart
+    fetch('/clearCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Handle successful cart clearance, e.g., clear the table rows
+            const cartTableBody = document.querySelector('.table.shopping-summery tbody');
+            if (cartTableBody) {
+                cartTableBody.innerHTML = ''; // Clear all table rows
+            }
+        } else {
+            alert('Failed to clear the cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while clearing the cart');
+    });
+}
+
+function updateSubtotal(cartItemId, newQuantity) {
+    // Calculate the new subtotal based on the updated quantity
+    const priceElement = document.querySelector(`#price_${cartItemId}`);
+    const subtotalElement = document.querySelector(`#subtotal_${cartItemId}`);
+    
+    // Assuming the price and subtotal elements are identified using cartItemId
+    if (priceElement && subtotalElement) {
+        const price = parseFloat(priceElement.textContent.replace('$', ''));
+        const newSubtotal = (price * newQuantity).toFixed(2);
+        
+        // Update the subtotal element with the new subtotal
+        subtotalElement.textContent = `$${newSubtotal}`;
+    }
+}
+
+
+</script>

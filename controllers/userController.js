@@ -129,6 +129,8 @@ const addNewAddress = async (req, res) => {
 const createNewAddress = async (req, res) => {
    console.log("Reached createNewAddress");
    try {
+
+      console.log("Address is "+await Address.find());
       const { name, city_town_district, state, address, pincode, landmark, mobile, alt_mobile, type } = req.body;
       const userId = req.session.user_id;
 
@@ -185,7 +187,7 @@ const editAddress = async (req, res) => {
 
 const updateAddress = async (req, res) => {
    console.log("Reached updateAddress");
-   const addressID = req.body.addressID; // Retrieve addressID from the request body
+   const addressID = req.body.addressID;
    try {
      if (req.session.user_id) {
        const { name, address, city_town_district, state, pincode, mobile, landmark, type, alt_mobile } = req.body;
@@ -216,10 +218,8 @@ const updateAddress = async (req, res) => {
    try {
       const addressID = req.query.addressID;
   
-      // Update the address's status to true
       let isblocked = await Address.findByIdAndUpdate(addressID, { blocked: true });
   
-      // Send a success response
       if(isblocked){
          res.redirect(`/userAccount?err=${""}&msg=Address delsted successfully`);
       }else{
@@ -227,7 +227,6 @@ const updateAddress = async (req, res) => {
       }
     } catch (error) {
       console.error(error.message);
-      // Send an error response
       res.status(500).json({ success: false, error: "Error updating address status" });
     }
   
@@ -254,29 +253,6 @@ const formals = async (req, res) => {
    }
 }
 
-
-
-// const userAccount = async (req, res) => {
-//    console.log("Reached userAccount");
-//    try {
-//       const user_id = req.session.user_id
-//       const categorieData = await category.find({});
-//       const productData = await product.find({});
-//       const userData = await User.findOne({ _id: user_id });
-//       console.log("userData "+userData);
-//       if (req.session.user_id) {
-//          console.log("req.session.user_id is " + req.session.user_id);
-//          res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage: "" });
-//       } else {
-//          console.log("else case req.session.user_id is " + req.session.user_id);
-
-//          res.render('userAccount', { user: userData ,product: productData, categories: categorieData, isAuthenticated: false, message:"", errMessage: "" });
-//       }
-//    } catch (error) {
-//       console.log(error.message)
-//    }
-// }
-
 const userAccount = async (req, res) => {
    console.log("Reached userAccount");
    try {
@@ -285,7 +261,6 @@ const userAccount = async (req, res) => {
       const productData = await product.find({});
       const err = req.query.err;
       const msg = req.query.msg;
-      // Fetch user data including their addresses using populate
       const userData = await User.findOne({ _id: user_id }).populate('addresses');
 
       console.log("userData " + userData);
@@ -297,7 +272,7 @@ const userAccount = async (req, res) => {
          } else {
             console.log("else case req.session.user_id is " + req.session.user_id);
 
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: false, message: msg , errMessage: "" });
+            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg , errMessage: "" });
          }
    }
    } catch (error) {
@@ -322,7 +297,7 @@ const updateUserAccount = async (req, res) => {
          display_name: req.body.dname,
          email: req.body.email,
          mobile: req.body.mobile,
-         password: req.body.npassword // Assuming you're updating the password as well
+         password: req.body.npassword
       };
 
       if (uploadedFile) {
@@ -504,20 +479,20 @@ const displayProduct = async (req, res) => {
 const cart = async (req, res) => {
    console.log("Reached cart");
    try {
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-
-      if (req.session.user_id) {
-         const user_id = req.session.user_id
-         const userData = await User.findById({_id:user_id})
-         console.log("req.session.user_id is " + req.session.user_id);
-         res.render('cart', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
-      } else {
-         console.log("else case req.session.user_id is " + req.session.user_id);
-         res.redirect(`/login?err=${true}&msg=Login to see your cart`);
-      }
+       const categorieData = await category.find({});
+       
+       if (req.session.user_id) {
+           const user_id = req.session.user_id;
+           const userData = await User.findById(user_id).populate('cart.product'); // Populate the 'product' field in the 'cart' array
+           
+           console.log("req.session.user_id is " + req.session.user_id);
+           res.render('cart', { user: userData, categories: categorieData, isAuthenticated: true });
+       } else {
+           console.log("else case req.session.user_id is " + req.session.user_id);
+           res.redirect(`/login?err=${true}&msg=Login to see your cart`);
+       }
    } catch (error) {
-      console.log(error.message)
+       console.log(error.message)
    }
 }
 
@@ -608,6 +583,93 @@ const addtowishlist = async (req, res) => {
    }
 }
 
+const updateCartQuantity = async (req, res) => {
+   console.log("Reached updateCartQuantity");
+   const { cartItemId, newQuantity } = req.params;
+   console.log("cartItemId, newQuantity "+cartItemId, newQuantity);
+
+   try {
+       // Find the cart item by its ID and update the quantity
+       const user_id = req.session.user_id;
+       const user = await User.findById(user_id).exec();
+
+       if (!user) {
+           return res.status(404).json({ error: 'User not found' });
+       }
+
+       const cartItem = user.cart.find(item => item._id.equals(cartItemId));
+       if (!cartItem) {
+           return res.status(404).json({ error: 'Cart item not found' });
+       }
+
+       // Update the quantity
+       cartItem.quantity = newQuantity;
+
+       await user.save();
+
+       // Calculate the new subtotal based on the updated quantity
+       const newSubtotal = cartItem.product.sales_price * newQuantity;
+       
+       res.json({ updatedCartItem: cartItem, newSubtotal });
+   } catch (error) {
+       console.error('Error updating cart item quantity:', error);
+       res.status(500).json({ error: 'Internal server error' });
+   }
+}
+
+const removeCartItem = async (req, res) => {
+   const { cartItemId } = req.params;
+   console.log("Reached removeCartItem");
+   console.log("cartItemId "+cartItemId);
+
+   try {
+       // Find the user and remove the cart item by its ID
+       const user_id = req.session.user_id;
+       const user = await User.findById(user_id).exec();
+
+       if (!user) {
+           return res.status(404).json({ error: 'User not found' });
+       }
+
+       const cartItemIndex = user.cart.findIndex(item => item._id.equals(cartItemId));
+       if (cartItemIndex === -1) {
+           return res.status(404).json({ error: 'Cart item not found' });
+       }
+
+       // Remove the cart item from the array
+       user.cart.splice(cartItemIndex, 1);
+
+       await user.save();
+
+       res.json({ message: 'Cart item removed successfully' });
+   } catch (error) {
+       console.error('Error removing cart item:', error);
+       res.status(500).json({ error: 'Internal server error' });
+   }
+}
+
+const clearCart = async (req, res) => {
+   console.log("Reached clearCart");
+
+   try {
+      // Clear the user's cart by setting it to an empty array
+      const user_id = req.session.user_id;
+      const user = await User.findById(user_id)
+
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      user.cart = [];
+
+      await user.save();
+
+      res.json({ message: 'Cart cleared successfully' });
+  } catch (error) {
+      console.error('Error clearing the cart:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 const getCartCount = async (req, res) => {
    console.log("Reached getCartCount");
@@ -937,5 +999,8 @@ module.exports = {
    updateAddressStatus,
    getCartCount,
    getWishlistCount,
+   updateCartQuantity,
+   removeCartItem,
+   clearCart
 }
 

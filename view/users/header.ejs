@@ -156,8 +156,6 @@
                                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                     </div>
                                     <div class="product-extra-link2">
-                                        <!-- <button type="submit" class="button button-add-to-cart">Add to cart</button> -->
-                                        <!-- <a aria-label="Add To Wishlist" class="action-btn hover-up" href="" onclick="addToWishlist('<%= product._id %>')"><i class="fi-rs-heart"></i></a> -->
                                         <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i
                                                 class="fi-rs-shuffle"></i></a>
                                     </div>
@@ -303,12 +301,27 @@
                                         <img alt="Evara" src="assets/imgs/theme/icons/icon-cart.svg">
                                     </a>
                                 </div>
-                                <div class="header-action-icon-2 d-block d-lg-none">
-                                    <div class="burger-icon burger-icon-white">
-                                        <span class="burger-icon-top"></span>
-                                        <span class="burger-icon-mid"></span>
-                                        <span class="burger-icon-bottom"></span>
-                                    </div>
+                                <div class="header-action-icon-2">
+                                    <% if (isAuthenticated) { %>
+                                        <!-- <a href="/logout">
+                                            <p>Logout</p>
+                                        </a> -->
+                                        <% if (user.user_profile[0]) { %>
+                                            <a href="/userAccount">
+                                                <img src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="/admin-assets/imgs/icons/user.png" style="height: 30px; width: 30px; border-radius: 100%;">
+                                            </a>
+                                            
+                                        <% } else { %>
+                                            <a href="/userAccount">
+                                                <img src="/admin-assets/imgs/icons/user.png" alt="" style="height: 30px; width: 30px; border-radius: 100%;">
+                                            </a>
+                                        <% } %>
+                                    <% } else { %>
+                                        <a href="/login">
+                                            <p>Login</p>
+                                        </a>
+                                    <% } %>
+                                    <!-- <p><%isAuthenticated%></p> -->
                                 </div>
                             </div>
                         </div>

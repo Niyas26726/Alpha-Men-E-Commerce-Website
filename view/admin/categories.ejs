@@ -24,34 +24,23 @@
                             <%= errMessage %>
                         </div>
                     <% } %>
-                    <form method="post" id="createCategoryForm" onsubmit="return categoryErrorValidation()">
+                    <form method="post" action="/admin/categories" id="createCategoryForm" onsubmit="return categoryErrorValidation()">
                         <div class="mb-4">
                             <label for="categoryName" class="form-label">New Category Name</label>
                             <input type="text" placeholder="Type here" name="categoryName" class="form-control"
-                                id="categoryName" />
+                                id="categoryName">
                             <small id="categoryNameError"></small>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Create category</button>
                         </div>
                     </form>
-                    <!-- <form method="post" id="editCategoryForm" style="display: none;">
-                        <div class="mb-4">
-                            <label for="editCategoryName" class="form-label">Edit Category Name</label>
-                            <input type="text" placeholder="Type here" name="editCategoryName"
-                                class="form-control" id="editCategoryName" />
-                            <small id="editCategoryNameError"></small>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </div>
-                    </form> -->
                     <form method="post" action="/admin/editCategory" id="editCategoryForm" style="display: none;" onsubmit="return editCategoryErrorValidation()">
                         <input type="hidden" id="editCategoryId" name="editCategoryId">
                         <div class="mb-4">
                             <label for="editCategoryName" class="form-label">Edit Category Name</label>
                             <input type="text" placeholder="Type here" name="editCategoryName"
-                                class="form-control" id="editCategoryName" />
+                                class="form-control" id="editCategoryName">
                             <small id="editCategoryNameError"></small>
                         </div>
                         <div class="d-grid">
@@ -100,7 +89,7 @@
             </div> <!-- .row // -->
         </div> <!-- card body .// -->
     </div> <!-- card .// -->
-</section> <!-- content-main end// -->
+</section> 
 
 <script>
     function showEditCategoryForm(categoryId, categoryName) {
@@ -131,3 +120,4 @@
     }
 </script>
 
+<%- include("footer") %>

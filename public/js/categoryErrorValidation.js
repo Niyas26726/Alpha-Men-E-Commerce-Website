@@ -41,11 +41,9 @@
 function categoryErrorValidation() {
   // Input fields
   const categoryName = document.getElementById('categoryName');
-  const editCategoryName = document.getElementById('editCategoryName');
 
   // Error fields
   const categoryNameError = document.getElementById('categoryNameError');
-  const editCategoryNameError = document.getElementById('editCategoryNameError');
 
   // Regex
   const nameRegex = /^[A-Z]/;
@@ -72,9 +70,6 @@ function categoryErrorValidation() {
       } else {
           categoryNameError.innerHTML = ''; // Clear error message
 
-          // If validation is successful, you can submit the category name to the database here.
-          // Replace the following line with your actual database submission code.
-          // submitToDatabase(categoryName.value);
       }
   }
 
