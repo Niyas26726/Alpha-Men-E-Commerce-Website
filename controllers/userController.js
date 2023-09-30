@@ -574,39 +574,39 @@ const wishlist = async (req, res) => {
 }
 
 const addtowishlist = async (req, res) => {
-   console.log("Reached addtowishlist");
-   let user_id = req.session.user_id
-   console.log("req.session.user_id is " + req.session.user_id);
-
-   if (user_id) {
+   try {
+      const user_id = req.session.user_id;
       const productId = req.body.productId;
-      console.log("productId is " + productId);
-    console.log("Reached addtowishlist");
-    let user_id = req.session.user_id
-    console.log("req.session.user_id is " + req.session.user_id);
-      if (user_id) {
-         const productId = req.body.productId;
-         console.log("productId is " + productId);
 
-         const categorieData = await category.find({});
-         const productData = await product.find({});
-         const user = await User.findById(req.session.user_id);
-         console.log("user in else case " + user);
-         user.wishlist.push(productId);
-         user.save().then((data) => {
-            res.json({ status: true })
-         }).catch((err) => {
-            res.json({ status: false, msg: "Something went wrong" })
-         })
-      } else {
-         res.json({ status: false, msg: "Login first to add product to wishlist" })
+      if (!user_id) {
+         return res.json({ status: false, msg: "Login first to add/remove products from the wishlist" });
       }
-    } else {
-        console.log("else case worked no user");
-        res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
-        console.log("after else case worked no user");
-    }
+
+      const user = await User.findById(user_id);
+
+      if (!user) {
+         return res.json({ status: false, msg: "User not found" });
+      }
+
+      const index = user.wishlist.indexOf(productId);
+
+      if (index === -1) {
+         // The product is not in the wishlist, so add it
+         user.wishlist.push(productId);
+      } else {
+         // The product is already in the wishlist, so remove it
+         user.wishlist.splice(index, 1);
+      }
+
+      await user.save();
+
+      res.json({ status: true });
+   } catch (error) {
+      console.error("Error adding/removing product to/from wishlist:", error);
+      res.json({ status: false, msg: "Something went wrong" });
+   }
 }
+
 
 const getCartCount = async (req, res) => {
    console.log("Reached getCartCount");
@@ -935,6 +935,6 @@ module.exports = {
    updateAddress,
    updateAddressStatus,
    getCartCount,
-   getWishlistCount
+   getWishlistCount,
 }
 

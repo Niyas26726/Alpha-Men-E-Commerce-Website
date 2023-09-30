@@ -178,18 +178,31 @@
                                                         </div>
                                                         <div class="product-action-1">
                                                             <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
-                                                            <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                                href="#"
-                                                                onclick="addToWishlist('<%= product._id %>')"><i
-                                                                    class="fi-rs-heart"></i></a>
+                                                                    <% if (user && user.wishlist.includes(product._id)) { %>
+                                                                        <a id="wishlist-link-<%= product._id %>"
+                                                                           class="action-btn hover-up in-wishlist"
+                                                                           href="#"
+                                                                           onclick="toggleWishlist('<%= product._id %>')"
+                                                                           aria-label="Remove from Wishlist">
+                                                                            <i class="fi-rs-heart"></i>
+                                                                        </a>
+                                                                    <% } else { %>
+                                                                        <a id="wishlist-link-<%= product._id %>"
+                                                                           class="action-btn hover-up"
+                                                                           href="#"
+                                                                           onclick="toggleWishlist('<%= product._id %>')"
+                                                                           aria-label="Add To Wishlist">
+                                                                            <i class="fi-rs-heart"></i>
+                                                                        </a>
+                                                                    <% } %>
                                                             <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                                         </div>
-                                                        <% if (product.hot) { %>
+                                                        <!-- <% if (product.hot) { %>
                                                             <div
                                                                 class="product-badges product-badges-position product-badges-mrg">
                                                                 <span class="hot">Hot</span>
                                                             </div>
-                                                            <% } %>
+                                                            <% } %> -->
                                                     </div>
                                                     <div class="product-content-wrap">
                                                         <div class="product-category">
@@ -2492,8 +2505,7 @@
                 console.log(data)
                 
                 if (data.status) {
-                    
-                    window.location.href = '/wishlist'
+                    updateWishlistCount();
                 } else {
                     
                     window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`
@@ -2516,8 +2528,7 @@
                 console.log(data)
                 
                 if (data.status) {
-                    
-                    window.location.href = '/cart'
+                    updateCartCount();
                 } else {
                     
                     window.location.href = `/login?err=${true}&msg=` + data.msg
@@ -2529,4 +2540,35 @@
         });
     }
 
+function toggleWishlist(productId) {
+    $.ajax({
+        url: '/wishlist',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ productId }),
+        success: function (data) {
+            if (data.status) {
+                // Toggle the 'in-wishlist' class to change the heart color
+                const wishlistBtn = $(`#wishlist-link-${productId}`);
+                wishlistBtn.find('i').toggleClass('in-wishlist');
+                
+                // Toggle the aria-label attribute
+                if (wishlistBtn.attr('aria-label') === 'Add To Wishlist') {
+                    wishlistBtn.attr('aria-label', 'Remove from Wishlist');
+                } else {
+                    wishlistBtn.attr('aria-label', 'Add To Wishlist');
+                }
+                
+                // Fetch and update the wishlist count
+                updateWishlistCount();
+            } else {
+                console.error("Error adding/removing product to/from wishlist:", data.msg);
+            }
+        },
+        error: function () {
+            console.error("Error adding/removing product to/from wishlist");
+        }
+    });
+}
 </script>
+
