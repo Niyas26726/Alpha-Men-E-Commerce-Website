@@ -2480,53 +2480,53 @@
 
 
 <%-include("footer")-%>
-        <script>
-            function addToWishlist(productId) {
-                $.ajax({
-                    url: '/wishlist',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ productId }),
-                    success: function (data) {
-                        
-                        console.log(data)
-                        
-                        if (data.status) {
-                            
-                           window.location.href = '/wishlist'
-                        } else {
-                            
-                            window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`
-                        }
-                    },
-                    error: function (error) { 
-                        window.location.href = `/login?err=${true}&msg=` + err.message
-                    }
-                });
+<script>
+    function addToWishlist(productId) {
+        $.ajax({
+            url: '/wishlist',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ productId }),
+            success: function (data) {
+                
+                console.log(data)
+                
+                if (data.status) {
+                    
+                    window.location.href = '/wishlist'
+                } else {
+                    
+                    window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`
+                }
+            },
+            error: function (error) { 
+                window.location.href = `/login?err=${true}&msg=` + err.message
             }
+        });
+    }
 
-            function addToCart(productId) {
-                $.ajax({
-                    url: '/addToCart',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ productId }),
-                    success: function (data) {
-                        
-                        console.log(data)
-                        
-                        if (data.status) {
-                            
-                           window.location.href = '/cart'
-                        } else {
-                            
-                            window.location.href = `/login?err=${true}&msg=` + data.msg
-                        }
-                    },
-                    error: function () { 
-                        window.location.href = `/login?err=${true}&msg=Login first to add to cart`
-                    }
-                });
+    function addToCart(productId) {
+        $.ajax({
+            url: '/addToCart',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ productId }),
+            success: function (data) {
+                
+                console.log(data)
+                
+                if (data.status) {
+                    
+                    window.location.href = '/cart'
+                } else {
+                    
+                    window.location.href = `/login?err=${true}&msg=` + data.msg
+                }
+            },
+            error: function () { 
+                window.location.href = `/login?err=${true}&msg=Login first to add to cart`
             }
+        });
+    }
 
-        </script>
+</script>

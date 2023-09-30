@@ -505,7 +505,6 @@ const cart = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const productData = await product.find({});
-      const user = 1
 
       if (req.session.user_id) {
          const user_id = req.session.user_id
@@ -514,10 +513,7 @@ const cart = async (req, res) => {
          res.render('cart', { user: userData,product: productData, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-
          res.redirect(`/login?err=${true}&msg=Login to see your cart`);
-
-         // res.render('cart', { user,product: productData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -526,28 +522,36 @@ const cart = async (req, res) => {
 
 const addToCart = async (req, res) => {
    console.log("Reached addToCart");
-   let user_id = req.session.user_id
-   console.log("req.session.user_id is " + req.session.user_id);
-
+   const user_id = req.session.user_id;
+ 
    if (user_id) {
-      const productId = req.body.productId;
-      console.log("productId is " + productId);
+     const productId = req.body.productId;
+     console.log("productId is " + productId);
+ 
+     try {
+       const user = await User.findById(user_id);
+       console.log("productId is " + productId);
+       console.log("user.cart is " + JSON.stringify(user.cart));
+ 
+       const existingCartItem = user.cart.find(
+         (item) => item.product && item.product.toString() === productId
+       );
 
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-      const user = await User.findById(req.session.user_id);
-
-      console.log("user in else case " + user);
-      user.wishlist.push(productId);
-      user.save().then((data) => {
-         res.json({ status: true })
-      }).catch((err) => {
-         res.json({ status: false, msg: "Something went wrong" })
-      })
+       if (existingCartItem) {
+         existingCartItem.quantity += 1;
+       } else {
+         user.cart.push({ product: productId, quantity: 1 });
+       }
+       await user.save();
+       res.json({ status: true });
+     } catch (error) {
+       console.error("Error adding product to cart:", error);
+       res.json({ status: false, msg: "Something went wrong" });
+     }
    } else {
-      res.json({ status: false, msg: "Login first to add to cart" })
+     res.json({ status: false, msg: "Login first to add products to the cart" });
    }
-}
+};
 
 const wishlist = async (req, res) => {
    console.log("Reached wishlist");
@@ -580,44 +584,66 @@ const addtowishlist = async (req, res) => {
     console.log("Reached addtowishlist");
     let user_id = req.session.user_id
     console.log("req.session.user_id is " + req.session.user_id);
+      if (user_id) {
+         const productId = req.body.productId;
+         console.log("productId is " + productId);
 
-    if (user_id) {
-        const productId = req.body.productId;
-        console.log("productId is " + productId);
-
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-      const user = await User.findById(req.session.user_id);
-      console.log("user in else case " + user);
-      user.wishlist.push(productId);
-      user.save().then((data) => {
-         res.json({ status: true })
-      }).catch((err) => {
-         res.json({ status: false, msg: "Something went wrong" })
-      })
-   } else {
-      res.json({ status: false, msg: "Login first to add product to wishlist" })
-   }
-        const categorieData = await category.find({});
-        const productData = await product.find({});
-        const user = await User.findById(req.session.user_id);
-
-        // Add the product ID to the user's wishlist array
-        console.log("user in else case " + user);
-        user.wishlist.push(productId);
-        user.save().then((data) => {
-            console.log("if case worked saved");
-            console.log("req.session.user_id is " + req.session.user_id);
-            res.redirect('/wishlist');
-        }).catch((err) => {
-            console.log("Something went wrong")
-            console.log(err.message);
-        })
+         const categorieData = await category.find({});
+         const productData = await product.find({});
+         const user = await User.findById(req.session.user_id);
+         console.log("user in else case " + user);
+         user.wishlist.push(productId);
+         user.save().then((data) => {
+            res.json({ status: true })
+         }).catch((err) => {
+            res.json({ status: false, msg: "Something went wrong" })
+         })
+      } else {
+         res.json({ status: false, msg: "Login first to add product to wishlist" })
+      }
     } else {
-        console.log("if case worked no user");
+        console.log("else case worked no user");
         res.redirect(`/login?err=${true}&msg=Login first to add product to wishlist`);
-        console.log("after if case worked no user");
+        console.log("after else case worked no user");
     }
+}
+
+const getCartCount = async (req, res) => {
+   console.log("Reached getCartCount");
+   try {
+      const user_id = req.session.user_id;
+      if (user_id) {
+         try {
+               const user = await User.findById(user_id);
+               const cartCount = user.cart.reduce((total, item) => total + 1, 0);
+               res.json({ cartCount });
+         } catch (error) {
+               console.error("Error fetching cart count:", error);
+               res.status(500).json({ error: "Internal server error" });
+         }
+      } else {
+         res.status(401).json({ error: "Unauthorized" });
+      }
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+const getWishlistCount = async (req, res) => {
+   console.log("Reached getWishlistCount");
+   try {
+      const user_id = req.session.user_id; 
+      if (user_id) {
+          const user = await User.findById(user_id);
+          const wishlistCount = user.wishlist.reduce((total, item) => total + 1, 0);
+          res.json({ wishlistCount });
+      } else {
+         res.status(401).json({ error: "Unauthorized" });
+      }
+  } catch (error) {
+      console.error("Error fetching wishlist count:", error);
+      res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 const loadHomeAfterLogin = async (req, res) => {
@@ -907,6 +933,8 @@ module.exports = {
    createNewAddress,
    editAddress,
    updateAddress,
-   updateAddressStatus
+   updateAddressStatus,
+   getCartCount,
+   getWishlistCount
 }
 

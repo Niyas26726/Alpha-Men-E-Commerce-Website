@@ -112,7 +112,6 @@
 
 <script>
   function toggleBlockUnblock(userID, blockStatus) {
-      // Send an AJAX request to toggle the block status
       fetch(`/admin/toggleBlockStatusUsers/${userID}`, {
           method: 'POST',
           headers: {

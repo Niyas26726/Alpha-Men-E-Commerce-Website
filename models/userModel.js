@@ -33,13 +33,22 @@ const userModel = new mongoose.Schema({
    }],
    cart: [
       {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'product', // Reference to the Product model
+        },
+        quantity: {
+          type: Number,
+          default: 1, // Default quantity is 1
+        },
+      },
+    ],
+   wishlist: [
+      {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'product', // Reference to the Product model
       },
     ],
-     wishlist: {
-      type:Array
-   },
    blocked: {
       type: Boolean,
       default: false
