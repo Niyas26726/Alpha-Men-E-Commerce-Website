@@ -485,16 +485,86 @@ const cart = async (req, res) => {
            const user_id = req.session.user_id;
            const userData = await User.findById(user_id).populate('cart.product'); // Populate the 'product' field in the 'cart' array
            
+           // Calculate cart subtotal and shipping total
+           let cartSubtotal = 0;
+           let shippingTotal = 0;
+           
+           userData.cart.forEach(cartItem => {
+               const product = cartItem.product;
+               const quantity = cartItem.quantity;
+               
+               // Calculate subtotal for each item and add it to cartSubtotal
+               cartSubtotal += product.sales_price * quantity;
+               
+               // If the product has a shipping_fee property, add it to shippingTotal
+               if (product.shipping_fee) {
+                   shippingTotal += product.shipping_fee * quantity;
+               }
+           });
+
            console.log("req.session.user_id is " + req.session.user_id);
-           res.render('cart', { user: userData, categories: categorieData, isAuthenticated: true });
+           res.render('cart', {
+               user: userData,
+               categories: categorieData,
+               isAuthenticated: true,
+               cartSubtotal, // Pass the calculated subtotal
+               shippingTotal, // Pass the calculated shipping total
+           });
        } else {
            console.log("else case req.session.user_id is " + req.session.user_id);
            res.redirect(`/login?err=${true}&msg=Login to see your cart`);
        }
    } catch (error) {
-       console.log(error.message)
+       console.log(error.message);
    }
 }
+
+
+const getCartTotals = async (req, res) => {
+   console.log("Reached getCartTotals");
+   try {
+       const categorieData = await category.find({});
+       
+       if (req.session.user_id) {
+           const user_id = req.session.user_id;
+           const userData = await User.findById(user_id).populate('cart.product'); // Populate the 'product' field in the 'cart' array
+           
+           // Calculate cart subtotal and shipping total
+           let cartSubtotal = 0;
+           let shippingTotal = 0;
+           
+           userData.cart.forEach(cartItem => {
+               const product = cartItem.product;
+               const quantity = cartItem.quantity;
+               
+               // Calculate subtotal for each item and add it to cartSubtotal
+               cartSubtotal += product.sales_price * quantity;
+               
+               // If the product has a shipping_fee property, add it to shippingTotal
+               if (product.shipping_fee) {
+                   shippingTotal += product.shipping_fee * quantity;
+               }
+           });
+
+           console.log("req.session.user_id is " + req.session.user_id);
+
+           // Send cart data as JSON
+           res.json({
+               user: userData,
+               categories: categorieData,
+               isAuthenticated: true,
+               cartSubtotal, // Pass the calculated subtotal
+               shippingTotal, // Pass the calculated shipping total
+           });
+       } else {
+           console.log("else case req.session.user_id is " + req.session.user_id);
+           res.redirect(`/login?err=${true}&msg=Login to see your cart`);
+       }
+   } catch (error) {
+       console.log(error.message);
+   }
+}
+
 
 const addToCart = async (req, res) => {
    console.log("Reached addToCart");
@@ -820,11 +890,11 @@ const filteredByCatagoryFromOther = async (req, res) => {
          const user_id = req.session.user_id
          const userData = await User.findById({_id:user_id})
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('formals', { user: userData, product: filteredProducts, categories: categorieData, isAuthenticated: true });
+         res.render('all', { user: userData, product: filteredProducts, categories: categorieData, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('formals', { user, product: filteredProducts, categories: categorieData, isAuthenticated: false });
+         res.render('all', { user, product: filteredProducts, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -1054,6 +1124,7 @@ module.exports = {
    updateCartQuantity,
    removeCartItem,
    clearCart,
-   addToCart_forProductQuantity
+   addToCart_forProductQuantity,
+   getCartTotals
 }
 

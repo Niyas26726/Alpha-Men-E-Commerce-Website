@@ -59,7 +59,7 @@
                                 </thead>
                                 <tbody>
                                     <% user.cart.forEach(cartItem => { %>
-                                        <tr>
+                                        <tr id="cartItemRow_<%= cartItem._id %>">
                                             <td class="image product-thumbnail"><img src="/admin/productImages/<%= cartItem.product.images[0] %>" alt="<%= cartItem.product.product_name %>"></td>
                                             <td class="product-des product-name">
                                                 <h5 class="product-name"><a href="shop-product-right.html"><%= cartItem.product.product_name %></a></h5>
@@ -72,7 +72,6 @@
                                                     <!-- Use a <span> to display the quantity to the user -->
                                                     <span class="qty-display_<%= cartItem._id %>"><%= cartItem.quantity %></span>
                                                     <!-- Keep a hidden <input> to store the value -->
-                                                    <input type="number" class="qty-val" value="<%= cartItem.quantity %>" id="quantity_<%= cartItem._id %>" readonly style="display: none;">
                                                     <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
                                                 </div>
                                             </td>
@@ -93,7 +92,7 @@
                         </div>
                         <div class="cart-action text-end">
                             <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a>
-                            <a class="btn " href="/home"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                            <a class="btn" href="#" onclick="goBack()"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
                         </div>
                         <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
                         <div class="row mb-50">
@@ -402,18 +401,19 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="cart_total_label">Cart Subtotal</td>
-                                                    <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">$240.00</span></td>
+                                                    <td class="cart_total_amount" id="cartSubtotal"><span class="font-lg fw-900 text-brand">$<%= cartSubtotal.toFixed(2) %></span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="cart_total_label">Shipping</td>
-                                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free Shipping</td>
+                                                    <td class="cart_total_amount" id="shippingTotal"> <i class="ti-gift mr-5"></i> $<%= shippingTotal.toFixed(2) %></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="cart_total_label">Total</td>
-                                                    <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">$240.00</span></strong></td>
+                                                    <td class="cart_total_amount" id="cartTotal"><span class="font-xl fw-900 text-brand">$<%= (cartSubtotal + shippingTotal).toFixed(2) %></span></td>
                                                 </tr>
                                             </tbody>
                                         </table>
+                                        
                                     </div>
                                     <a href="#" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
                                 </div>
@@ -428,22 +428,19 @@
 <%-include("footer")-%>
 <script>
 function updateQuantity(cartItemId, change) {
-    const quantityInput = document.getElementById(`quantity_${cartItemId}`);
-    let newQuantity = parseInt(quantityInput.value) + change;
-
-    // Ensure the new quantity is at least 1
-    newQuantity = Math.max(1, newQuantity);
-
-    // Update the input field with the new quantity
-    quantityInput.value = newQuantity;
-
-    // Update the displayed <span> element with the new quantity
     const quantityDisplay = document.querySelector(`.qty-display_${cartItemId}`);
-    if (quantityDisplay) {
-        quantityDisplay.textContent = newQuantity;
+    let currentQuantity = parseInt(quantityDisplay.textContent);
+
+    if (isNaN(currentQuantity)) {
+        currentQuantity = 0;
     }
 
-    // Send an AJAX request to update the quantity in the database
+    let newQuantity = currentQuantity + change;
+
+    newQuantity = Math.max(1, newQuantity);
+
+    quantityDisplay.textContent = newQuantity;
+
     fetch(`/updateCartQuantity/${cartItemId}/${newQuantity}`, {
         method: 'POST',
         headers: {
@@ -452,8 +449,8 @@ function updateQuantity(cartItemId, change) {
     })
     .then(response => {
         if (response.ok) {
-            // Handle successful update, e.g., update the subtotal
             updateSubtotal(cartItemId, newQuantity);
+            updateCartTotals()
         } else {
             alert('Failed to update quantity');
         }
@@ -464,20 +461,20 @@ function updateQuantity(cartItemId, change) {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+});
+
+
 function removeCartItem(cartItemId) {
-    // Send an AJAX request to remove the item from the cart
     fetch(`/removeCartItem/${cartItemId}`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
     })
     .then(response => {
         if (response.ok) {
-            // Handle successful removal, e.g., remove the table row
             const rowToRemove = document.getElementById(`cartItemRow_${cartItemId}`);
             if (rowToRemove) {
                 rowToRemove.remove();
+                updateCartTotals();
             }
         } else {
             alert('Failed to remove item from the cart');
@@ -489,20 +486,17 @@ function removeCartItem(cartItemId) {
     });
 }
 
+
 function clearCart() {
-    // Send an AJAX request to clear the entire cart
     fetch('/clearCart', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
     })
     .then(response => {
         if (response.ok) {
-            // Handle successful cart clearance, e.g., clear the table rows
             const cartTableBody = document.querySelector('.table.shopping-summery tbody');
             if (cartTableBody) {
-                cartTableBody.innerHTML = ''; // Clear all table rows
+                cartTableBody.innerHTML = ''; 
+                updateCartTotals()
             }
         } else {
             alert('Failed to clear the cart');
@@ -515,18 +509,55 @@ function clearCart() {
 }
 
 function updateSubtotal(cartItemId, newQuantity) {
-    // Calculate the new subtotal based on the updated quantity
     const priceElement = document.querySelector(`#price_${cartItemId}`);
     const subtotalElement = document.querySelector(`#subtotal_${cartItemId}`);
     
-    // Assuming the price and subtotal elements are identified using cartItemId
     if (priceElement && subtotalElement) {
         const price = parseFloat(priceElement.textContent.replace('$', ''));
         const newSubtotal = (price * newQuantity).toFixed(2);
         
-        // Update the subtotal element with the new subtotal
         subtotalElement.textContent = `$${newSubtotal}`;
     }
 }
 
+function updateCartTotals() {
+    fetch('/getCartTotals', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const cartSubtotalElement = document.getElementById('cartSubtotal');
+        const cartSubtotalSpan = cartSubtotalElement.querySelector('span');
+        cartSubtotalSpan.textContent = `$${data.cartSubtotal.toFixed(2)}`;
+
+        const shippingTotalElement = document.getElementById('shippingTotal');
+        shippingTotalElement.textContent = `$${data.shippingTotal.toFixed(2)}`;
+
+        const cartTotalElement = document.getElementById('cartTotal');
+        const cartTotalStrong = cartTotalElement.querySelector('span');
+        cartTotalStrong.textContent = `$${(data.cartSubtotal + data.shippingTotal).toFixed(2)}`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+function goBack() {
+    const previousPage = document.referrer;
+    
+    if (previousPage) {
+        window.location.href = previousPage;
+    } else {
+        window.location.href = "/home";
+    }
+}
+
+
+
+
 </script>
+

@@ -71,6 +71,7 @@ userRouter.get('/displayProduct',userController.displayProduct);
 
 
 userRouter.get('/cart',userController.cart);
+userRouter.get('/getCartTotals',userController.getCartTotals);
 userRouter.post('/addToCart',userController.addToCart);
 userRouter.post('/addToCart/:productId',userController.addToCart_forProductQuantity);
 userRouter.get('/wishlist',userController.wishlist);
