@@ -71,16 +71,17 @@ userRouter.get('/displayProduct',userController.displayProduct);
 
 
 userRouter.get('/cart',userController.cart);
-userRouter.get('/getCartTotals',userController.getCartTotals);
+userRouter.get('/getCartTotals',auth.isLogin,userController.getCartTotals);
 userRouter.post('/addToCart',userController.addToCart);
-userRouter.post('/addToCart/:productId',userController.addToCart_forProductQuantity);
+userRouter.post('/addToCart/:productId',auth.isLogin,userController.addToCart_forProductQuantity);
 userRouter.get('/wishlist',userController.wishlist);
 userRouter.post('/wishlist',userController.addtowishlist);
-userRouter.post('/updateCartQuantity/:cartItemId/:newQuantity',userController.updateCartQuantity);
-userRouter.post('/removeCartItem/:cartItemId',userController.removeCartItem);
-userRouter.post('/clearCart',userController.clearCart);
-userRouter.get('/getCartCount',userController.getCartCount);
-userRouter.get('/getWishlistCount',userController.getWishlistCount);
+userRouter.post('/updateCartQuantity/:cartItemId/:newQuantity',auth.isLogin,userController.updateCartQuantity);
+userRouter.post('/removeCartItem/:cartItemId',auth.isLogin,userController.removeCartItem);
+userRouter.post('/clearCart',auth.isLogin,userController.clearCart);
+userRouter.get('/getCartCount',auth.isLogin,userController.getCartCount);
+userRouter.get('/getWishlistCount',auth.isLogin,userController.getWishlistCount);
+userRouter.get('/checkOutPage',auth.isLogin,userController.checkOutPage);
 
 
 

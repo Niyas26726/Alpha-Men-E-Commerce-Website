@@ -118,9 +118,9 @@
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div> -->
                                             <div class="detail-qty border radius">
-                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1, 1)"><i class="fi-rs-angle-small-down"></i></a>
-                                                <span class="qty-val_<%= product._id %>">1</span>
-                                                <a href="#" class="qty-up" onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1, 1)"><i class="fi-rs-angle-small-up"></i></a>
+                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1,)"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span id="qty-val_<%= product._id %>">1</span>
+                                                <a href="#" class="qty-up" onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
                                                                                                                                                                                 
                                             <div class="product-extra-link2 ">
@@ -652,10 +652,11 @@
     const quantityChanges = {};
 
     function updateQuantity_forProductQuantity(productId, change) {
-    const qtyValElement = document.querySelector(`.qty-val_${productId}`);
-    let newQuantity = parseInt(qtyValElement.textContent) + change;
+    const qtyValElement = document.getElementById(`qty-val_${productId}`);
+    let newQuantity = parseInt(qtyValElement.innerHTML) + change;
     newQuantity = Math.max(1, newQuantity);
-    qtyValElement.textContent = newQuantity;
+    // alert("newQuantity "+ typeof newQuantity)
+    qtyValElement.innerHTML = newQuantity;
 
     quantityChanges[productId] = newQuantity;
 }
@@ -673,7 +674,7 @@
         .then((response) => {
             if (response.ok) {
                 updateCartCount(); 
-                alert('Product added to cart successfully!');
+                // alert('Product added to cart successfully!');
             } else {
                 alert('Failed to add product to cart');
             }

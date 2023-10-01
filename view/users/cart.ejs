@@ -415,7 +415,7 @@
                                         </table>
                                         
                                     </div>
-                                    <a href="#" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                    <a href="/checkOutPage" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
                                 </div>
                             </div>
                         </div>
@@ -451,6 +451,8 @@ function updateQuantity(cartItemId, change) {
         if (response.ok) {
             updateSubtotal(cartItemId, newQuantity);
             updateCartTotals()
+            updateCartCount();
+
         } else {
             alert('Failed to update quantity');
         }
@@ -473,8 +475,9 @@ function removeCartItem(cartItemId) {
         if (response.ok) {
             const rowToRemove = document.getElementById(`cartItemRow_${cartItemId}`);
             if (rowToRemove) {
-                rowToRemove.remove();
                 updateCartTotals();
+                updateCartCount();
+                rowToRemove.remove();
             }
         } else {
             alert('Failed to remove item from the cart');
@@ -497,6 +500,7 @@ function clearCart() {
             if (cartTableBody) {
                 cartTableBody.innerHTML = ''; 
                 updateCartTotals()
+                updateCartCount();
             }
         } else {
             alert('Failed to clear the cart');
@@ -521,6 +525,7 @@ function updateSubtotal(cartItemId, newQuantity) {
 }
 
 function updateCartTotals() {
+    alert("Reached updateCartTotals");
     fetch('/getCartTotals', {
         method: 'GET',
         headers: {
@@ -555,9 +560,6 @@ function goBack() {
         window.location.href = "/home";
     }
 }
-
-
-
 
 </script>
 

@@ -606,41 +606,33 @@ const addToCart_forProductQuantity = async (req, res) => {
 
    console.log("selectedQuantity "+selectedQuantity);
 
-   // Check if the user is authenticated (you may have your own logic for this)
    if (!req.session.user_id) {
        return res.status(401).json({ error: 'Not authenticated' });
    }
 
-   // Get the user ID from the session
    const userId = req.session.user_id;
 
    try {
-       // Find the user by ID and populate their cart
        const user = await User.findById(userId).populate('cart.product').exec();
 
        if (!user) {
            return res.status(404).json({ error: 'User not found' });
        }
 
-       // Find the product by ID
        const productModel = await product.findById(productId).exec();
 
        if (!productModel) {
            return res.status(404).json({ error: 'Product not found' });
        }
 
-       // Check if the product is already in the user's cart
        const cartItem = user.cart.find(item => item.product._id.equals(productModel._id));
 
        if (cartItem) {
-           // If the product is already in the cart, update the quantity
            cartItem.quantity += selectedQuantity;
        } else {
-           // If not, create a new cart item
            user.cart.push({ product: productModel, quantity: selectedQuantity });
        }
 
-       // Save the user's updated cart
        await user.save();
 
        res.status(200).json({ message: 'Product added to cart successfully' });
@@ -689,10 +681,8 @@ const addtowishlist = async (req, res) => {
       const index = user.wishlist.indexOf(productId);
 
       if (index === -1) {
-         // The product is not in the wishlist, so add it
          user.wishlist.push(productId);
       } else {
-         // The product is already in the wishlist, so remove it
          user.wishlist.splice(index, 1);
       }
 
@@ -711,7 +701,6 @@ const updateCartQuantity = async (req, res) => {
    console.log("cartItemId, newQuantity "+cartItemId, newQuantity);
 
    try {
-       // Find the cart item by its ID and update the quantity
        const user_id = req.session.user_id;
        const user = await User.findById(user_id).exec();
 
@@ -724,12 +713,10 @@ const updateCartQuantity = async (req, res) => {
            return res.status(404).json({ error: 'Cart item not found' });
        }
 
-       // Update the quantity
        cartItem.quantity = newQuantity;
 
        await user.save();
 
-       // Calculate the new subtotal based on the updated quantity
        const newSubtotal = cartItem.product.sales_price * newQuantity;
        
        res.json({ updatedCartItem: cartItem, newSubtotal });
@@ -745,7 +732,6 @@ const removeCartItem = async (req, res) => {
    console.log("cartItemId "+cartItemId);
 
    try {
-       // Find the user and remove the cart item by its ID
        const user_id = req.session.user_id;
        const user = await User.findById(user_id).exec();
 
@@ -758,7 +744,6 @@ const removeCartItem = async (req, res) => {
            return res.status(404).json({ error: 'Cart item not found' });
        }
 
-       // Remove the cart item from the array
        user.cart.splice(cartItemIndex, 1);
 
        await user.save();
@@ -774,7 +759,6 @@ const clearCart = async (req, res) => {
    console.log("Reached clearCart");
 
    try {
-      // Clear the user's cart by setting it to an empty array
       const user_id = req.session.user_id;
       const user = await User.findById(user_id)
 
@@ -846,6 +830,32 @@ const loadHomeAfterLogin = async (req, res) => {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
          res.render('home', { user: userData,product: productData, categories: categorieData, isAuthenticated: false });
+      }
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const checkOutPage = async (req, res) => {
+   console.log("Reached checkOutPage");
+   try {
+      const categorieData = await category.find({});
+      const user_ID = req.session.user_id;
+
+      // Populate the user's cart and addresses with product details and address details
+      const userData = await User.findById(user_ID)
+        .populate({
+          path: 'cart.product',
+          model: 'product', // Reference to the Product model
+        })
+        .populate('addresses');
+
+      if (req.session.user_id) {
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('checkOutPage', { user: userData, categories: categorieData, isAuthenticated: true });
+      } else {
+         console.log("else case req.session.user_id is " + req.session.user_id);
+         res.render('checkOutPage', { user: userData, categories: categorieData, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -1125,6 +1135,7 @@ module.exports = {
    removeCartItem,
    clearCart,
    addToCart_forProductQuantity,
-   getCartTotals
+   getCartTotals,
+   checkOutPage
 }
 

@@ -1,0 +1,192 @@
+﻿<%-include("header")-%>
+
+    <main class="main">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html" rel="nofollow">Home</a>
+                    <span></span> Pages
+                    <span></span> Login / Register
+                </div>
+            </div>
+        </div>
+        <section class="pt-150 pb-150">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 m-auto">
+                        <div class="row">
+                            <style>
+                                .radio-group input[type="radio"] {
+                                    display: none;
+                                }
+                            
+                                .radio-group label {
+                                    position: relative;
+                                    padding-left: 30px;
+                                    cursor: pointer;
+                                }
+                            
+                                .radio-group label:before {
+                                    content: "";
+                                    position: absolute;
+                                    left: 0;
+                                    top:6%;
+                                    transform: translateY(-50%);
+                                    width: 16px; 
+                                    height: 16px;
+                                    border: 2px solid rgb(44, 126, 121); 
+                                    border-radius: 50%;
+                                    background-color: white; 
+                                }
+                                
+                                .radio-group input[type="radio"]:checked + label:before {
+                                    background-color: rgb(4, 105, 99); 
+                                }
+                            
+                                .address-section {
+                                    margin-bottom: 20px; 
+                                }
+                            </style>
+<style>
+    .product-box {
+    display: flex; /* Display product boxes in a row */
+    justify-content: space-between; /* Add space between items */
+    align-items: center; /* Align items vertically in the center */
+    border: 1px solid #ccc; /* Add a border around each product box */
+    padding: 10px; /* Add padding inside each product box */
+    border-radius: 5px; /* Add rounded corners to the product box */
+    margin-bottom: 20px; /* Add spacing between product boxes */
+}
+
+.product-details {
+    display: flex; /* Display product details in a row */
+    align-items: center; /* Align items vertically in the center */
+    width: 100%; /* Take up the full width of the product box */
+}
+
+.product-image {
+    margin-right: 10px; /* Add spacing between image and text */
+}
+
+.product-quantity {
+    display: flex; /* Display quantity and subtotal in a row */
+    align-items: center; /* Align items vertically in the center */
+    /* margin-right: 50px; */
+    margin-left: 30px;
+}
+
+.quantity, .subtotal {
+    margin-right: 10px; /* Add spacing between quantity and subtotal */
+}
+
+</style>                            
+                            <div class="col-lg-5">
+                                <form class="text-center mt-3" action="/addNewAddress" style="margin-bottom: 30px;">
+                                    <button class="btn btn-primary" type="submit">+ Add New Address</button>
+                                </form>
+                                <div class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
+                                    <div class="padding_eight_all bg-white">
+                                        <div class="heading_s1 text-center">
+                                            <h3 class="mb-30">Choose Your Address</h3>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="address-section">
+                                                    <div class="radio-group">
+                                                        <div class="heading_s1 text-center">
+                                                            <h4 class="mb-30">Billing Address</h4>
+                                                        </div>
+                                                        <% user.addresses.forEach(address => { %>
+                                                            <% if (!address.blocked && address.type === 'Billing Address') { %>
+                                                                <div class="form-group">
+                                                                    <input type="radio" name="selectedBillingAddress" value="<%= address._id %>" id="billingAddress_<%= address._id %>">
+                                                                    <label for="billingAddress_<%= address._id %>">
+                                                                        <%= address.type %><br>
+                                                                        <%= address.name %><br>
+                                                                        <%= address.city_town_district %>, <%= address.state %> <%= address.pincode %><br>
+                                                                        <%= address.address %><br>
+                                                                        Landmark: <%= address.landmark %><br>
+                                                                        Mobile: <%= address.mobile %><br>
+                                                                        Alternate Mobile: <%= address.alt_mobile %>
+                                                                    </label>
+                                                                </div>
+                                                            <% } %>
+                                                        <% }); %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="address-section">
+                                                    <div class="radio-group">
+                                                        <div class="heading_s1 text-center">
+                                                            <h4 class="mb-30">Shipping Address</h4>
+                                                        </div>
+                                                        <% user.addresses.forEach(address => { %>
+                                                            <% if (!address.blocked && address.type === 'Shipping Address') { %>
+                                                                <div class="form-group">
+                                                                    <input type="radio" name="selectedShippingAddress" value="<%= address._id %>" id="shippingAddress_<%= address._id %>">
+                                                                    <label for="shippingAddress_<%= address._id %>">
+                                                                        <%= address.type %><br>
+                                                                        <%= address.name %><br>
+                                                                        <%= address.city_town_district %>, <%= address.state %> <%= address.pincode %><br>
+                                                                        <%= address.address %><br>
+                                                                        Landmark: <%= address.landmark %><br>
+                                                                        Mobile: <%= address.mobile %><br>
+                                                                        Alternate Mobile: <%= address.alt_mobile %>
+                                                                    </label>
+                                                                </div>
+                                                            <% } %>
+                                                        <% }); %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-1"></div>
+                            <div class="col-lg-6">
+                                <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
+                                    <div class="padding_eight_all bg-white">
+                                        <div class="heading_s1 text-center">
+                                            <h3 class="mb-30">Order Details</h3>
+                                        </div>
+                                        
+                                        <!-- Iterate through user's cart and display product details -->
+                                        <% user.cart.forEach(cartItem => { %>
+                                            <div class="product-box">
+                                                <div class="product-details" style="width: 12opx;">
+                                                    <div class="product-image">
+                                                        <img src="/admin/productImages/<%= cartItem.product.images[0] %>" alt="" style="max-width: 100px; max-height: 100px; width: auto; height: auto;">
+                                                    </div>
+                                                    <div class="product-info">
+                                                        <h4><%= cartItem.product.product_name %></h4>
+                                                        <h6><%= cartItem.product.description %></h6>
+                                                    </div>
+                                                    <div class="product-quantity">
+                                                        <div class="quantity">
+                                                            <p>Quantity: <%= cartItem.quantity %></p>
+                                                        </div>
+                                                        <div class=" text-end subtotal">
+                                                            <p>Subtotal: $<%= (cartItem.quantity * cartItem.product.sales_price).toFixed(2) %></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                        
+                                        <!-- Other form fields or content goes here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <%-include("footer")-%>
