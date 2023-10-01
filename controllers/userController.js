@@ -454,7 +454,7 @@ const displayProduct = async (req, res) => {
       // const userData = await User.findById({_id:req.session.user_id})
       // Use product.findOne to retrieve a single product by its _id
       const productData = await product.findOne({ _id: product_id });
-      const user = 1
+      const user = {wishlist:[]}
 
       if (!productData) {
          // Handle the case where the product is not found
@@ -528,6 +528,58 @@ const addToCart = async (req, res) => {
      res.json({ status: false, msg: "Login first to add products to the cart" });
    }
 };
+
+const addToCart_forProductQuantity = async (req, res) => {
+   console.log("Reached addToCart_forProductQuantity");
+   const productId = req.params.productId;
+   const selectedQuantity = req.body.quantity;
+
+   console.log("selectedQuantity "+selectedQuantity);
+
+   // Check if the user is authenticated (you may have your own logic for this)
+   if (!req.session.user_id) {
+       return res.status(401).json({ error: 'Not authenticated' });
+   }
+
+   // Get the user ID from the session
+   const userId = req.session.user_id;
+
+   try {
+       // Find the user by ID and populate their cart
+       const user = await User.findById(userId).populate('cart.product').exec();
+
+       if (!user) {
+           return res.status(404).json({ error: 'User not found' });
+       }
+
+       // Find the product by ID
+       const productModel = await product.findById(productId).exec();
+
+       if (!productModel) {
+           return res.status(404).json({ error: 'Product not found' });
+       }
+
+       // Check if the product is already in the user's cart
+       const cartItem = user.cart.find(item => item.product._id.equals(productModel._id));
+
+       if (cartItem) {
+           // If the product is already in the cart, update the quantity
+           cartItem.quantity += selectedQuantity;
+       } else {
+           // If not, create a new cart item
+           user.cart.push({ product: productModel, quantity: selectedQuantity });
+       }
+
+       // Save the user's updated cart
+       await user.save();
+
+       res.status(200).json({ message: 'Product added to cart successfully' });
+   } catch (error) {
+       console.error('Error adding product to cart:', error);
+       res.status(500).json({ error: 'Internal server error' });
+   }
+};
+
 
 const wishlist = async (req, res) => {
    console.log("Reached wishlist");
@@ -1001,6 +1053,7 @@ module.exports = {
    getWishlistCount,
    updateCartQuantity,
    removeCartItem,
-   clearCart
+   clearCart,
+   addToCart_forProductQuantity
 }
 

@@ -112,28 +112,58 @@
                                                                                                                        
                                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                         <div class="detail-extralink" style="display: flex;">
-                                            <div class="detail-qty border radius">
+                                            <!-- <div class="detail-qty border radius">
                                                 <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
                                                 <span class="qty-val">1</span>
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                            </div> -->
+                                            <div class="detail-qty border radius">
+                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1, 1)"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span class="qty-val_<%= product._id %>">1</span>
+                                                <a href="#" class="qty-up" onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1, 1)"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
+                                                                                                                                                                                
                                             <div class="product-extra-link2 ">
                                                 <!-- <button type="submit" class="button button-add-to-cart">Add to cart</button> -->
                                                 <% if (isAuthenticated) { %>
-                                                    <form action="/cart" method="get">
-                                                        <!-- Include any necessary form fields, such as product ID -->
-                                                        <input type="hidden" name="productId" value="<%= product._id %>">
-                                                <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                                    </form>
-                                                <% } else { %>
+                                                    <div class="product-action-1 show">
+                                                        <% if (product.stock> 0) { %>
+                                                                    <btton aria-label="Add To Cart" class="button button-add-to-cart"
+                                                                    href="#"
+                                                                    onclick="addToCart('<%= product._id %>')">Add to cart</btton>
+                                                            <% } else { %>
+                                                                <span class="out-of-stock">Out of Stock</span>
+                                                                <% } %>
+                                                    </div>
+
+                                                    <% } else { %>
                                                     <form action="/login" method="GET">
                                                         <input type="hidden" name="err" value="true">
                                                         <input type="hidden" name="msg" value="Login to add product to cart">
                                                         <button type="submit" class="button button-add-to-cart">Add to cart</button>
                                                     </form>
                                                 <% } %>
+                                                <!-- <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> -->
+
+                                                <% if (user && user.wishlist.includes(product._id)) { %>
+                                                    <a id="wishlist-link-<%= product._id %>"
+                                                       class="action-btn active"
+                                                       href="#"
+                                                       onclick="toggleWishlist('<%= product._id %>')"
+                                                       aria-label="Remove from Wishlist">
+                                                        <i class="fi-rs-heart"></i>
+                                                    </a>
+                                                <% } else { %>
+                                                    <a id="wishlist-link-<%= product._id %>"
+                                                       class="action-btn"
+                                                       href="#"
+                                                       onclick="toggleWishlist('<%= product._id %>')"
+                                                       aria-label="Add To Wishlist">
+                                                        <i class="fi-rs-heart"></i>
+                                                    </a>
+                                                <% } %>
                                                 
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                            
                                                 <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                             </div>
                                         </div>
@@ -576,10 +606,12 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 <% categories.forEach(function(category) { %>
-                                    <li><a href="/categoryOther?categoryId=<%= category._id %>">
-                                            <%= category.name %>
-                                        </a></li>
-                                    <% }); %>
+                                        <%if(category.blocked == false){%>
+                                        <li><a href="/categoryOther?categoryId=<%= category._id %>">
+                                                <%= category.name %>
+                                            </a></li>
+                                            <%}%>
+                                        <% }); %>
                             </ul>
                         </div>
                         <div class="widget-category mb-30">
@@ -616,3 +648,60 @@
     </main>
 
 <%-include("footer")-%>
+<script>
+    const quantityChanges = {};
+
+    function updateQuantity_forProductQuantity(productId, change) {
+    const qtyValElement = document.querySelector(`.qty-val_${productId}`);
+    let newQuantity = parseInt(qtyValElement.textContent) + change;
+    newQuantity = Math.max(1, newQuantity);
+    qtyValElement.textContent = newQuantity;
+
+    quantityChanges[productId] = newQuantity;
+}
+
+    function addToCart(productId) {
+    updateQuantity_forProductQuantity(productId, 0);
+    const selectedQuantity = quantityChanges[productId] || 1;
+    fetch(`/addToCart/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: selectedQuantity }),
+    })
+        .then((response) => {
+            if (response.ok) {
+                updateCartCount(); 
+                alert('Product added to cart successfully!');
+            } else {
+                alert('Failed to add product to cart');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred while adding the product to cart');
+        });
+}
+
+
+async function updateQuantityOnServer(productId, newQuantity) {
+    try {
+        const response = await fetch(`/addToCart/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: newQuantity }),
+        });
+
+        if (response.ok) {
+            console.log('Quantity updated on the server.');
+        } else {
+            console.error('Error updating quantity on the server.');
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+    }
+}
+</script>

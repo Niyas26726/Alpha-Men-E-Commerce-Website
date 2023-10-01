@@ -191,11 +191,13 @@
                                 <select name="categoryId" class="form-select" style="margin-right: -20px;">
                                     <option>search All</option>
                                     <% categories.forEach(function(category) { %>
-                                        <option value="<%= category._id %>">
-                                            <%= category.name %>
-                                        </option>
+                                        <%if(category.blocked == false){%>
+                                        <li><a href="/category?categoryId=<%= category._id %>">
+                                                <%= category.name %>
+                                            </a></li>
+                                            <%}%>
                                         <% }); %>
-                                </select>
+                                    </select>
                                 <input type="text" placeholder="Search for items...">
                             </form>
                         </div>
@@ -260,8 +262,12 @@
                                             <li class="mega-menu-col col-lg-6">
                                                 <ul class="categories">
                                                     <% categories.forEach(function(category) { %>
-                                                        <li><a href="/categoryOther?categoryId=<%= category._id %>"><%= category.name %></a></li>
-                                                    <% }); %>
+                                                        <%if(category.blocked == false){%>
+                                                        <li><a href="/category?categoryId=<%= category._id %>">
+                                                                <%= category.name %>
+                                                            </a></li>
+                                                            <%}%>
+                                                        <% }); %>
                                                 </ul>
                                             </li>
                                         </ul>

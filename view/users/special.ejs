@@ -9,9 +9,11 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 <% categories.forEach(function(category) { %>
+                                    <%if(category.blocked == false){%>
                                     <li><a href="/categoryOther?categoryId=<%= category._id %>">
                                             <%= category.name %>
                                         </a></li>
+                                        <%}%>
                                     <% }); %>
                             </ul>
                         </div>

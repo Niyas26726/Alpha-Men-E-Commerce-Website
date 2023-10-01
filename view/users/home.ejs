@@ -101,9 +101,11 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 <% categories.forEach(function(category) { %>
+                                    <%if(category.blocked == false){%>
                                     <li><a href="/category?categoryId=<%= category._id %>">
                                             <%= category.name %>
                                         </a></li>
+                                        <%}%>
                                     <% }); %>
                             </ul>
                         </div>
@@ -2493,82 +2495,3 @@
 
 
 <%-include("footer")-%>
-<script>
-    function addToWishlist(productId) {
-        $.ajax({
-            url: '/wishlist',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ productId }),
-            success: function (data) {
-                
-                console.log(data)
-                
-                if (data.status) {
-                    updateWishlistCount();
-                } else {
-                    
-                    window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`
-                }
-            },
-            error: function (error) { 
-                window.location.href = `/login?err=${true}&msg=` + err.message
-            }
-        });
-    }
-
-    function addToCart(productId) {
-        $.ajax({
-            url: '/addToCart',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ productId }),
-            success: function (data) {
-                
-                console.log(data)
-                
-                if (data.status) {
-                    updateCartCount();
-                } else {
-                    
-                    window.location.href = `/login?err=${true}&msg=` + data.msg
-                }
-            },
-            error: function () { 
-                window.location.href = `/login?err=${true}&msg=Login first to add to cart`
-            }
-        });
-    }
-
-function toggleWishlist(productId) {
-    $.ajax({
-        url: '/wishlist',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ productId }),
-        success: function (data) {
-            if (data.status) {
-                // Toggle the 'in-wishlist' class to change the heart color
-                const wishlistBtn = $(`#wishlist-link-${productId}`);
-                wishlistBtn.find('i').toggleClass('in-wishlist');
-                
-                // Toggle the aria-label attribute
-                if (wishlistBtn.attr('aria-label') === 'Add To Wishlist') {
-                    wishlistBtn.attr('aria-label', 'Remove from Wishlist');
-                } else {
-                    wishlistBtn.attr('aria-label', 'Add To Wishlist');
-                }
-                
-                // Fetch and update the wishlist count
-                updateWishlistCount();
-            } else {
-                console.error("Error adding/removing product to/from wishlist:", data.msg);
-            }
-        },
-        error: function () {
-            console.error("Error adding/removing product to/from wishlist");
-        }
-    });
-}
-</script>
-
