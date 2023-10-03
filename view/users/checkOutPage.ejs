@@ -236,7 +236,7 @@
     const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
     const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
     const paymentOption = document.querySelector("input[name='paymentOption']:checked");
-    
+
     if (!selectedBillingAddress) {
       Swal.fire({
         icon: "error",
@@ -269,6 +269,10 @@
     formData.append("selectedBillingAddress", selectedBillingAddress.value);
     formData.append("selectedShippingAddress", selectedShippingAddress.value);
     formData.append("paymentOption", paymentOption.value);
+
+    alert("selectedBillingAddress "+selectedBillingAddress.value)
+    alert("selectedShippingAddress "+selectedShippingAddress.value)
+    alert("paymentOption "+paymentOption.value)
 
     return true;
   }

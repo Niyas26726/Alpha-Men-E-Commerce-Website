@@ -4,6 +4,7 @@ const otpGenerator = require('otp-generator');
 const category = require('../models/categoryModel');
 const product = require('../models/productModel');
 const Address = require('../models/addressModel')
+const Order = require('../models/orderModel')
 
 let generatedOTP = '';
 let globalEmail = '';
@@ -865,25 +866,25 @@ const checkOutPage = async (req, res) => {
 const processPayment = async (req, res) => {
    console.log("Reached processPayment");
    try {
-      const userId = req.session.user_id; // Replace with the actual user ID
+      const userId = req.session.user_id;
       console.log("selectedBillingAddress " +req.body.selectedBillingAddress);
       console.log("selectedShippingAddress " +req.body.selectedShippingAddress);
       console.log("paymentOption " +req.body.paymentOption);
       // 1. Retrieve the user's cart items from the User model
       User.findById(userId)
-        .populate('cart.product') // Populate the product details for cart items
+        .populate(['cart.product',"addresses"]) // Populate the product details for cart items
         .exec()
         .then(user => {
           if (!user) {
             throw new Error('User not found');
           }
       
-          // 2. Retrieve the user's addresses (billing and shipping) from the User model
-          const billingAddress = user.addresses.findById(req.body.selectedBillingAddress);
-          const shippingAddress = user.addresses.findById(req.body.selectedShippingAddress);
+    // 2. Retrieve the user's addresses (billing and shipping) from the populated addresses field
+    const billingAddress = user.addresses.find(address => address._id.equals(req.body.selectedBillingAddress));
+    const shippingAddress = user.addresses.find(address => address._id.equals(req.body.selectedShippingAddress));
 
-          console.log("billingAddress "+billingAddress);
-          console.log("shippingAddress "+shippingAddress);
+    console.log("billingAddress " + billingAddress);
+    console.log("shippingAddress " + shippingAddress);
           
           // 3. Calculate the total_amount based on cart items' prices and quantities
           const items = user.cart.map(cartItem => ({
@@ -904,14 +905,20 @@ const processPayment = async (req, res) => {
             shipping_charge: 10.0, // Replace with the shipping charge
             discount: 5.0, // Replace with any applicable discount
             total_amount: totalAmount,
-            status: 'Pending', // Set the initial status
+            payment_status: 'Paid', // Set the initial status
+            order_status:'Placed',
             user_id: userId,
             address: [billingAddress, shippingAddress], // Use the retrieved addresses
           };
       
           // 5. Save the order to the database
           const newOrder = new Order(orderData);
-          return newOrder.save();
+          const saved = newOrder.save();
+          if(saved){
+            let product =1 
+            let categories = [1,2,3,4]
+         res.render('orderPlacedPage', { product, categories, isAuthenticated: false });
+          }
         })
         .then(savedOrder => {
           console.log('Order saved successfully:', savedOrder);

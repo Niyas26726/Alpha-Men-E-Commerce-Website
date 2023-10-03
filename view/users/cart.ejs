@@ -81,7 +81,7 @@
                                             <td class="text-center" data-title="Quantity">
                                                 <div class="align-items-center">
                                                     <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-minus"></i></a>
-                                                    <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" style="text-align: center; padding-left: 0px; width: 50px; color: black; background-color: #b8e4e2; height: 38px;">
+                                                    <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" readonly style="text-align: center; padding-left: 0px; width: 50px; color: black; background-color: #b8e4e2; height: 38px;">
                                                     <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-plus"></i></a>
                                                 </div>
                                             </td>

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const orderSchema = new mongoose.Schema({
+const orderModel = new mongoose.Schema({
   items: [
     {
       product_id: {
@@ -66,6 +66,10 @@ const orderSchema = new mongoose.Schema({
   },
   address: [
     {
+      type: {
+        type: String,
+         required: true
+       },
       name: {
         type: String,
         required: true,
@@ -106,6 +110,6 @@ const orderSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('order', orderModel,'order');
 
 
