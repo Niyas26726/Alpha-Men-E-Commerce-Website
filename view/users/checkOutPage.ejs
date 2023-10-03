@@ -1,89 +1,98 @@
 ﻿<%-include("header")-%>
-
-    <main class="main">
-        <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow">Home</a>
-                    <span></span> Pages
-                    <span></span> Login / Register
-                </div>
-            </div>
-        </div>
-        <section class="pt-150 pb-150">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 m-auto">
-                        <div class="row">
-                            <style>
-                                .radio-group input[type="radio"] {
-                                    display: none;
-                                }
-                            
-                                .radio-group label {
-                                    position: relative;
-                                    padding-left: 30px;
-                                    cursor: pointer;
-                                }
-                            
-                                .radio-group label:before {
-                                    content: "";
-                                    position: absolute;
-                                    left: 0;
-                                    top:6%;
-                                    transform: translateY(-50%);
-                                    width: 16px; 
-                                    height: 16px;
-                                    border: 2px solid rgb(44, 126, 121); 
-                                    border-radius: 50%;
-                                    background-color: white; 
-                                }
-                                
-                                .radio-group input[type="radio"]:checked + label:before {
-                                    background-color: rgb(4, 105, 99); 
-                                }
-                            
-                                .address-section {
-                                    margin-bottom: 20px; 
-                                }
-                            </style>
 <style>
-    .product-box {
-    display: flex; /* Display product boxes in a row */
-    justify-content: space-between; /* Add space between items */
-    align-items: center; /* Align items vertically in the center */
-    border: 1px solid #ccc; /* Add a border around each product box */
-    padding: 10px; /* Add padding inside each product box */
-    border-radius: 5px; /* Add rounded corners to the product box */
-    margin-bottom: 20px; /* Add spacing between product boxes */
+    .radio-group input[type="radio"] {
+        display: none;
+    }
+
+    .radio-group label {
+        position: relative;
+        padding-left: 30px;
+        cursor: pointer;
+    }
+
+    .radio-group label:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top:6%;
+        transform: translateY(-50%);
+        width: 16px; 
+        height: 16px;
+        border: 2px solid rgb(44, 126, 121); 
+        border-radius: 50%;
+        background-color: white; 
+    }
+    
+    .radio-group input[type="radio"]:checked + label:before {
+        background-color: rgb(4, 105, 99); 
+    }
+
+    .address-section {
+        margin-bottom: 20px; 
+    }
+
+
+    .radio-group .form-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .radio-group .radio-group-input[type="radio"] {
+        margin-right: 100px;
+    }
+
+/* Add spacing to table cells */
+.table-responsive {
+    margin-bottom: 20px;
 }
 
-.product-details {
-    display: flex; /* Display product details in a row */
-    align-items: center; /* Align items vertically in the center */
-    width: 100%; /* Take up the full width of the product box */
+.table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.product-image {
-    margin-right: 10px; /* Add spacing between image and text */
+.table th,
+.table td {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
 }
 
-.product-quantity {
-    display: flex; /* Display quantity and subtotal in a row */
-    align-items: center; /* Align items vertically in the center */
-    /* margin-right: 50px; */
-    margin-left: 30px;
+/* Add borders to table rows and cells */
+.table th,
+.table td {
+    border: 1px solid #ddd;
 }
 
-.quantity, .subtotal {
-    margin-right: 10px; /* Add spacing between quantity and subtotal */
+/* Style the product image */
+.product-image img {
+    max-width: 100px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
+
+/* Add spacing between table rows */
+.cart-item {
+    margin-bottom: 10px;
+}
+
 
 </style>                            
+
+    <main class="main">
+        <section class="pt-150 pb-150">
+            <div class="container">
+                <form id="checkoutForm" action="/processPayment" method="post">
+                    <div class="row">
+                    <div class="col-lg-10 m-auto">
+                        <div class="row">
                             <div class="col-lg-5">
-                                <form class="text-center mt-3" action="/addNewAddress" style="margin-bottom: 30px;">
-                                    <button class="btn btn-primary" type="submit">+ Add New Address</button>
-                                </form>
+                                <div class="text-center"  style="margin-bottom: 30px;">
+                                        <a class="btn btn-primary" href="/addNewAddress">+ Add New Address</a>
+                                </div>
                                 <div class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
                                     <div class="padding_eight_all bg-white">
                                         <div class="heading_s1 text-center">
@@ -96,6 +105,7 @@
                                                         <div class="heading_s1 text-center">
                                                             <h4 class="mb-30">Billing Address</h4>
                                                         </div>
+
                                                         <% user.addresses.forEach(address => { %>
                                                             <% if (!address.blocked && address.type === 'Billing Address') { %>
                                                                 <div class="form-group">
@@ -146,47 +156,150 @@
                             </div>
                             <div class="col-lg-1"></div>
                             <div class="col-lg-6">
-                                <div class="login_wrap widget-taber-content p-30 background-white border-radius-5">
+                                <div class="login_wrap widget-taber-content p-30 background-white border-radius-5" style="width: auto;">
                                     <div class="padding_eight_all bg-white">
                                         <div class="heading_s1 text-center">
                                             <h3 class="mb-30">Order Details</h3>
                                         </div>
-                                        
-                                        <!-- Iterate through user's cart and display product details -->
-                                        <% user.cart.forEach(cartItem => { %>
-                                            <div class="product-box">
-                                                <div class="product-details" style="width: 12opx;">
-                                                    <div class="product-image">
-                                                        <img src="/admin/productImages/<%= cartItem.product.images[0] %>" alt="" style="max-width: 100px; max-height: 100px; width: auto; height: auto;">
-                                                    </div>
-                                                    <div class="product-info">
-                                                        <h4><%= cartItem.product.product_name %></h4>
-                                                        <h6><%= cartItem.product.description %></h6>
-                                                    </div>
-                                                    <div class="product-quantity">
-                                                        <div class="quantity">
-                                                            <p>Quantity: <%= cartItem.quantity %></p>
-                                                        </div>
-                                                        <div class=" text-end subtotal">
-                                                            <p>Subtotal: $<%= (cartItem.quantity * cartItem.product.sales_price).toFixed(2) %></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product Image</th>
+                                                        <th>Product Name</th>
+                                                        <th>Product Description</th>
+                                                        <th>Quantity</th>
+                                                        <th>Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% user.cart.forEach(cartItem => { %>
+                                                        <tr class="cart-item">
+                                                            <td class="product-image">
+                                                                <img src="/admin/productImages/<%= cartItem.product.images[0] %>" alt="Product Image">
+                                                            </td>
+                                                            <td class="product-name"><%= cartItem.product.product_name %></td>
+                                                            <td class="product-description"><%= cartItem.product.description %></td>
+                                                            <td class="product-quantity text-center"><%= cartItem.quantity %></td>
+                                                            <td class="product-subtotal">$<%= (cartItem.quantity * cartItem.product.sales_price).toFixed(2) %></td>
+                                                        </tr>
+                                                    <% }); %>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="4" class="text-right"><strong>Grand Total:</strong></td>
+                                                        <td id="grandTotal" class="text-end"><strong>$0.00</strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                                
+                                <div class="login_wrap widget-taber-content p-30 background-white border-radius-5 mt-40">
+                                    <div class="padding_eight_all bg-white">
+                                        <div class="heading_s1 text-center">
+                                            <h3 class="mb-30">Payment</h3>
+                                        </div>
+                                            <div class="form-group radio-group">
+                                                <input type="radio" id="creditCard" name="paymentOption" value="Cash On Delivery" class="radio-group-input">
+                                                <label for="creditCard" class="radio-group-label">Cash On Delivery</label>
                                             </div>
-                                        <% }); %>
-                                        
-                                        <!-- Other form fields or content goes here -->
+                                            <div class="form-group radio-group">
+                                                <input type="radio" id="paypal" name="paymentOption" value="paypal" class="radio-group-input">
+                                                <label for="paypal" class="radio-group-label">PayPal</label>
+                                            </div>
+                                            <div class="form-group text-center">
+                                                <button type="button" class="btn btn-primary" id="proceedToPayment">Proceed to Payment</button>
+                                            </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            
-                            
                         </div>
                     </div>
                 </div>
+                </form>
             </div>
         </section>
     </main>
+<%-include("footer")-%>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+  const checkoutForm = document.getElementById("checkoutForm");
+  const proceedToPaymentBtn = document.getElementById("proceedToPayment");
+  const paymentRadios = document.querySelectorAll("input[name='paymentOption']");
+
+  function validateForm() {
+    const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
+    const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
+    const paymentOption = document.querySelector("input[name='paymentOption']:checked");
     
-    <%-include("footer")-%>
+    if (!selectedBillingAddress) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please select a billing address.",
+      });
+      return false;
+    }
+
+    if (!selectedShippingAddress) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please select a shipping address.",
+      });
+      return false;
+    }
+
+    if (!paymentOption) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please select a payment option.",
+      });
+      return false;
+    }
+
+    // Add the selected addresses and payment option to the form data
+    const formData = new FormData(checkoutForm);
+    formData.append("selectedBillingAddress", selectedBillingAddress.value);
+    formData.append("selectedShippingAddress", selectedShippingAddress.value);
+    formData.append("paymentOption", paymentOption.value);
+
+    return true;
+  }
+
+  proceedToPaymentBtn.addEventListener("click", function () {
+    if (validateForm()) {
+      // Submit the form with the selected addresses and payment option
+      checkoutForm.submit();
+    }
+  });
+});
+
+function isRadioChecked(radioGroup) {
+  return Array.from(radioGroup).some((radio) => radio.checked);
+}
+
+
+    function updateGrandTotal() {
+        const subtotals = document.querySelectorAll(".product-subtotal");
+        let grandTotal = 0;
+
+        subtotals.forEach(subtotalElement => {
+            const subtotalValue = parseFloat(subtotalElement.textContent.replace("$", ""));
+            grandTotal += subtotalValue;
+        });
+
+        const grandTotalAmount = document.getElementById("grandTotal");
+        grandTotalAmount.innerHTML = `<strong>$${grandTotal.toFixed(2)}</strong>`;
+    }
+
+    updateGrandTotal();
+
+  </script>
+  

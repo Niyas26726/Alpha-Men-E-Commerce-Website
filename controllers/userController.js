@@ -862,6 +862,69 @@ const checkOutPage = async (req, res) => {
    }
 }
 
+const processPayment = async (req, res) => {
+   console.log("Reached processPayment");
+   try {
+      const userId = req.session.user_id; // Replace with the actual user ID
+      console.log("selectedBillingAddress " +req.body.selectedBillingAddress);
+      console.log("selectedShippingAddress " +req.body.selectedShippingAddress);
+      console.log("paymentOption " +req.body.paymentOption);
+      // 1. Retrieve the user's cart items from the User model
+      User.findById(userId)
+        .populate('cart.product') // Populate the product details for cart items
+        .exec()
+        .then(user => {
+          if (!user) {
+            throw new Error('User not found');
+          }
+      
+          // 2. Retrieve the user's addresses (billing and shipping) from the User model
+          const billingAddress = user.addresses.findById(req.body.selectedBillingAddress);
+          const shippingAddress = user.addresses.findById(req.body.selectedShippingAddress);
+
+          console.log("billingAddress "+billingAddress);
+          console.log("shippingAddress "+shippingAddress);
+          
+          // 3. Calculate the total_amount based on cart items' prices and quantities
+          const items = user.cart.map(cartItem => ({
+            product_id: cartItem.product._id,
+            quantity: cartItem.quantity,
+            sales_price: cartItem.product.sales_price,
+          }));
+      
+          const totalAmount = items.reduce((total, item) => {
+            return total + item.quantity * item.sales_price;
+          }, 0);
+      
+          // 4. Create the orderData object with the retrieved and calculated data
+          const orderData = {
+            items,
+            payment_method: 'Credit Card', // Replace with the chosen payment method
+            coupon_id: null, // Replace with the actual coupon ID if applicable
+            shipping_charge: 10.0, // Replace with the shipping charge
+            discount: 5.0, // Replace with any applicable discount
+            total_amount: totalAmount,
+            status: 'Pending', // Set the initial status
+            user_id: userId,
+            address: [billingAddress, shippingAddress], // Use the retrieved addresses
+          };
+      
+          // 5. Save the order to the database
+          const newOrder = new Order(orderData);
+          return newOrder.save();
+        })
+        .then(savedOrder => {
+          console.log('Order saved successfully:', savedOrder);
+        })
+        .catch(error => {
+          console.error('Error saving order:', error);
+        });
+         } catch (error) {
+      console.log(error.message)
+   }
+}
+
+
 const filteredByCatagoryFromHome = async (req, res) => {
    console.log("Reached filteredByCatagoryFromHome");
    try {
@@ -1136,6 +1199,7 @@ module.exports = {
    clearCart,
    addToCart_forProductQuantity,
    getCartTotals,
-   checkOutPage
+   checkOutPage,
+   processPayment
 }
 

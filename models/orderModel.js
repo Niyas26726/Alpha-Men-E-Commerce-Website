@@ -12,10 +12,6 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
-      size: {
-        type: String,
-        required: true,
-      },
       sales_price: {
         type: Number,
         required: true,
@@ -52,7 +48,11 @@ const orderSchema = new mongoose.Schema({
       return `${day}-${month}-${year}`;
     },
   },
-  status: {
+  payment_status: {
+    type: String,
+    required: true,
+  },
+  order_status: {
     type: String,
     required: true,
   },
@@ -107,3 +107,5 @@ const orderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Order', orderSchema);
+
+
