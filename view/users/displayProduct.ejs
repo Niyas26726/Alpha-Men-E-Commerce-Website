@@ -18,7 +18,7 @@
                                             <% }); %>
                                         <% } %>
                                     </div>
-                                    
+
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15">
                                         <% if (product && product.images && Array.isArray(product.images)) { %>
@@ -29,7 +29,6 @@
                                             <% }); %>
                                         <% } %>
                                     </div>
-
                                                                       
                                     <div class="social-icons single-share">
                                         <ul class="text-grey-5 d-inline-block">
@@ -649,7 +648,7 @@
 
 <%-include("footer")-%>
 <script>
-const quantityChanges = {};
+let quantityChanges = {};
 
 function updateQuantity_forProductQuantity(productId, change) {
     console.log("Reached updateQuantity_forProductQuantity");
@@ -661,7 +660,9 @@ function updateQuantity_forProductQuantity(productId, change) {
         
         let currentQuantity = parseInt(qtyValElement.innerHTML);
         console.log("currentQuantity: ", currentQuantity);
-
+        if(isNaN(currentQuantity)){
+            console.log("Error")
+        }
         if (!isNaN(currentQuantity)) {
             let newQuantity = currentQuantity + change;
             newQuantity = Math.max(1, newQuantity);
@@ -682,6 +683,7 @@ function updateQuantity_forProductQuantity(productId, change) {
     function addToCart(productId) {
     updateQuantity_forProductQuantity(productId, 0);
     const selectedQuantity = quantityChanges[productId] || 1;
+    quantityChanges= 1;
     fetch(`/addToCart/${productId}`, {
         method: 'POST',
         headers: {

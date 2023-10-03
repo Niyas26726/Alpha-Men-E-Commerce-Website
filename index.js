@@ -10,12 +10,6 @@ mongoose.connection.on('open', () => {
 
 const express = require('express');
 const app = express();
-// const path = require("path")
-
-// app.set('views', path.join(__dirname, 'view')); 
-
-
-
 
 app.use(express.static('public'));
 
@@ -24,6 +18,5 @@ app.use('/',userRouter);
 
 const adminRouter =require('./routes/adminRouter');
 app.use('/admin',adminRouter);
-
 
 app.listen(process.env.PORT,()=>console.log('Server running at http://localhost:26726'))

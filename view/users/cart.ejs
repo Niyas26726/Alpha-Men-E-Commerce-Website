@@ -69,13 +69,11 @@
                                             <td class="text-center" data-title="Quantity">
                                                 <div class="detail-qty border radius m-auto">
                                                     <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-angle-small-down"></i></a>
-                                                    <!-- Use a <span> to display the quantity to the user -->
-                                                    <span class="qty-display_<%= cartItem._id %>"><%= cartItem.quantity %></span>
-                                                    <!-- Keep a hidden <input> to store the value -->
+                                                    <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" style="text-align: center; padding-left: 0px;">
                                                     <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
                                                 </div>
                                             </td>
-                                                                                                                                    
+                                                                                                                                                                                
                                             <td class="text-right" data-title="Subtotal" id="subtotal_<%= cartItem._id %>">
                                                 <span>$<%= (cartItem.product.sales_price * cartItem.quantity).toFixed(2) %></span>
                                             </td>
@@ -428,19 +426,19 @@
 <%-include("footer")-%>
 <script>
 function updateQuantity(cartItemId, change) {
-    const quantityDisplay = document.querySelector(`.qty-display_${cartItemId}`);
-    let currentQuantity = parseInt(quantityDisplay.textContent);
-
-    if (isNaN(currentQuantity)) {
-        currentQuantity = 0;
-    }
+    // Get the input field for the current product
+    const quantityInput = document.querySelector(`.qty-input_${cartItemId}`);
+    let currentQuantity = parseInt(quantityInput.value);
 
     let newQuantity = currentQuantity + change;
+    
+    // Ensure the new quantity is at least 1
+    newQuantity = Math.max(1, newQuantity);
 
-    newQuantity = Math.max(1, newQuantity); // Ensure the quantity is never less than 1
+    // Update the input field with the new quantity
+    quantityInput.value = newQuantity;
 
-    quantityDisplay.textContent = newQuantity;
-
+    // Make an AJAX request to update the quantity in the database
     fetch(`/updateCartQuantity/${cartItemId}/${newQuantity}`, {
         method: 'POST',
         headers: {
@@ -449,24 +447,22 @@ function updateQuantity(cartItemId, change) {
     })
     .then(response => {
         if (response.ok) {
+            // Update any other UI elements as needed (e.g., subtotal, total)
             updateSubtotal(cartItemId, newQuantity);
             updateCartTotals();
         } else {
             alert('Failed to update quantity');
-            // If the update fails, revert the quantity display to the previous value
-            quantityDisplay.textContent = currentQuantity;
+            // If the update fails, revert the input field to the previous value
+            quantityInput.value = currentQuantity;
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while updating quantity');
-        // If an error occurs, revert the quantity display to the previous value
-        quantityDisplay.textContent = currentQuantity;
+        // If an error occurs, revert the input field to the previous value
+        quantityInput.value = currentQuantity;
     });
 }
-
-
-
 
 
 function removeCartItem(cartItemId) {
