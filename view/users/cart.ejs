@@ -1,5 +1,17 @@
 ﻿<%-include("header")-%>
-
+<style>
+    .qty-down i, .qty-up i {
+        font-size: 20px; /* Change to your preferred size */
+        padding-left: 10px;
+        background-color: #088178; /* Add your preferred background color */
+        padding: 5px; /* Add padding for spacing */
+        color: #ffffff;
+    }
+    .qty-down:hover i, .qty-up:hover i {
+        background-color: #046963; /* Add your preferred background color */
+        transition: 0.5s;
+    }
+    </style>
     <main class="main">
         <section class="mt-50 mb-50">
             <div class="container">
@@ -67,10 +79,10 @@
                                             </td>
                                             <td class="price" data-title="Price" id="price_<%= cartItem._id %>"><span>$<%= cartItem.product.sales_price.toFixed(2) %></span></td>
                                             <td class="text-center" data-title="Quantity">
-                                                <div class="detail-qty border radius m-auto">
-                                                    <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-angle-small-down"></i></a>
-                                                    <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" style="text-align: center; padding-left: 0px;">
-                                                    <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
+                                                <div class="align-items-center">
+                                                    <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-minus"></i></a>
+                                                    <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" style="text-align: center; padding-left: 0px; width: 50px; color: black; background-color: #b8e4e2; height: 38px;">
+                                                    <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-plus"></i></a>
                                                 </div>
                                             </td>
                                                                                                                                                                                 
