@@ -437,7 +437,7 @@ function updateQuantity(cartItemId, change) {
 
     let newQuantity = currentQuantity + change;
 
-    newQuantity = Math.max(1, newQuantity);
+    newQuantity = Math.max(1, newQuantity); // Ensure the quantity is never less than 1
 
     quantityDisplay.textContent = newQuantity;
 
@@ -450,21 +450,23 @@ function updateQuantity(cartItemId, change) {
     .then(response => {
         if (response.ok) {
             updateSubtotal(cartItemId, newQuantity);
-            updateCartTotals()
-            updateCartCount();
-
+            updateCartTotals();
         } else {
             alert('Failed to update quantity');
+            // If the update fails, revert the quantity display to the previous value
+            quantityDisplay.textContent = currentQuantity;
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while updating quantity');
+        // If an error occurs, revert the quantity display to the previous value
+        quantityDisplay.textContent = currentQuantity;
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-});
+
+
 
 
 function removeCartItem(cartItemId) {
@@ -560,6 +562,5 @@ function goBack() {
         window.location.href = "/home";
     }
 }
-
 </script>
 

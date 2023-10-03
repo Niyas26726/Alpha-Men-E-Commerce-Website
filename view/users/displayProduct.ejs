@@ -118,11 +118,11 @@
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div> -->
                                             <div class="detail-qty border radius">
-                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1,)"><i class="fi-rs-angle-small-down"></i></a>
-                                                <span id="qty-val_<%= product._id %>">1</span>
+                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1)"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span class="qty-val" id="qty-val_<%= product._id %>">1</span>
                                                 <a href="#" class="qty-up" onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
                                             </div>
-                                                                                                                                                                                
+                                                                                                                                                                                                                            
                                             <div class="product-extra-link2 ">
                                                 <!-- <button type="submit" class="button button-add-to-cart">Add to cart</button> -->
                                                 <% if (isAuthenticated) { %>
@@ -649,17 +649,35 @@
 
 <%-include("footer")-%>
 <script>
-    const quantityChanges = {};
+const quantityChanges = {};
 
-    function updateQuantity_forProductQuantity(productId, change) {
+function updateQuantity_forProductQuantity(productId, change) {
+    console.log("Reached updateQuantity_forProductQuantity");
+
     const qtyValElement = document.getElementById(`qty-val_${productId}`);
-    let newQuantity = parseInt(qtyValElement.innerHTML) + change;
-    newQuantity = Math.max(1, newQuantity);
-    // alert("newQuantity "+ typeof newQuantity)
-    qtyValElement.innerHTML = newQuantity;
+    
+    if (qtyValElement) {
+        console.log("qtyValElement: ", qtyValElement);
+        
+        let currentQuantity = parseInt(qtyValElement.innerHTML);
+        console.log("currentQuantity: ", currentQuantity);
 
-    quantityChanges[productId] = newQuantity;
+        if (!isNaN(currentQuantity)) {
+            let newQuantity = currentQuantity + change;
+            newQuantity = Math.max(1, newQuantity);
+            qtyValElement.innerHTML = newQuantity;
+            quantityChanges[productId] = newQuantity;
+            console.log("newQuantity: ", newQuantity);
+            console.log("quantityChanges: ", quantityChanges);
+        } else {
+            console.log("currentQuantity is NaN.");
+        }
+    } else {
+        console.log(`Element with ID 'qty-val_${productId}' not found.`);
+    }
 }
+
+
 
     function addToCart(productId) {
     updateQuantity_forProductQuantity(productId, 0);

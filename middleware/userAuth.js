@@ -1,4 +1,3 @@
-
 const isLogin = async (req, res, next) => {
    try {
       if (req.session.user_id) {
@@ -40,22 +39,6 @@ const ifLogout = async (req, res, next) => {
       console.log(error.message)
    }
 }
-   // try {
-   //    // req.session.destroy();
-   //    // res.redirect('/');
-   //    if (req.session.user_id) {
-   //       // req.session.user_id = null;
-   //    req.session.destroy();
-
-   //       res.redirect('/');
-   //    } else {
-   //       next();
-   //    }
-   // } catch (error) {
-   //    console.log(error.message);
-   // }
-
-
 
 module.exports = {
    isLogin,

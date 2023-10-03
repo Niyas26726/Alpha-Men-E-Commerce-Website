@@ -41,6 +41,7 @@ adminRouter.use(session({
 
 adminRouter.get('/',auth.isLogout,adminController.loadLogin);
 adminRouter.post('/',auth.isLogout,adminController.verifyUser);
+
 adminRouter.get('/home',auth.isLogin,adminController.loadhome);
 adminRouter.get('/logout',auth.isLogin,adminController.logout);
 adminRouter.get('/categories',auth.isLogin,adminController.categories);
