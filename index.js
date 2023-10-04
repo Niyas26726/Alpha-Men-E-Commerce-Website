@@ -13,10 +13,10 @@ const app = express();
 
 app.use(express.static('public'));
 
+const adminRouter =require('./routes/adminRouter');
+app.use('/admin',adminRouter);
 const userRouter =require('./routes/userRouter');
 app.use('/',userRouter);
 
-const adminRouter =require('./routes/adminRouter');
-app.use('/admin',adminRouter);
 
 app.listen(process.env.PORT,()=>console.log('Server running at http://localhost:26726'))
