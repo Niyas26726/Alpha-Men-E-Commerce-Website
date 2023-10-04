@@ -1,8 +1,7 @@
 <%- include("header") %>
 
 <section class="content-main">
-    <!-- <form action="/admin/editProducts/<%= products._id %>" method="POST" > -->
-        <form action="/admin/editProducts/<%= products._id %>" method="POST" enctype="multipart/form-data">
+        <form enctype="multipart/form-data">
 
         <input type="hidden"  value="<%= products._id %>" name="editID" id="">
         <div class="row">
@@ -183,32 +182,28 @@
                 removeImageIndices.add(index);
                 btn.textContent = "Cancel";
             }
-            // Assuming removeImageIndices is your string array ["1", "2"]
             const numericArray = Array.from(removeImageIndices, item => parseInt(item)); // or parseFloat(item) for floating-point numbers
 
             const jsonString = JSON.stringify(numericArray);
-            // console.log("JSON String:", jsonString);
-
-            // const jsonString = JSON.stringify([...removeImageIndices]);
-            // console.log("JSON String:", jsonString);
             alert("jsonString "+jsonString)
 
     const form = document.querySelector("form");
     form.addEventListener("submit", function () {
         const formData = new FormData(form);
         formData.append("removeImageIndices", jsonString);
-
-        fetch("/admin/editProducts/<%= products._id %>", {
-            method: "POST",
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                // Handle the response from the server, if needed
-            })
-            .catch((error) => {
-                // Handle errors, if any
-            });
+        console.log("removeImageIndices "+formData)
+        window.location.reload()
+        // fetch("/admin/editProducts/<%= products._id %>", {
+        //     method: "POST",
+        //     body: formData,
+        // })
+        //     .then((response) => response.json())
+        //     .then((data) => {
+        //         // Handle the response from the server, if needed
+        //     })
+        //     .catch((error) => {
+        //         // Handle errors, if any
+        //     });
     });
 });
         });

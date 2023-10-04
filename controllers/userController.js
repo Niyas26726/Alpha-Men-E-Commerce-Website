@@ -257,30 +257,32 @@ const formals = async (req, res) => {
 const userAccount = async (req, res) => {
    console.log("Reached userAccount");
    try {
-      const user_id = req.session.user_id;
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-      const err = req.query.err;
-      const msg = req.query.msg;
-      const userData = await User.findOne({ _id: user_id }).populate('addresses');
-
-      console.log("userData " + userData);
-
-      if (req.session.user_id) {
-         console.log("req.session.user_id is " + req.session.user_id);
-         if(err==true){
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message:"", errMessage:  msg  });
-         } else {
-            console.log("else case req.session.user_id is " + req.session.user_id);
-
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg , errMessage: "" });
-         }
-   }
+     const user_id = req.session.user_id;
+     const categorieData = await category.find({});
+     const productData = await product.find({});
+     const err = req.query.err;
+     const msg = req.query.msg;
+     const userData = await User.findOne({ _id: user_id }).populate('addresses');
+ 
+     // Fetch the user's orders from the database
+     const userOrders = await Order.find({ user_id: user_id });
+ 
+     console.log("userData " + userData);
+ 
+     if (req.session.user_id) {
+       console.log("req.session.user_id is " + req.session.user_id);
+       if (err == true) {
+         res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: "", errMessage: msg, userOrders: userOrders });
+       } else {
+         console.log("else case req.session.user_id is " + req.session.user_id);
+ 
+         res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg, errMessage: "", userOrders: userOrders });
+       }
+     }
    } catch (error) {
-      console.log(error.message);
+     console.log(error.message);
    }
-}
-
+ }
 
 const updateUserAccount = async (req, res) => {
    console.log("Reached updateUserAccount");
@@ -866,64 +868,65 @@ const checkOutPage = async (req, res) => {
 const processPayment = async (req, res) => {
    console.log("Reached processPayment");
    try {
-      const userId = req.session.user_id;
-      console.log("selectedBillingAddress " +req.body.selectedBillingAddress);
-      console.log("selectedShippingAddress " +req.body.selectedShippingAddress);
-      console.log("paymentOption " +req.body.paymentOption);
-      // 1. Retrieve the user's cart items from the User model
+      const userId= req.session.user_id
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const user = 1
+      const userData = await User.findById({_id:userId})
+
+      const selectedBillingAddress = req.body.selectedBillingAddress;
+      const selectedShippingAddress = req.body.selectedShippingAddress;
+      const paymentOption = req.body.paymentOption;
+
+      console.log("selectedBillingAddress " +selectedBillingAddress);
+      console.log("selectedShippingAddress " +selectedShippingAddress);
+      console.log("paymentOption " +paymentOption);
+
       User.findById(userId)
-        .populate(['cart.product',"addresses"]) // Populate the product details for cart items
+        .populate(['cart.product',"addresses"])
         .exec()
         .then(user => {
           if (!user) {
             throw new Error('User not found');
           }
       
-    // 2. Retrieve the user's addresses (billing and shipping) from the populated addresses field
-    const billingAddress = user.addresses.find(address => address._id.equals(req.body.selectedBillingAddress));
-    const shippingAddress = user.addresses.find(address => address._id.equals(req.body.selectedShippingAddress));
+      const billingAddress = user.addresses.find(address => address._id.equals(selectedBillingAddress));
+      const shippingAddress = user.addresses.find(address => address._id.equals(selectedShippingAddress));
 
-    console.log("billingAddress " + billingAddress);
-    console.log("shippingAddress " + shippingAddress);
-          
-          // 3. Calculate the total_amount based on cart items' prices and quantities
+      console.log("billingAddress " + billingAddress);
+      console.log("shippingAddress " + shippingAddress);
+            
           const items = user.cart.map(cartItem => ({
             product_id: cartItem.product._id,
             quantity: cartItem.quantity,
             sales_price: cartItem.product.sales_price,
           }));
       
+        const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
+         return totalShippingFee + (cartItem.product.shipping_fee || 0);
+       }, 0);
+       console.log("shippingFee "+shippingFee);
           const totalAmount = items.reduce((total, item) => {
             return total + item.quantity * item.sales_price;
           }, 0);
       
-          // 4. Create the orderData object with the retrieved and calculated data
           const orderData = {
             items,
-            payment_method: 'Credit Card', // Replace with the chosen payment method
-            coupon_id: null, // Replace with the actual coupon ID if applicable
-            shipping_charge: 10.0, // Replace with the shipping charge
-            discount: 5.0, // Replace with any applicable discount
+            shipping_charge: shippingFee,
             total_amount: totalAmount,
-            payment_status: 'Paid', // Set the initial status
-            order_status:'Placed',
             user_id: userId,
-            address: [billingAddress, shippingAddress], // Use the retrieved addresses
+            address: [billingAddress, shippingAddress],
           };
       
-          // 5. Save the order to the database
           const newOrder = new Order(orderData);
           const saved = newOrder.save();
-          if(saved){
-            let product =1 
-            let categories = [1,2,3,4]
-         res.render('orderPlacedPage', { product, categories, isAuthenticated: false });
-          }
-        })
-        .then(savedOrder => {
-          console.log('Order saved successfully:', savedOrder);
-        })
-        .catch(error => {
+      })
+      .then(async savedOrder => {
+         console.log('Order saved successfully:', savedOrder);
+         const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
+         res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
+       })
+         .catch(error => {
           console.error('Error saving order:', error);
         });
          } catch (error) {

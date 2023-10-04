@@ -21,10 +21,12 @@ const orderModel = new mongoose.Schema({
   payment_method: {
     type: String,
     required: true,
+    default:"Cash On Delivery"
   },
   coupon_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product', // Reference to the Product model
+    ref: 'coupon', // Reference to the Product model,
+    default:null
   },
   shipping_charge: {
     type: Number,
@@ -33,31 +35,45 @@ const orderModel = new mongoose.Schema({
   discount: {
     type: Number,
     required: true,
+    default:0
   },
   total_amount: {
     type: Number,
     required: true,
   },
-  created_on: {
-    type: String, 
-    default: function () {
-      const now = new Date();
-      const day = now.getDate().toString().padStart(2, '0');
-      const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed
-      const year = now.getFullYear().toString();
-      return `${day}-${month}-${year}`;
-    },
-  },
   payment_status: {
     type: String,
     required: true,
+    default:'Pending'
   },
   order_status: {
     type: String,
     required: true,
+    default:'Placed'
+  },
+  created_on: {
+    type: String,
+    default: function () {
+      const now = new Date();
+      const day = now.getDate().toString().padStart(2, '0');
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const year = now.getFullYear().toString();
+      return `${day}-${month}-${year}`;
+    },
+  },
+  expected_delivery_on: {
+    type: String,
+    default: function () {
+      const now = new Date();
+      const day = now.getDate() + 5;
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const year = now.getFullYear().toString();
+      return `${day}-${month}-${year}`;
+    },
   },
   delivered_on: {
     type: Date,
+    default: null
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
