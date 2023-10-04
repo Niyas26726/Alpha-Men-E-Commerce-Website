@@ -86,3 +86,4 @@ const productModel = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('product', productModel, 'product');
+

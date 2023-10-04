@@ -84,6 +84,7 @@ userRouter.get('/getWishlistCount',auth.isLogin,userController.getWishlistCount)
 userRouter.get('/checkOutPage',auth.isLogin,userController.checkOutPage);
 userRouter.post('/processPayment',auth.isLogin,userController.processPayment);
 
+userRouter.get('/getOrderDetails/:orderId',auth.isLogin,userController.getOrderDetails);
 
 
 userRouter.get('/addNewAddress',auth.isLogin,userController.addNewAddress);

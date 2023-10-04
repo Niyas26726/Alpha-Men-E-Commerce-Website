@@ -865,6 +865,154 @@ const checkOutPage = async (req, res) => {
    }
 }
 
+   const getOrderDetails = async (req, res) => {
+      const orderId = req.params.orderId;
+
+      try {
+         // Fetch order details based on orderId and populate all related fields
+         const orderDetails = await Order.findById(orderId)
+            .populate([
+                  {
+                     path: 'user_id',
+                     model: 'user', // Reference to the User model
+                     select: 'first_name last_name email mobile', // Select the user-related fields
+                  },
+                  {
+                     path: 'items.product_id',
+                     model: 'product',
+                  },
+                  {
+                     path: 'address',
+                     model: 'address',
+                  }
+            ]);
+
+         if (!orderDetails) {
+            return res.status(404).send('Order not found');
+         }
+         
+         // Calculate and populate quantity total
+         const quantityTotal = orderDetails.items.reduce((total, item) => total + item.quantity, 0);
+         
+         // Calculate and populate shipping fee total
+         const shippingFeeTotal = orderDetails.items.reduce((total, item) => total + (item.product_id.shipping_fee || 0), 0);
+         
+         // Calculate and populate sales price total
+         const salesPriceTotal = orderDetails.items.reduce((total, item) => total + item.sales_price, 0);
+         
+         // Calculate and populate grand total
+         const grandTotal = (shippingFeeTotal || 0) + salesPriceTotal;
+
+
+         console.log("orderDetails ===> ",orderDetails);
+         
+
+         const orderHtml = `
+         <div style="display: flex; flex-direction: row;">
+         <div style="margin-right: 20px;">
+                  <h2 class="p-30">User Details:</h2>
+                  <p>Customer: ${orderDetails.user_id?.first_name || 'N/A'} ${orderDetails.user_id?.last_name || 'N/A'}</p>
+                  <p>Email: ${orderDetails.user_id?.email || 'N/A'}</p>
+                  <p>Mobile: ${orderDetails.user_id?.mobile || 'N/A'}</p>
+                  <p>Payment Method: ${orderDetails.payment_method || 'N/A'}</p>
+                  <p>Payment Status: ${orderDetails.payment_status || 'N/A'}</p>
+                  <p>Order Status: ${orderDetails.order_status || 'N/A'}</p>
+            </div>
+      
+            <div>
+                  <h2 class="p-30">Order details:</h2>
+                  <p>Order ID: ${orderDetails._id}</p>
+                  <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
+                  <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
+                  <p>Delivered On: ${orderDetails.delivered_on || 'Not Delivered'}</p>
+                  <p>Shipping Charge: ${orderDetails.shipping_charge || 'N/A'}</p>
+                  <p>Discount: ${orderDetails.discount || 'N/A'}</p>
+                  <p>Total Amount: ${orderDetails.total_amount || 'N/A'}</p>
+            </div>
+         </div>
+      
+         <h2 class="text-center p-30">User Addresses:</h2>
+         <div style="display: flex; flex-wrap: wrap;"> <!-- Use flex-wrap to wrap address items -->
+            ${orderDetails.address.map((address, index) => `
+                  <div style="flex: 1; margin-right: 20px;"> <!-- Use flex and margin for equal spacing -->
+                     <p>${address.type}</p>
+                     <p>Name: ${address.name}</p>
+                     <p>City/Town/District: ${address.city_town_district}</p>
+                     <p>State: ${address.state}</p>
+                     <p>Address: ${address.address}</p>
+                     <p>Pincode: ${address.pincode}</p>
+                     <p>Landmark: ${address.landmark}</p>
+                     <p>Mobile: ${address.mobile}</p>
+                     <p>Alt Mobile: ${address.alt_mobile}</p>
+                  </div>
+            `).join('')}
+         </div>
+      
+         <h2 class="text-center p-30">Order Items:</h2>
+         <style>                            
+         .product-image img {
+            max-width: 100px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+         }
+      </style>                            
+      <table>
+         <thead>
+            <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Shipping Fee</th>
+                  <th>Sales Price</th>
+            </tr>
+         </thead>
+         <tbody>
+            ${orderDetails.items.map((item, index) => `
+                  <tr>
+                     <td>
+                        <div style="display: flex; align-items: center;">
+                              <div style="flex: 0 0 100px;"> <!-- Fixed width for the image -->
+                                 <p class="product-image"><img src="/admin/productImages/${item.product_id.images[0]}" alt="Product Image" width="100" height="100"></p>
+                              </div>
+                              <div style="flex: 1;"> <!-- Flexible width for the product details -->
+                                 <pclass="product-image"><strong>Item ${index + 1}:</strong></p>
+                                 <p>Product Name: ${item.product_id.product_name}</p>
+                              </div>
+                        </div>
+                     </td>
+                     <td class="text-center">${item.quantity}</td>
+                     <td class="text-center">${item.product_id.shipping_fee || 'N/A'}</td>
+                     <td class="text-center">${item.sales_price}</td>
+                  </tr>
+            `).join('')}
+         </tbody>
+         <tfoot>
+            <tr>
+                  <td><strong>Total</strong></td>
+                  <td class="text-center" id="quantity-total">${quantityTotal}</td>
+                  <td class="text-center" id="shipping-fee-total">${shippingFeeTotal}</td>
+                  <td class="text-center" id="sales-price-total">${salesPriceTotal}</td>
+            </tr>
+         </tfoot>
+      </table>
+      <div>
+      <strong>Grand Total:</strong>
+      <span id="grand-total" class="float-right"><strong>${grandTotal}</strong></span>
+   </div>
+   `;
+      
+
+         res.send(orderHtml);
+      } catch (error) {
+         console.error('Error fetching order details:', error);
+         res.status(500).send('Error fetching order details');
+      }
+   }
+
+
+
 const processPayment = async (req, res) => {
    console.log("Reached processPayment");
    try {
@@ -907,7 +1055,7 @@ const processPayment = async (req, res) => {
        }, 0);
        console.log("shippingFee "+shippingFee);
           const totalAmount = items.reduce((total, item) => {
-            return total + item.quantity * item.sales_price;
+            return total + item.quantity * item.sales_price + shippingFee;
           }, 0);
       
           const orderData = {
@@ -1210,6 +1358,7 @@ module.exports = {
    addToCart_forProductQuantity,
    getCartTotals,
    checkOutPage,
-   processPayment
+   processPayment,
+   getOrderDetails
 }
 

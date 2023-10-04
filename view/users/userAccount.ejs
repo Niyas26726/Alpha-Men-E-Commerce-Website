@@ -117,6 +117,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                                        <%if(userOrders.length != 0){%>
                                         <div class="card">
                                           <div class="card-header">
                                             <h5 class="mb-0">Your Orders</h5>
@@ -141,8 +142,10 @@
                                                     <td><%= order.created_on %></td> <!-- Replace with the order date field -->
                                                     <td><%= order.order_status %></td> <!-- Replace with the order status field -->
                                                     <td>$<%= order.total_amount.toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
-                                                    <td><a href="#" class="btn-small d-block">View</a></td>
-                                                  </tr>
+                                                    <td>
+                                                        <a href="#" class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
+                                                    </td>
+                                                </tr>
                                                   <% } %>
                                                   <!-- End of iteration -->
                                                 </tbody>
@@ -150,8 +153,23 @@
                                             </div>
                                           </div>
                                         </div>
-                                      </div>
+                                        <%} else {%>
+                                            <div class="text-center">
+                                                <h2 class="mb-0">You have not made any orders yet</h2>
+                                                <a class="btn" href="#" onclick="goBack()"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+
+                                            </div>
+                                        <%}%>
+
+                                    </div>
                                       
+                                    <div class="container ">
+                                        <h3 class="text-center Order_Details p-30" style="display: none;"><u><strong>Order Details</strong></u></h3>
+                                        <div class="order-details border p-30" style="display: none;">
+                                            <!-- Order details content will be inserted here -->
+                                        </div>
+                                    </div>
+                                    
 
                                     <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                         aria-labelledby="track-orders-tab">
@@ -415,5 +433,53 @@ $("#profileImage").on("change", function() {
     }
 });
 
+$(document).ready(function () {
+    $('.view-details').click(function () {
+        const orderId = $(this).data('order-id');
+        const orderDetailsContainer = $('.order-details');
+        const orderDetails = $('.Order_Details');
+        
+        $.ajax({
+            url: `/getOrderDetails/${orderId}`,
+            method: 'GET',
+            success: function (data) {
+                orderDetailsContainer.html(data);
+                orderDetails.show();
+                orderDetailsContainer.show();
+                $('#orders').hide();
+                
+                // Add a click event listener to the document body to close the order details
+                $('body').on('click', function (event) {
+                    if (!$(event.target).closest('.order-details').length) {
+                        // Click was outside the order details container
+                        orderDetailsContainer.hide();
+                        orderDetails.hide();
+                        $('#orders').show();
+                        // Remove the click event listener
+                        $('body').off('click');
+                    }
+                });
+            },
+            error: function () {
+                alert('Failed to fetch order details.');
+            }
+        });
+    });
+});
+
+function goBack() {
+    const previousPage = document.referrer;
+    
+    if (previousPage) {
+        window.location.href = previousPage;
+    } else {
+        window.location.href = "/home";
+    }
+}
+
+
 </script>
     <%-include("footer")-%>
+
+
+    
