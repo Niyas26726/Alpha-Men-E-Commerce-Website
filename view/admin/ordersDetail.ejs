@@ -1,0 +1,170 @@
+<%- include("header") %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            <p>Details for Order ID: <%= order._id %></p>
+        </div>
+    </div>
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <span>
+                        <i class="material-icons md-calendar_today"></i> <b><%= order.created_on %></b>
+                    </span> <br>
+                    <small class="text-muted">Order ID: <%= order._id %></small>
+                    <input id="order_id" type="hidden" value="<%= order._id %>">
+                </div>
+                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                    <select id="orderStatusSelect" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
+                        <option selected>Placed</option>
+                        <option>Packed</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                        <option>Returned</option>
+                    </select>
+                    <a class="btn btn-primary" id="saveStatusBtn" href="#">Save</a>
+                    <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                <%= order.user_id.first_name %> <%= order.user_id.last_name %> <br>
+                                <%= order.user_id.email %> <br>
+                                +91 <%= order.user_id.mobile %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-local_shipping"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Billing Address</h6>
+                            <p class="mb-1">
+                                From: <br> City: <%= order.address[0].city_town_district %> <br>
+                                Address: <%= order.address[0].address %> <br>
+                                Pincode: <%= order.address[0].pincode %> <br>
+                                Status: <%= order.order_status %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Shipping Address</h6>
+                            <p class="mb-1">
+                                To: <br>
+                                City: <%= order.address[1].city_town_district %>, <%= order.address[1].state %> <br>
+                                Address: <%= order.address[1].address %> <br>
+                                Pincode <%= order.address[1].pincode %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (const item of order.items) { %>
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="#">
+                                            <div class="left">
+                                                <% console.log('Product Images:', item.product_id.images); %>
+
+                                                <% if (item.product_id && item.product_id.images) { %>
+                                                    <% console.log('Image URL:', item.product_id.images); %>
+                                                    <img src="/admin/productImages/<%= item.product_id.images[0] %>" width="40" height="40" class="img-xs" alt="Item">
+                                                <% } else { %>
+                                                    <!-- Provide a fallback image or message if the image is missing -->
+                                                    <% console.log('Image not found. Using fallback image.'); %>
+                                                    <img src="/admin/productImages/default.jpg" width="40" height="40" class="img-xs" alt="Item">
+                                                <% } %>
+                                            </div>
+                                                                                        
+                                            <div class="info"> <%= item.product_id.product_name %> </div>
+                                        </a>
+                                    </td>
+                                                                
+                                    <td> $<%= item.sales_price %> </td>
+                                    <td> <%= item.quantity %> </td>
+                                    <td class="text-end"> $<%= item.sales_price * item.quantity %> </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4">
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Payment info</h6>
+                        <p>
+                            <%= order.payment_method %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('saveStatusBtn').addEventListener('click', function () {
+    const selectedStatus = document.getElementById('orderStatusSelect').value;
+    console.log("selectedStatus:", selectedStatus); // Use console.log instead of alert
+
+    const orderId = document.getElementById('order_id').value;
+    console.log("orderId:", orderId); // Use console.log instead of alert
+    
+    // Send an AJAX request to update the order status
+    fetch('/admin/updateOrderStatus', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, selectedStatus }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("data:", data); // Use console.log for debugging
+        // Handle the response here (e.g., show a success message)
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+    });
+});
+
+
+</script>
+
+<%- include("footer") %>

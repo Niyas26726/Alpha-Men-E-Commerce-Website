@@ -909,43 +909,45 @@ const checkOutPage = async (req, res) => {
 
          const orderHtml = `
          <div style="display: flex; flex-direction: row;">
-         <div style="margin-right: 20px;">
-         <h3 class="p-30 m-0">
-            Order Status: 
-         </h3>
-         <span class="m-30 ${
-            orderDetails.order_status === 'Placed'
-               ? 'alert alert-success'
-               : orderDetails.order_status === 'Canceled'
-                  ? 'alert alert-danger'
-                  : orderDetails.order_status === 'Returned'
-                     ? 'alert alert-info'
-                     : 'alert alert-success'
-         }">
-            ${orderDetails.order_status || 'N/A'}
-         </span>
-         <div>
-            ${orderDetails.order_status === 'Placed'
-               ? `<button style="margin-top:50px; display: block;" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
-               : orderDetails.order_status === 'Delivered'
-                  ? `<button style="margin-top:50px; display: block;" onclick="returnOrder('${orderDetails._id}')">Return Order</button>`
-                  : ''}
+         <div style="flex: 1; margin-right: 20px;">
+            <h3 class="p-30 m-0">
+               Order Status: 
+            </h3>
+            <span style="margin:30px;" class="m-50 ${
+               orderDetails.order_status === 'Placed'
+                  ? 'alert alert-success'
+                  : orderDetails.order_status === 'Canceled'
+                     ? 'alert alert-danger'
+                     : orderDetails.order_status === 'Returned'
+                        ? 'alert alert-info'
+                        : 'alert alert-success'
+            }">
+               ${orderDetails.order_status || 'N/A'}
+            </span>
+            <div>
+               ${
+                  orderDetails.order_status === 'Placed'
+                     ? `<button style="margin:30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
+                     : orderDetails.order_status === 'Delivered'
+                        ? `
+                        <button style="margin:30px; background-color: #0dcaf0; display: block;" class="btn btn-info m-50" onclick="returnOrder('${orderDetails._id}')">Return Order</button>
+                        <button style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
+                        : ''
+               }
+            </div>
+         </div>
+         <div style="flex: 1;">
+            <h2 class="p-30">Order details:</h2>
+            <p>Order ID: ${orderDetails._id}</p>
+            <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
+            <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
+            <p>Delivered On: ${orderDetails.delivered_on || 'Not Delivered'}</p>
+            <p>Shipping Charge: ${orderDetails.shipping_charge || 'N/A'}</p>
+            <p>Discount: ${orderDetails.discount || 'N/A'}</p>
+            <p>Total Amount: ${orderDetails.total_amount || 'N/A'}</p>
          </div>
       </div>
       
-      
-               <div>
-   
-                  <h2 class="p-30">Order details:</h2>
-                  <p>Order ID: ${orderDetails._id}</p>
-                  <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
-                  <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
-                  <p>Delivered On: ${orderDetails.delivered_on || 'Not Delivered'}</p>
-                  <p>Shipping Charge: ${orderDetails.shipping_charge || 'N/A'}</p>
-                  <p>Discount: ${orderDetails.discount || 'N/A'}</p>
-                  <p>Total Amount: ${orderDetails.total_amount || 'N/A'}</p>
-            </div>
-         </div>
       
          <h2 class="text-center p-30">User Addresses:</h2>
          <div style="display: flex; flex-wrap: wrap;"> <!-- Use flex-wrap to wrap address items -->

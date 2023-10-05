@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const category = require('../models/categoryModel'); 
 const product = require('../models/productModel'); 
 const admin = require('../models/adminModel'); 
+const order = require('../models/orderModel'); 
 
 
 const loadLogin = async (req, res) => {
@@ -416,6 +417,71 @@ const userList = async (req, res) => {
    }
 }
 
+const orderList = async (req, res) => {
+   try {
+      const orderData = await order.find({})
+         .populate('user_id', 'first_name last_name email') // Populate user information
+         .select('_id total_amount order_status created_on') // Select specific fields
+         // .sort({ created_on: 1 }); // Sort by created_on in descending order
+
+      // Reverse the order of orderData array
+      orderData.reverse();
+
+      res.render('orderList', { orders: orderData });
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+
+const ordersDetail = async (req, res) => {
+   console.log("Reached ordersDetail");
+   try {
+      const orderId = req.params.orderId; // Assuming you can access the order ID from the request parameters
+
+      // Use Mongoose's populate method to populate the necessary fields
+      const orderData = await order.findById(orderId)
+        .populate({
+          path: 'user_id',
+          model: User,
+          select: 'first_name last_name email mobile addresses', // Select the user fields you need
+        })
+        .populate({
+          path: 'items.product_id',
+          model: product,
+          select: 'product_name regular_price sales_price images', // Select the product fields you need
+        })
+        .exec();
+
+      if (!orderData) {
+        // Handle the case where the order with the provided ID does not exist
+        return res.status(404).send('Order not found');
+      }
+      console.log("orderData : ",orderData);
+      res.render('ordersDetail', { order: orderData });
+   } catch (error) {
+      console.log(error.message);
+      res.status(500).send('Internal Server Error');
+   }
+}
+
+const updateOrderStatus = async (req, res) => {
+   try {
+      console.log("Reached updateOrderStatus");
+      const { orderId, selectedStatus } = req.body;
+      console.log("orderId, selectedStatus : ",orderId, selectedStatus);
+
+      // Update the order status in the database (using Mongoose in this example)
+      await order.findByIdAndUpdate(orderId, { order_status: selectedStatus });
+
+      // Respond with a success message
+      res.json({ success: true, message: 'Order status updated successfully' });
+  } catch (error) {
+      // Handle errors and respond with an error message
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Error updating order status' });
+  }
+}
 
 const addUser = async (req, res) => {
    try {
@@ -519,5 +585,8 @@ module.exports = {
    updateProduct,
    userList,
    toggleBlockStatusUsers,
+   orderList,
+   ordersDetail,
+   updateOrderStatus
 }
 

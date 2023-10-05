@@ -1,0 +1,65 @@
+<%- include("header") %>
+
+<section class="content-main">
+   <div class="content-header">
+      <div>
+         <h2 class="content-title card-title">Order List</h2>
+         <p>Lorem ipsum dolor sit amet.</p>
+      </div>
+      <div>
+         <input type="text" placeholder="Search order ID" class="form-control bg-white">
+      </div>
+   </div>
+   <div class="card mb-4">
+      <header class="card-header">
+         <!-- Search and filter options here -->
+      </header>
+      <div class="card-body">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>#ID</th>
+                     <th scope="col">Name</th>
+                     <th scope="col">Email</th>
+                     <th scope="col">Total</th>
+                     <th scope="col">Status</th>
+                     <th scope="col">Date</th>
+                     <th scope="col" class="text-end">Action</th>
+                  </tr>
+               </thead>
+               <tbody>
+                <% 
+                
+                for (const order of orders) { 
+             %>
+             <tr>
+                <td><%= order._id %></td>
+                <td><b><%= order.user_id.first_name %> <%= order.user_id.last_name %></b></td>
+                <td><%= order.user_id.email %></td>
+                <td>$<%= order.total_amount %></td>
+                <td>
+                   <span class="badge rounded-pill <%= 
+                   order.order_status === 'Pending' ? 'alert-warning' :
+                   order.order_status === 'Canceled' ? 'alert-danger' :
+                   order.order_status === 'Return' ? 'alert-info' :
+                   'alert-success' %>">
+                   <%= order.order_status %>
+                </span>
+                </td>
+                <td><%= order.created_on %></td>
+                <td class="text-end">
+                   <a href="/admin/ordersDetail/<%= order._id %>" class="btn btn-md rounded font-sm">View Detail</a>
+                </td>
+             </tr>
+             <% } %>
+             
+                  
+               </tbody>
+            </table>
+         </div> <!-- table-responsive //end -->
+      </div> <!-- card-body end// -->
+   </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+
+<%- include("footer") %>

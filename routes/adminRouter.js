@@ -55,7 +55,10 @@ adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
 adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
 adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
 adminRouter.get('/userList',auth.isLogin,adminController.userList);
-
+adminRouter.get('/orderList',auth.isLogin,adminController.orderList);
+adminRouter.get('/ordersDetail/:orderId',auth.isLogin,adminController.ordersDetail);
+adminRouter.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus);
+// 
 adminRouter.post('/editProducts/:productId',auth.isLogin, upload.array('images'), adminController.updateProduct);
 
 adminRouter.post('/searchUser',auth.isLogin,adminController.searchUser);
