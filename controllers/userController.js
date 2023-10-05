@@ -910,16 +910,32 @@ const checkOutPage = async (req, res) => {
          const orderHtml = `
          <div style="display: flex; flex-direction: row;">
          <div style="margin-right: 20px;">
-                  <h2 class="p-30">User Details:</h2>
-                  <p>Customer: ${orderDetails.user_id?.first_name || 'N/A'} ${orderDetails.user_id?.last_name || 'N/A'}</p>
-                  <p>Email: ${orderDetails.user_id?.email || 'N/A'}</p>
-                  <p>Mobile: ${orderDetails.user_id?.mobile || 'N/A'}</p>
-                  <p>Payment Method: ${orderDetails.payment_method || 'N/A'}</p>
-                  <p>Payment Status: ${orderDetails.payment_status || 'N/A'}</p>
-                  <p>Order Status: ${orderDetails.order_status || 'N/A'}</p>
-            </div>
+         <h3 class="p-30 m-0">
+            Order Status: 
+         </h3>
+         <span class="m-30 ${
+            orderDetails.order_status === 'Placed'
+               ? 'alert alert-success'
+               : orderDetails.order_status === 'Canceled'
+                  ? 'alert alert-danger'
+                  : orderDetails.order_status === 'Returned'
+                     ? 'alert alert-info'
+                     : 'alert alert-success'
+         }">
+            ${orderDetails.order_status || 'N/A'}
+         </span>
+         <div>
+            ${orderDetails.order_status === 'Placed'
+               ? `<button style="margin-top:50px; display: block;" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
+               : orderDetails.order_status === 'Delivered'
+                  ? `<button style="margin-top:50px; display: block;" onclick="returnOrder('${orderDetails._id}')">Return Order</button>`
+                  : ''}
+         </div>
+      </div>
       
-            <div>
+      
+               <div>
+   
                   <h2 class="p-30">Order details:</h2>
                   <p>Order ID: ${orderDetails._id}</p>
                   <p>Created On: ${orderDetails.created_on || 'N/A'}</p>

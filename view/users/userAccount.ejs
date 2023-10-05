@@ -135,12 +135,24 @@
                                                   </tr>
                                                 </thead>
                                                 <tbody>
+                                                    <style>
+                                                        /* Define styles for the success message */
+                                                        .status-badge.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 5px 5px; /* Adjust top and bottom padding as needed */
+    border-radius: 10px;
+}
+
+                                                    </style>
                                                   <!-- Iterate through userOrders to generate table rows -->
                                                   <% for (const order of userOrders) { %>
                                                   <tr class="text-center">
                                                     <td><%= order.address[0].name %></td> <!-- Display the name from the billing address -->
                                                     <td><%= order.created_on %></td> <!-- Replace with the order date field -->
-                                                    <td><%= order.order_status %></td> <!-- Replace with the order status field -->
+                                                    <td class="badge rounded-pill alert-success status-badge"><%= order.order_status %></td>
                                                     <td>$<%= order.total_amount.toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
                                                     <td>
                                                         <a href="#" class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
@@ -379,12 +391,9 @@
                     </div>
                 </div>
             </div>
-            <!-- </div>
-            </div> -->
         </section>
     </main>
 <script>
-    // JavaScript code to update the profile image preview
 const profileImageInput = document.getElementById('profileImage');
 const profileImagePreview = document.getElementById('profileImagePreview');
 
@@ -394,17 +403,11 @@ profileImageInput.addEventListener('change', (event) => {
         const url = URL.createObjectURL(file);
         profileImagePreview.src = url;
     } else {
-        // Clear the preview if no file is selected
         profileImagePreview.src = '';
     }
 });
 
-// Assuming you have jQuery included
-
-// Hide the selected profile image preview initially
 $("#selectedProfileImageContainer").hide();
-
-// Listen for changes in the profile image input
 $("#profileImage").on("change", function() {
     const input = this;
     const selectedProfileImageContainer = $("#selectedProfileImageContainer");
@@ -414,21 +417,15 @@ $("#profileImage").on("change", function() {
         const reader = new FileReader();
 
         reader.onload = function(e) {
-            // Display the selected image in selectedProfileImageContainer
             $("#profileImagePreview").attr("src", e.target.result);
             selectedProfileImageContainer.show();
-            
-            // Hide the existing profile image
             existingProfileImage.hide();
         };
 
         reader.readAsDataURL(input.files[0]);
     } else {
-        // Clear the selected image and hide selectedProfileImageContainer
         $("#profileImagePreview").attr("src", "");
         selectedProfileImageContainer.hide();
-
-        // Show the existing profile image or placeholder
         existingProfileImage.show();
     }
 });
@@ -448,14 +445,11 @@ $(document).ready(function () {
                 orderDetailsContainer.show();
                 $('#orders').hide();
                 
-                // Add a click event listener to the document body to close the order details
                 $('body').on('click', function (event) {
                     if (!$(event.target).closest('.order-details').length) {
-                        // Click was outside the order details container
                         orderDetailsContainer.hide();
                         orderDetails.hide();
                         $('#orders').show();
-                        // Remove the click event listener
                         $('body').off('click');
                     }
                 });
