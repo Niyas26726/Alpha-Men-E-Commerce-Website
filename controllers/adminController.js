@@ -458,7 +458,8 @@ const ordersDetail = async (req, res) => {
         return res.status(404).send('Order not found');
       }
       console.log("orderData : ",orderData);
-      res.render('ordersDetail', { order: orderData });
+      const currentOrderStatus = orderData.order_status; // Replace with the actual way you get the order status
+      res.render('ordersDetail', { order: orderData, currentOrderStatus });
    } catch (error) {
       console.log(error.message);
       res.status(500).send('Internal Server Error');

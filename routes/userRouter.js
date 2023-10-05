@@ -104,7 +104,7 @@ userRouter.post('/resetpassword',auth.isLogout,userController.changepassword)
 
 
 
-userRouter.get('*',(req,res)=>{res.render('page-404')})
+// userRouter.get('*',(req,res)=>{res.render('page-404')})
 // userRouter.get('*',(req,res)=>{res.redirect('/')})
 
 module.exports = userRouter;
