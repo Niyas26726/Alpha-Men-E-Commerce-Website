@@ -870,6 +870,8 @@ const checkOutPage = async (req, res) => {
 }
 
    const getOrderDetails = async (req, res) => {
+      console.log("Reached getOrderDetails");
+
       const orderId = req.params.orderId;
 
       try {
@@ -1026,84 +1028,116 @@ const checkOutPage = async (req, res) => {
    </div>
    `;
       
-
-         res.send(orderHtml);
+         if(req.session.user_id){
+            res.send(orderHtml);
+         }
+         else{
+            res.redirect('/')
+         }
       } catch (error) {
          console.error('Error fetching order details:', error);
          res.status(500).send('Error fetching order details');
       }
    }
 
-
-
-const processPayment = async (req, res) => {
-   console.log("Reached processPayment");
-   try {
-      const userId= req.session.user_id
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-      const user = 1
-      const userData = await User.findById({_id:userId})
-
-      const selectedBillingAddress = req.body.selectedBillingAddress;
-      const selectedShippingAddress = req.body.selectedShippingAddress;
-      const paymentOption = req.body.paymentOption;
-
-      console.log("selectedBillingAddress " +selectedBillingAddress);
-      console.log("selectedShippingAddress " +selectedShippingAddress);
-      console.log("paymentOption " +paymentOption);
-
-      User.findById(userId)
-        .populate(['cart.product',"addresses"])
-        .exec()
-        .then(user => {
-          if (!user) {
-            throw new Error('User not found');
-          }
-      
-      const billingAddress = user.addresses.find(address => address._id.equals(selectedBillingAddress));
-      const shippingAddress = user.addresses.find(address => address._id.equals(selectedShippingAddress));
-
-      console.log("billingAddress " + billingAddress);
-      console.log("shippingAddress " + shippingAddress);
-            
-          const items = user.cart.map(cartItem => ({
-            product_id: cartItem.product._id,
-            quantity: cartItem.quantity,
-            sales_price: cartItem.product.sales_price,
-          }));
-      
-        const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
-         return totalShippingFee + (cartItem.product.shipping_fee || 0);
-       }, 0);
-       console.log("shippingFee "+shippingFee);
-          const totalAmount = items.reduce((total, item) => {
-            return total + item.quantity * item.sales_price + shippingFee;
-          }, 0);
-      
-          const orderData = {
-            items,
-            shipping_charge: shippingFee,
-            total_amount: totalAmount,
-            user_id: userId,
-            address: [billingAddress, shippingAddress],
-          };
-      
-          const newOrder = new Order(orderData);
-          const saved = newOrder.save();
-      })
-      .then(async savedOrder => {
-         console.log('Order saved successfully:', savedOrder);
-         const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
-         res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
-       })
-         .catch(error => {
-          console.error('Error saving order:', error);
-        });
-         } catch (error) {
-      console.log(error.message)
+   const processPayment = async (req, res) => {
+      console.log("Reached processPayment");
+      try {
+         const userId = req.session.user_id;
+         const categorieData = await category.find({});
+         const productData = await product.find({});
+         const user = 1;
+         const userData = await User.findById({ _id: userId });
+   
+         const selectedBillingAddress = req.body.selectedBillingAddress;
+         const selectedShippingAddress = req.body.selectedShippingAddress;
+         const paymentOption = req.body.paymentOption;
+   
+         console.log("selectedBillingAddress " + selectedBillingAddress);
+         console.log("selectedShippingAddress " + selectedShippingAddress);
+         console.log("paymentOption " + paymentOption);
+   
+         // Define the items array here
+         const items = [];
+   
+         User.findById(userId)
+            .populate(['cart.product', "addresses"])
+            .exec()
+            .then(user => {
+               if (!user) {
+                  throw new Error('User not found');
+               }
+   
+               const billingAddress = user.addresses.find(address => address._id.equals(selectedBillingAddress));
+               const shippingAddress = user.addresses.find(address => address._id.equals(selectedShippingAddress));
+   
+               console.log("billingAddress " + billingAddress);
+               console.log("shippingAddress " + shippingAddress);
+   
+               // Populate the items array
+               items.push(
+                  ...user.cart.map(cartItem => ({
+                    product_id: cartItem.product._id,
+                    quantity: cartItem.quantity,
+                    sales_price: cartItem.product.sales_price,
+                    product_quantity: cartItem.product.stock || 0, // Add product quantity
+                  }))
+                );
+                
+   
+               const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
+                  return totalShippingFee + (cartItem.product.shipping_fee || 0);
+               }, 0);
+               console.log("shippingFee " + shippingFee);
+               const totalAmount = items.reduce((total, item) => {
+                  return total + item.quantity * item.sales_price + shippingFee;
+               }, 0);
+   
+               const orderData = {
+                  items,
+                  shipping_charge: shippingFee,
+                  total_amount: totalAmount,
+                  user_id: userId,
+                  address: [billingAddress, shippingAddress],
+               };
+   
+               const newOrder = new Order(orderData);
+               const saved = newOrder.save();
+            })
+            .then(async savedOrder => {
+               console.log('Order saved successfully:', savedOrder);
+   
+               // Now the items array is accessible here
+               for (const item of items) {
+                  console.log("items ==>  ",items);
+                  const Product = await product.findById(item.product_id);
+                  if (!Product) {
+                     console.error(`Product with ID ${item.product_id} not found.`);
+                     continue;
+                  }
+                  console.log("Product ==> ",Product);
+                  console.log("Product.stock ==> ",Product.stock);
+                  console.log("item.quantity ==> ",item.quantity);
+                  // Update product quantity by subtracting the ordered quantity
+                  Product.stock -= item.quantity;
+                  console.log("Product.quantity ==> ",Product.stock);
+   
+                  // Save the updated product
+                  await Product.save();
+                  console.log("await Product.save(); ==> ",await Product.save());
+               }
+   
+               const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
+               res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
+            })
+            .catch(error => {
+               console.error('Error saving order:', error);
+            });
+      } catch (error) {
+         console.log(error.message);
+      }
    }
-}
+   
 
 
 const filteredByCatagoryFromHome = async (req, res) => {
