@@ -75,6 +75,10 @@
       type: Date,
       default: null
     },
+    return_Reason:{
+      type: String,
+      default:null,
+    },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user', // Reference to the User model

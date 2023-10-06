@@ -1,5 +1,14 @@
 <%- include("header") %>
 
+<style>
+    .responsive-content {
+        max-width: 500px; /* Adjust the width as needed */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+
 <section class="content-main">
     <div class="content-header">
         <div>
@@ -9,14 +18,23 @@
     </div>
     <div class="card">
         <header class="card-header">
-            <div class="row align-items-center">
-                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
-                    <span>
-                        <i class="material-icons md-calendar_today"></i> <b><%= order.created_on %></b>
-                    </span> <br>
-                    <small class="text-muted">Order ID: <%= order._id %></small>
-                    <input id="order_id" type="hidden" value="<%= order._id %>">
-                </div>
+            <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                <span>
+                    <i class="material-icons md-calendar_today"></i> <b><%= order.created_on %></b>
+                </span> <br>
+                <small class="text-muted">Order ID: <%= order._id %></small>
+                <input id="order_id" type="hidden" value="<%= order._id %>">
+                
+                <!-- Display return request status -->
+                <% if (order.return_Reason) { %>
+                    <!-- Scrollable modal -->
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        Return Reason: <%= order.return_Reason%>
+                    </div>
+                <% } %>
+            </div>
+                            
+                                
 <% if (currentOrderStatus !== 'Delivered' && currentOrderStatus !== 'Canceled' && currentOrderStatus !== 'Request Approved' && currentOrderStatus !== 'Request Canceled') { %>
     <div class="col-lg-6 col-md-6 ms-auto text-md-end" id="selectionContainer">
         <select id="orderStatusSelect" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">

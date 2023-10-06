@@ -53,9 +53,7 @@ const insertUser = async (req, res) => {
                res.redirect(`/register?err=${false}&msg=Sign Up Successfull click the link bellow to Login`);
             }
          }
-
       }
-
    } catch (error) {
       console.log(error.message)
    }
@@ -1229,17 +1227,17 @@ const returnOrder = async (req, res) => {
    try {
       const orderId = req.params.orderId;
       console.log("orderId ",orderId);
-  
+      console.log("req.body.returnReason ",req.body.returnReason);
+      const return_Reason = req.body.returnReason
       const updatedOrder = await Order.findByIdAndUpdate(
          orderId,
          {
-           return_Request: true,
+           return_Reason: return_Reason ,// Insert returnReason into return_Reason field
            order_status: "Return Requested"
          },
          { new: true }
        );
       console.log("order_status ",updatedOrder.order_status );
-      console.log("updatedOrder.return_Request ",updatedOrder.return_Request );
       console.log("updatedOrder ",updatedOrder );
   
       if (!updatedOrder) {
