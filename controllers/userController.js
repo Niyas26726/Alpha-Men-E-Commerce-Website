@@ -909,14 +909,16 @@ const checkOutPage = async (req, res) => {
             <h3 class="p-30 m-0">
                Order Status: 
             </h3>
-            <span id="order_status" style="margin:30px;" class="m-50 ${
+            <span id="order_status" style="margin-left:30px;" class="m-50 ${
                orderDetails.order_status === 'Placed'
                   ? 'alert alert-success'
                   : orderDetails.order_status === 'Canceled'
                      ? 'alert alert-danger'
-                     : orderDetails.order_status === 'Returned'
+                     : orderDetails.order_status === 'Return Requested'
                         ? 'alert alert-info'
-                        : 'alert alert-success'
+                        : orderDetails.order_status === 'Request Canceled'
+                           ? 'alert alert-danger'
+                              : 'alert alert-success'
             }">
                ${orderDetails.order_status || 'N/A'}
             </span>
@@ -934,7 +936,7 @@ const checkOutPage = async (req, res) => {
                         Return Order
                         </button>
 
-                        <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class=" btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
+                        <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
                         : ''
                }
             </div>
@@ -1194,14 +1196,13 @@ const returnOrder = async (req, res) => {
       const orderId = req.params.orderId;
       console.log("orderId ",orderId);
   
-      // Update the order with cancel_Request set to true
       const updatedOrder = await Order.findByIdAndUpdate(
          orderId,
          {
            return_Request: true,
            order_status: "Return Requested"
          },
-         { new: true } // This option returns the updated document
+         { new: true }
        );
       console.log("order_status ",updatedOrder.order_status );
       console.log("updatedOrder.return_Request ",updatedOrder.return_Request );
