@@ -17,24 +17,25 @@
                     <small class="text-muted">Order ID: <%= order._id %></small>
                     <input id="order_id" type="hidden" value="<%= order._id %>">
                 </div>
-                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                    <select id="orderStatusSelect" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
-                        <% if (currentOrderStatus === 'Return Requested') { %>
-                            <option value="Request Approved">Approve</option>
-                            <option value="Request Canceled">Cancel Request</option>
-                        <% } else { %>
-                            <option value="Placed" <%= currentOrderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
-                            <option value="Packed" <%= currentOrderStatus === 'Packed' ? 'selected' : '' %>>Packed</option>
-                            <option value="Canceled" <%= currentOrderStatus === 'Canceled' ? 'selected' : '' %>>Canceled</option>
-                            <option value="Shipped" <%= currentOrderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                            <option value="Delivered" <%= currentOrderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                            <option value="Return Requested" <%= currentOrderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
-                        <% } %>
-                    </select>
-                    <a class="btn btn-primary" id="saveStatusBtn">Save</a>
-                    <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
-                </div>
-                
+<% if (currentOrderStatus !== 'Delivered' && currentOrderStatus !== 'Canceled' && currentOrderStatus !== 'Request Approved' && currentOrderStatus !== 'Request Canceled') { %>
+    <div class="col-lg-6 col-md-6 ms-auto text-md-end" id="selectionContainer">
+        <select id="orderStatusSelect" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
+            <% if (currentOrderStatus === 'Return Requested') { %>
+                <option value="Request Approved">Approve</option>
+                <option value="Request Canceled">Cancel Request</option>
+            <% } else { %>
+                <option value="Placed" <%= currentOrderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                <option value="Packed" <%= currentOrderStatus === 'Packed' ? 'selected' : '' %>>Packed</option>
+                <option value="Shipped" <%= currentOrderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                <option value="Delivered" <%= currentOrderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                <!-- <option value="Return Requested" <%= currentOrderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option> -->
+            <% } %>
+        </select>
+        <a class="btn btn-primary" id="saveStatusBtn">Save</a>
+        <!-- <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a> -->
+    </div>
+<% } %>
+                                
             </div>
         </header>
         <div class="card-body">
@@ -191,6 +192,31 @@ document.getElementById('saveStatusBtn').addEventListener('click', function () {
         console.error('Error:', error);
     });
 });
+
+
+const saveStatusBtn = document.getElementById('saveStatusBtn');
+const selectionContainer = document.getElementById('selectionContainer');
+const orderStatusSelect = document.getElementById('orderStatusSelect');
+
+saveStatusBtn.addEventListener('click', function () {
+    const selectedValue = orderStatusSelect.value;
+    if (selectedValue === 'Delivered' || selectedValue === 'Canceled' || selectedValue === 'Request Approved' || selectedValue === 'Request Canceled') {
+        // Hide the selection region and the Save button
+        selectionContainer.style.display = 'none';
+        saveStatusBtn.style.display = 'none';
+    }
+});
+
+// Handle selection change event
+orderStatusSelect.addEventListener('change', function () {
+    const selectedValue = orderStatusSelect.value;
+    if (selectedValue === 'Request Approved' || selectedValue === 'Request Canceled') {
+        // Hide the selection region and the Save button when 'Approve' or 'Cancel' is selected
+        selectionContainer.style.display = 'none';
+        saveStatusBtn.style.display = 'none';
+    }
+});
+
 
 
 </script>
