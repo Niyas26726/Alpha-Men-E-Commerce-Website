@@ -1253,32 +1253,48 @@ const returnOrder = async (req, res) => {
     }
   }
 
-const cancelOrder = async (req, res) => {
+  const cancelOrder = async (req, res) => {
    console.log("Reached cancelOrder");
    try {
       const orderId = req.params.orderId;
-      console.log("orderId ",orderId);
-  
-      // Update the order with cancel_Request set to true
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        { order_status: "Canceled" },
-        { new: true } // This option returns the updated document
-      );
-      console.log("updatedOrder.cancel_Request ",updatedOrder.cancel_Request );
-      console.log("updatedOrder ",updatedOrder );
-  
-      if (!updatedOrder) {
-        return res.status(404).json({ message: 'Order not found' });
+      console.log("orderId ", orderId);
+
+      const order = await Order.findById(orderId).populate('items.product_id');
+      if (!order) {
+         return res.status(404).json({ message: 'Order not found' });
       }
-  
+
+      for (const item of order.items) {
+         const curr_product_id = item.product_id;
+         const quantityToCancel = item.quantity;
+
+         const Product = await product.findById(curr_product_id);
+
+         if (Product) {
+            Product.stock += quantityToCancel;
+
+            await Product.save();
+         }
+      }
+
+      const updatedOrder = await Order.findByIdAndUpdate(
+         orderId,
+         { order_status: "Canceled" },
+         { new: true }
+      );
+      console.log("updatedOrder.cancel_Request ", updatedOrder.cancel_Request);
+      console.log("updatedOrder ", updatedOrder);
+
+      if (!updatedOrder) {
+         return res.status(404).json({ message: 'Order not found' });
+      }
+
       res.json(updatedOrder);
-    } catch (error) {
+   } catch (error) {
       console.error(error);
       res.json({ message: 'Internal Server Error' });
-    }
-  }
-
+   }
+}
 
 const sendOtp = async (req, res) => {
    console.log("OTP Send");
@@ -1301,7 +1317,6 @@ const sendOtp = async (req, res) => {
          res.redirect(`/register?err=${true}&msg=Email is missing`);
       }
 
-      // Function to generate and send OTP
       function sendOTP() {
          generatedOTP = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
 
