@@ -86,6 +86,9 @@ userRouter.post('/processPayment',auth.isLogin,userController.processPayment);
 
 userRouter.get('/getOrderDetails/:orderId',auth.isLogin,userController.getOrderDetails);
 
+userRouter.post('/returnOrder/:orderId',auth.isLogin,userController.returnOrder);
+userRouter.post('/cancelOrder/:orderId',auth.isLogin,userController.cancelOrder);
+
 
 userRouter.get('/addNewAddress',auth.isLogin,userController.addNewAddress);
 userRouter.post('/addNewAddress',auth.isLogin,userController.createNewAddress);

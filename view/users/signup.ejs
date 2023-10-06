@@ -159,12 +159,6 @@ $(document).ready(function() {
     
     $('#otpbtn').click(function(event) {
         event.preventDefault(); // Prevent the default click behavior (e.g., for anchor tags)
-        
-        // Check if OTP has been sent previously
-        // if (otpSent) {
-        //     // alert("Resend OTP");
-        //     return; // Don't proceed further if OTP has been sent
-        // }
 
         // Get the form data and send it via AJAX
         const email = document.getElementById('email').value;

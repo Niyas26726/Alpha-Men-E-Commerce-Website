@@ -152,7 +152,7 @@
                                                   <tr class="text-center">
                                                     <td><%= order.address[0].name %></td> <!-- Display the name from the billing address -->
                                                     <td><%= order.created_on %></td> <!-- Replace with the order date field -->
-                                                    <td class="badge rounded-pill alert-success status-badge"><%= order.order_status %></td>
+                                                    <td><span class="badge rounded-pill alert-success status-badge"><%= order.order_status %></span></td>
                                                     <td>$<%= order.total_amount.toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
                                                     <td>
                                                         <a href="#" class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
@@ -378,11 +378,7 @@
                                                                         name="submit" value="Submit">Save</button>
                                                                 </div>
                                             </form>
-                                                <!-- <p>Already have an account? <a href="page-login-register.html">Log in instead!</a></p> -->
-                                                
                                             </div>
-
-
                                         </div>
                                     </div>
                                 </div>
@@ -469,6 +465,77 @@ function goBack() {
     } else {
         window.location.href = "/home";
     }
+}
+
+function cancelOrder(orderId) {
+  fetch(`/cancelOrder/${orderId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => response.json())
+    .then(updatedOrder => {
+      console.log('Updated Order:', updatedOrder);
+      const statusElement = document.getElementById('order_status');
+      const cancel_btn = document.getElementById('cancel_button');
+
+      statusElement.textContent = 'Canceled';
+      cancel_btn.style.display = 'none'; // Hide the button by setting its display property to 'none'
+      statusElement.classList.remove('alert-success');
+      statusElement.classList.add('alert-danger');
+
+
+    //   if (updatedOrder.cancel_Request) {
+    //     const statusElement = document.querySelector('.order-status');
+    //     if (statusElement) {
+    //       statusElement.textContent = 'Canceled';
+    //       statusElement.classList.remove('alert-success');
+    //       statusElement.classList.add('alert-danger');
+    //     }
+    //   }
+
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+function returnOrder(orderId) {
+    console.log("Reached returnOrder");
+    console.log('orderId:', orderId);
+  fetch(`/returnOrder/${orderId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => response.json())
+    .then(updatedOrder => {
+      console.log('Updated Order:', updatedOrder);
+
+      if (updatedOrder.return_Request) {
+        const statusElement = document.getElementById('order_status');
+        const return_button = document.getElementById('return_button');
+        const invoice_button = document.getElementById('invoice_button');
+
+        statusElement.textContent = 'Returned';
+        return_button.style.display = 'none'; // Hide the button by setting its display property to 'none'
+        invoice_button.style.display = 'none'; // Hide the button by setting its display property to 'none'
+        statusElement.classList.remove('alert-success');
+        statusElement.classList.add('alert-success');
+
+        // if (statusElement) {
+        //   statusElement.textContent = 'Returned';
+        //   statusElement.classList.remove('alert-success');
+        //   statusElement.classList.add('alert-info');
+        // }
+      }
+
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
 

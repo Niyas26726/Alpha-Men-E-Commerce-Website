@@ -51,6 +51,22 @@
       required: true,
       default:'Placed'
     },
+    cancel_Request:{
+      type:Boolean,
+      default: false
+    },
+    cancel_Approved:{
+      type:Boolean,
+      default: false
+    },
+    return_Request:{
+      type:Boolean,
+      default: false
+    },
+    return_Approved:{
+      type:Boolean,
+      default: false
+    },
     created_on: {
       type: String,
       default: function () {

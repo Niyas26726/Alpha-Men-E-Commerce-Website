@@ -19,16 +19,22 @@
                 </div>
                 <div class="col-lg-6 col-md-6 ms-auto text-md-end">
                     <select id="orderStatusSelect" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
-                        <option value="Placed" <%= currentOrderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
-                        <option value="Packed" <%= currentOrderStatus === 'Packed' ? 'selected' : '' %>>Packed</option>
-                        <option value="Canceled" <%= currentOrderStatus === 'Canceled' ? 'selected' : '' %>>Canceled</option>
-                        <option value="Shipped" <%= currentOrderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                        <option value="Delivered" <%= currentOrderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                        <option value="Return" <%= currentOrderStatus === 'Return' ? 'selected' : '' %>>Return</option>
+                        <% if (currentOrderStatus === 'Return') { %>
+                            <option value="Approve">Approve</option>
+                            <option value="Request Canceled">Cancel Request</option>
+                        <% } else { %>
+                            <option value="Placed" <%= currentOrderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                            <option value="Packed" <%= currentOrderStatus === 'Packed' ? 'selected' : '' %>>Packed</option>
+                            <option value="Canceled" <%= currentOrderStatus === 'Canceled' ? 'selected' : '' %>>Canceled</option>
+                            <option value="Shipped" <%= currentOrderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                            <option value="Delivered" <%= currentOrderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                            <option value="Return" <%= currentOrderStatus === 'Return' ? 'selected' : '' %>>Return</option>
+                        <% } %>
                     </select>
-                    <a class="btn btn-primary" id="saveStatusBtn" href="#">Save</a>
+                    <a class="btn btn-primary" id="saveStatusBtn">Save</a>
                     <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
                 </div>
+                
             </div>
         </header>
         <div class="card-body">
@@ -62,6 +68,7 @@
                                 Status: <span style="display: inline-flex; font-size: 15px;" id="orderStatus" class="badge rounded-pill <%= 
                                     order.order_status === 'Pending' ? 'alert-warning' :
                                     order.order_status === 'Canceled' ? 'alert-danger' :
+                                    order.order_status === 'Request Canceled' ? 'alert-danger' :
                                     order.order_status === 'Return' ? 'alert-info' :
                                     'alert-success' %>">
                                     <%= order.order_status %>

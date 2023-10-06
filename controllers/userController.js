@@ -290,7 +290,8 @@ const updateUserAccount = async (req, res) => {
       const user_id = req.session.user_id;
       const categorieData = await category.find({});
       const productData = await product.find({});
-      const userData = await User.findOne({ _id: user_id });
+     const userOrders = await Order.find({ user_id: user_id });
+     const userData = await User.findOne({ _id: user_id });
       console.log("userData " + userData);
 
       const uploadedFile = req.file;
@@ -310,7 +311,7 @@ const updateUserAccount = async (req, res) => {
 
       if (!userData) {
          return res.status(404).render('userAccount', {
-            user: false, product: productData, categories: categorieData, isAuthenticated: false, message: "", errMessage: "User not found"
+            user: false, product: productData, categories: categorieData, isAuthenticated: false, userOrders: userOrders, message: "", errMessage: "User not found"
          });
       }
 
@@ -320,6 +321,7 @@ const updateUserAccount = async (req, res) => {
             user: userData,
             product: productData,
             categories: categorieData,
+            userOrders: userOrders,
             isAuthenticated: false,
             message: "",
             errMessage: "Unauthorized"
@@ -336,6 +338,7 @@ const updateUserAccount = async (req, res) => {
             product: productData,
             categories: categorieData,
             isAuthenticated: true,
+            userOrders: userOrders,
             message: "",
             errMessage: "Current password does not match"
          });
@@ -352,6 +355,7 @@ const updateUserAccount = async (req, res) => {
       res.render('userAccount', {
          user: updatedUserData, // Replace with the updated user data
          product: productData,
+         userOrders: userOrders,
          categories: categorieData,
          isAuthenticated: true,
          message: "User details updated successfully",
@@ -890,17 +894,9 @@ const checkOutPage = async (req, res) => {
          if (!orderDetails) {
             return res.status(404).send('Order not found');
          }
-         
-         // Calculate and populate quantity total
          const quantityTotal = orderDetails.items.reduce((total, item) => total + item.quantity, 0);
-         
-         // Calculate and populate shipping fee total
          const shippingFeeTotal = orderDetails.items.reduce((total, item) => total + (item.product_id.shipping_fee || 0), 0);
-         
-         // Calculate and populate sales price total
          const salesPriceTotal = orderDetails.items.reduce((total, item) => total + item.sales_price, 0);
-         
-         // Calculate and populate grand total
          const grandTotal = (shippingFeeTotal || 0) + salesPriceTotal;
 
 
@@ -913,7 +909,7 @@ const checkOutPage = async (req, res) => {
             <h3 class="p-30 m-0">
                Order Status: 
             </h3>
-            <span style="margin:30px;" class="m-50 ${
+            <span id="order_status" style="margin:30px;" class="m-50 ${
                orderDetails.order_status === 'Placed'
                   ? 'alert alert-success'
                   : orderDetails.order_status === 'Canceled'
@@ -927,11 +923,18 @@ const checkOutPage = async (req, res) => {
             <div>
                ${
                   orderDetails.order_status === 'Placed'
-                     ? `<button style="margin:30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
+                     ? `<button id="cancel_button" style="margin: 30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
                      : orderDetails.order_status === 'Delivered'
                         ? `
-                        <button style="margin:30px; background-color: #0dcaf0; display: block;" class="btn btn-info m-50" onclick="returnOrder('${orderDetails._id}')">Return Order</button>
-                        <button style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
+                        <button id="return_button"
+                        style="margin: 30px; background-color: #0dcaf0; display: block;"
+                        class="btn btn-info m-50"
+                        onclick="returnOrder('${orderDetails._id}')"
+                        >
+                        Return Order
+                        </button>
+
+                        <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class=" btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
                         : ''
                }
             </div>
@@ -1184,6 +1187,64 @@ const userLogout = async (req, res) => {
       console.log(error.message);
    }
 }
+
+const returnOrder = async (req, res) => {
+   console.log("Reached returnOrder");
+   try {
+      const orderId = req.params.orderId;
+      console.log("orderId ",orderId);
+  
+      // Update the order with cancel_Request set to true
+      const updatedOrder = await Order.findByIdAndUpdate(
+         orderId,
+         {
+           return_Request: true,
+           order_status: "Return Requested"
+         },
+         { new: true } // This option returns the updated document
+       );
+      console.log("order_status ",updatedOrder.order_status );
+      console.log("updatedOrder.return_Request ",updatedOrder.return_Request );
+      console.log("updatedOrder ",updatedOrder );
+  
+      if (!updatedOrder) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+  
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+
+const cancelOrder = async (req, res) => {
+   console.log("Reached cancelOrder");
+   try {
+      const orderId = req.params.orderId;
+      console.log("orderId ",orderId);
+  
+      // Update the order with cancel_Request set to true
+      const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { order_status: "Canceled" },
+        { new: true } // This option returns the updated document
+      );
+      console.log("updatedOrder.cancel_Request ",updatedOrder.cancel_Request );
+      console.log("updatedOrder ",updatedOrder );
+  
+      if (!updatedOrder) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+  
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error(error);
+      res.json({ message: 'Internal Server Error' });
+    }
+  }
+
+
 const sendOtp = async (req, res) => {
    console.log("OTP Send");
    try {
@@ -1377,6 +1438,8 @@ module.exports = {
    getCartTotals,
    checkOutPage,
    processPayment,
-   getOrderDetails
+   getOrderDetails,
+   cancelOrder,
+   returnOrder
 }
 
