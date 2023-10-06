@@ -1264,16 +1264,23 @@ const returnOrder = async (req, res) => {
          return res.status(404).json({ message: 'Order not found' });
       }
 
+      console.log("order ==> ",order);
+      console.log("order.items ==> ",order.items);
+
       for (const item of order.items) {
          const curr_product_id = item.product_id;
          const quantityToCancel = item.quantity;
-
          const Product = await product.findById(curr_product_id);
-
-         if (Product) {
-            Product.stock += quantityToCancel;
-
-            await Product.save();
+      console.log("curr_product_id ==> ",curr_product_id);
+      console.log("quantityToCancel ==> ",quantityToCancel);
+      console.log("Product ==> ",Product);
+      
+      
+      if (Product) {
+         Product.stock += quantityToCancel;
+         
+         await Product.save();
+         console.log("await Product.save() ==> ",await Product.save());
          }
       }
 
@@ -1282,7 +1289,7 @@ const returnOrder = async (req, res) => {
          { order_status: "Canceled" },
          { new: true }
       );
-      console.log("updatedOrder.cancel_Request ", updatedOrder.cancel_Request);
+      console.log("updatedOrder.cancel_Request ", updatedOrder.order_status);
       console.log("updatedOrder ", updatedOrder);
 
       if (!updatedOrder) {

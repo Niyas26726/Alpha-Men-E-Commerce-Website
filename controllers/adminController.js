@@ -437,28 +437,26 @@ const orderList = async (req, res) => {
 const ordersDetail = async (req, res) => {
    console.log("Reached ordersDetail");
    try {
-      const orderId = req.params.orderId; // Assuming you can access the order ID from the request parameters
+      const orderId = req.params.orderId;
 
-      // Use Mongoose's populate method to populate the necessary fields
       const orderData = await order.findById(orderId)
         .populate({
           path: 'user_id',
           model: User,
-          select: 'first_name last_name email mobile addresses', // Select the user fields you need
+          select: 'first_name last_name email mobile addresses',
         })
         .populate({
           path: 'items.product_id',
           model: product,
-          select: 'product_name regular_price sales_price images', // Select the product fields you need
+          select: 'product_name regular_price sales_price images',
         })
         .exec();
 
       if (!orderData) {
-        // Handle the case where the order with the provided ID does not exist
         return res.status(404).send('Order not found');
       }
       console.log("orderData : ",orderData);
-      const currentOrderStatus = orderData.order_status; // Replace with the actual way you get the order status
+      const currentOrderStatus = orderData.order_status;
       res.render('ordersDetail', { order: orderData, currentOrderStatus });
    } catch (error) {
       console.log(error.message);
@@ -468,21 +466,34 @@ const ordersDetail = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
    try {
-      console.log("Reached updateOrderStatus");
-      const { orderId, selectedStatus } = req.body;
-      console.log("orderId, selectedStatus : ",orderId, selectedStatus);
+       console.log("Reached updateOrderStatus");
+       const { orderId, selectedStatus } = req.body;
+       console.log("orderId, selectedStatus : ", orderId, selectedStatus);
 
-      // Update the order status in the database (using Mongoose in this example)
-      await order.findByIdAndUpdate(orderId, { order_status: selectedStatus });
+       if (selectedStatus === 'Request Approved') {
+           const Order = await order.findById(orderId).populate('items.product_id');
+           if (!Order) {
+               return res.status(404).json({ success: false, message: 'Order not found' });
+           }
 
-      // Respond with a success message
-      res.json({ success: true, message: 'Order status updated successfully' });
-  } catch (error) {
-      // Handle errors and respond with an error message
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Error updating order status' });
-  }
-}
+           for (const item of Order.items) {
+               const Product = item.product_id;
+               const quantityToIncrease = item.quantity;
+
+               await product.findByIdAndUpdate(Product, { $inc: { stock: quantityToIncrease } });
+
+           }
+       }
+
+       await order.findByIdAndUpdate(orderId, { order_status: selectedStatus });
+
+       res.json({ success: true, message: 'Order status updated successfully' });
+   } catch (error) {
+       console.error(error);
+       res.status(500).json({ success: false, message: 'Error updating order status' });
+   }
+};
+
 
 const addUser = async (req, res) => {
    try {
