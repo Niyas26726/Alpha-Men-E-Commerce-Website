@@ -60,7 +60,110 @@
             </table>
          </div> <!-- table-responsive //end -->
       </div> <!-- card-body end// -->
-   </div> <!-- card end// -->
+   </div>
+   <!-- <div class="pagination-area mt-30 mb-50">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-start">
+            <li class="page-item active"><a class="page-link" href="#">01</a></li>
+            <li class="page-item"><a class="page-link" href="#">02</a></li>
+            <li class="page-item"><a class="page-link" href="#">03</a></li>
+            <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+            <li class="page-item"><a class="page-link" href="#">16</a></li>
+            <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+        </ul>
+    </nav>
+</div> card end// -->
+
+   <!-- Pagination Area -->
+   <div class="pagination-area mt-30 mb-50">
+    <nav aria-label="Page navigation example">
+       <ul class="pagination justify-content-start" id="pagination-container">
+          <!-- Pagination links will be dynamically added here -->
+       </ul>
+    </nav>
+ </div>
+ <!-- Pagination Area End -->
+
+
 </section> <!-- content-main end// -->
 
 <%- include("footer") %>
+
+
+<script>
+    // public/js/pagination.js
+
+const paginationContainer = document.getElementById('pagination-container');
+const ordersContainer = document.getElementById('orders-container');
+let currentPage = 1;
+
+const loadPage = (page) => {
+   fetch(`/admin/orders/${page}`)
+      .then((response) => response.json())
+      .then((data) => {
+         ordersContainer.innerHTML = '';
+
+         data.orders.forEach((order) => {
+            const orderElement = document.createElement('div');
+            // Populate orderElement with order data
+            ordersContainer.appendChild(orderElement);
+         });
+
+         currentPage = page;
+         updatePagination(data.totalPages);
+      })
+      .catch((error) => {
+         console.error(error);
+      });
+};
+
+const updatePagination = (totalPages) => {
+   paginationContainer.innerHTML = '';
+
+   const previousButton = createPaginationButton('Previous', currentPage > 1);
+   previousButton.addEventListener('click', () => {
+      if (currentPage > 1) {
+         loadPage(currentPage - 1);
+      }
+   });
+
+   for (let page = 1; page <= totalPages; page++) {
+      const pageButton = createPaginationButton(page, page !== currentPage);
+      const link = pageButton.querySelector('.page-link');
+
+      link.addEventListener('click', () => {
+         if (page !== currentPage) {
+            loadPage(page);
+         }
+      });
+
+      paginationContainer.appendChild(pageButton);
+   }
+
+   const nextButton = createPaginationButton('Next', currentPage < totalPages);
+   nextButton.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+         loadPage(currentPage + 1);
+      }
+   });
+
+   paginationContainer.appendChild(previousButton);
+   paginationContainer.appendChild(nextButton);
+};
+
+const createPaginationButton = (text, isEnabled) => {
+   const button = document.createElement('li');
+   button.classList.add('page-item', isEnabled ? '' : 'disabled');
+
+   const link = document.createElement('a');
+   link.classList.add('page-link');
+   link.textContent = text;
+
+   button.appendChild(link);
+   return button;
+};
+
+// Initial load
+loadPage(currentPage);
+
+</script>

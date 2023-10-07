@@ -433,6 +433,29 @@ const orderList = async (req, res) => {
    }
 }
 
+const orders = async (req, res) => {
+   const itemsPerPage = 10;
+   const page = parseInt(req.params.page);
+
+   try {
+       const skipCount = (page - 1) * itemsPerPage;
+       const totalOrders = await orderModel.countDocuments({});
+       const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+       const orders = await orderModel
+           .find({})
+           .skip(skipCount)
+           .limit(itemsPerPage)
+           .populate('user_id', 'first_name last_name email')
+           .select('_id total_amount order_status created_on')
+           .sort({ created_on: -1 });
+
+       res.json({ orders, totalPages });
+   } catch (error) {
+       console.error(error);
+       res.status(500).json({ error: 'Internal Server Error' });
+   }
+}
 
 const ordersDetail = async (req, res) => {
    console.log("Reached ordersDetail");
@@ -598,6 +621,7 @@ module.exports = {
    userList,
    toggleBlockStatusUsers,
    orderList,
+   orders,
    ordersDetail,
    updateOrderStatus
 }
