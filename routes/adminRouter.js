@@ -44,6 +44,9 @@ adminRouter.post('/',auth.isLogout,adminController.verifyUser);
 
 adminRouter.get('/home',auth.isLogin,adminController.loadhome);
 adminRouter.get('/logout',auth.isLogin,adminController.logout);
+adminRouter.get('/coupons',auth.isLogin,adminController.coupons);
+adminRouter.post('/coupons',auth.isLogin,adminController.createCoupon);
+adminRouter.post('/editCoupon/:id',auth.isLogin,adminController.editCoupon);
 adminRouter.get('/categories',auth.isLogin,adminController.categories);
 adminRouter.post('/categories',auth.isLogin,adminController.addCategories);
 adminRouter.post('/editCategory',auth.isLogin, adminController.editCategory);

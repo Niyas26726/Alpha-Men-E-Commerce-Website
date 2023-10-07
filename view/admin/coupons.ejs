@@ -1,0 +1,165 @@
+<%- include("header") %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Coupons</h2>
+            <p>Add, edit, or delete a coupon</p>
+        </div>
+        <!-- <div>
+            <input type="text" placeholder="Search Categories" class="form-control bg-white">
+        </div> -->
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <% if (message) { %>
+                        <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
+                            <%= message %>
+                        </div>
+                    <% } %>
+                    <% if (errMessage) { %>
+                        <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                            <%= errMessage %>
+                        </div>
+                    <% } %>
+                    <!-- Coupon creation form -->
+                    <form method="post" action="/admin/coupons" id="createCouponForm">
+                      <div class="mb-4">
+                          <label for="coupon_id" class="form-label">Coupon ID</label>
+                          <input type="text" placeholder="Type here" name="coupon_id" class="form-control" id="coupon_id" required>
+                      </div>
+                      <div class="mb-4">
+                          <label for="limit" class="form-label">Limit</label>
+                          <input placeholder="Type here" name="limit" class="form-control" id="limit" required>
+                      </div>
+                      <div class="mb-4" style="display: none;" id="expiry_Date_Div">
+                        <label for="expiry_Date" class="form-label">Expiry Date</label>
+                        <input type="text" placeholder="Type here" name="expiry_Date" class="form-control" id="expiry_Date" required>
+                      </div>
+                      <div class="mb-4">
+                          <label for="minimum_Amount" class="form-label">Minimum Amount</label>
+                          <input placeholder="Type here" name="minimum_Amount" class="form-control" id="minimum_Amount" required>
+                      </div>
+                      <div class="mb-4">
+                          <label for="maximum_Discount" class="form-label">Maximum Discount</label>
+                          <input placeholder="Type here" name="maximum_Discount" class="form-control" id="maximum_Discount" required>
+                      </div>
+                      <div class="mb-4">
+                          <label for="discount_Percentage" class="form-label">Discount Percentage</label>
+                          <input placeholder="Type here" name="discount_Percentage" class="form-control" id="discount_Percentage" required>
+                      </div>
+                      <div class="d-grid" id="coupon_btn">
+                        <button type="submit" onclick="alert(`hi`)" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
+
+                        <button type="submit" class="btn btn-primary" id="editCouponBtn" style="display: none;">Edit Coupon</button>
+                                                  
+                      </div>
+                  </form>
+                  
+
+                </div>
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Coupon ID</th>
+                                    <th>Edit</th>
+                                    <th>View Details</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% coupons.forEach(function(coupon) { %>
+                                    <tr>
+                                        <td>
+                                            <%= coupon.coupon_id %>
+                                        </td>
+                                        <td>
+                                              <button class="btn btn-light rounded btn-sm font-sm"
+                                              onclick="editCoupon('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">Edit</button>
+                                        </td>
+                                        <td>
+                                          <button class="btn btn-info rounded btn-sm font-sm"
+                                          onclick="viewDetails('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">View Details</button>
+                                        </td>
+                                        <td>
+                                            <% if (coupon.valid) { %>
+                                                <button class="btn btn-success rounded btn-sm font-sm"
+                                                    onclick="toggleBlockUnblock('<%= coupon._id %>', false)">Unblock</button>
+                                            <% } else { %>
+                                                <!-- Block Button -->
+                                                <button class="btn btn-danger rounded btn-sm font-sm"
+                                                    onclick="toggleBlockUnblock('<%= coupon._id %>', true)">Block</button>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- .col// -->
+            </div> <!-- .row // -->
+        </div> <!-- card body .// -->
+    </div> <!-- card .// -->
+</section>
+
+<!-- JavaScript code to handle form submission and editing -->
+<script>
+function editCoupon(couponId, coupon_id, limit, expiry_Date, minimum_Amount, maximum_Discount, discount_Percentage) {
+    // Set values in the coupon creation form for editing
+    document.getElementById('coupon_id').value = coupon_id;
+    document.getElementById('limit').value = limit;
+    document.getElementById('minimum_Amount').value = minimum_Amount;
+    document.getElementById('maximum_Discount').value = maximum_Discount;
+    document.getElementById('discount_Percentage').value = discount_Percentage;
+    document.getElementById('expiry_Date').value = expiry_Date;
+    // Toggle button visibility
+    document.getElementById('expiry_Date_Div').style.display = 'block';
+    document.getElementById('createCouponBtn').style.display = 'none';
+    document.getElementById('editCouponBtn').style.display = 'block';
+
+    // Update the form action to include couponId for editing
+    document.getElementById('createCouponForm').action = `/admin/editCoupon/${couponId}`;
+}
+
+function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, maximum_Discount, discount_Percentage) {
+    // Display details in input fields
+    document.getElementById('coupon_id').value = coupon_id;
+    document.getElementById('limit').value = limit;
+    document.getElementById('expiry_Date').value = expiry_Date;
+    document.getElementById('minimum_Amount').value = minimum_Amount;
+    document.getElementById('maximum_Discount').value = maximum_Discount;
+    document.getElementById('discount_Percentage').value = discount_Percentage;
+
+    // Toggle button visibility back to "Create Coupon" button
+    document.getElementById('expiry_Date_Div').style.display = 'block';
+    document.getElementById('createCouponBtn').style.display = 'none';
+    document.getElementById('editCouponBtn').style.display = 'none';
+}
+  
+  function toggleBlockUnblock(categoryId, blockStatus) {
+      fetch(`/admin/toggleBlockStatus/${categoryId}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ blocked: blockStatus })
+      })
+      .then(response => {
+          if (response.ok) {
+              location.reload(); // Reload the page to reflect the updated status
+          } else {
+              alert('Failed to toggle block status');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while toggling block status');
+      });
+  }
+</script>
+
+<%- include("footer") %>

@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const category = require('../models/categoryModel'); 
+const coupon = require('../models/couponModel'); 
 const product = require('../models/productModel'); 
 const admin = require('../models/adminModel'); 
 const order = require('../models/orderModel'); 
@@ -63,6 +64,94 @@ const logout = async (req, res) => {
    } catch (error) {
       console.log(error.message)
    }
+}
+
+const coupons = async (req, res) => {
+   console.log("Reached coupons");
+   try {
+         const err = req.query.err;
+         const msg = req.query.msg;
+         console.log(typeof err);
+         const couponData = await coupon.find({});
+         if (err) {
+            res.render('coupons', {coupons: couponData, message: '', errMessage: msg })
+         } else {
+            res.render('coupons', {coupons: couponData, message: msg , errMessage: '' })
+         }
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const createCoupon = async (req, res) => {
+   console.log("Reached createCoupon");
+   try {
+      // Extract data from the request body
+      const { coupon_id, limit, minimum_Amount, maximum_Discount, discount_Percentage } = req.body;
+
+      // Create a new coupon object
+      const newCoupon = new coupon({
+          coupon_id,
+          limit,
+          minimum_Amount,
+          maximum_Discount,
+          discount_Percentage
+      });
+
+      // Save the new coupon to the database
+      await newCoupon.save();
+
+      // Redirect to the coupons page with a success message
+      res.redirect(`/admin/coupons?err=${""}&msg=Coupon created successfully`);
+  } catch (error) {
+      // Handle errors, and redirect to the coupons page with an error message
+      console.error(error);
+      res.redirect(`/admin/coupons?err=${true}&msg=Failed to create coupon`);
+  }
+}
+
+const editCoupon = async (req, res) => {
+   console.log("Reached editCoupon");
+   try {
+      const couponId = req.params.id;
+      const {
+        coupon_id,
+        limit,
+        expiry_Date,
+        minimum_Amount,
+        maximum_Discount,
+        discount_Percentage,
+      } = req.body;
+  
+      // Use Mongoose to find and update the coupon by its ID
+      const updatedCoupon = await coupon.findByIdAndUpdate(
+        couponId,
+        {
+          coupon_id,
+          limit,
+          expiry_Date,
+          minimum_Amount,
+          maximum_Discount,
+          discount_Percentage,
+        },
+        { new: true } // To get the updated document
+      );
+  
+      if (!updatedCoupon) {
+        // Handle coupon not found
+        return res.status(404).json({ message: 'Coupon not found' });
+      }
+  
+      if(updatedCoupon){
+         res.redirect(`/admin/coupons?err=${""}&msg=Coupon updated successfully`);
+      }else{
+         res.redirect(`/admin/coupons?err=${true}&msg=Coupon not found`);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  
 }
 
 const categories = async (req, res) => {
@@ -418,28 +507,25 @@ const orderList = async (req, res) => {
       const totalOrders = await order.countDocuments({});
       const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
+      const orders = await order
+      .find({})
+      .skip(skipCount)
+      .limit(itemsPerPage)
+      .populate('user_id', 'first_name last_name email')
+      .select('_id total_amount order_status created_on')
+      .sort({ created_on: -1 });
+
+
       if (req.xhr) {
          console.log("skipCount in ajax",skipCount);
          console.log("itemsPerPage in ajax ",itemsPerPage);
-         const orders = await order
-            .find({})
-            .skip(skipCount)
-            .limit(itemsPerPage)
-            .populate('user_id', 'first_name last_name email')
-            .select('_id total_amount order_status created_on')
-            .sort({ created_on: -1 });
 
          res.json({ orders, totalPages, page });
       } else {
          console.log("itemsPerPage in normal rendering ",itemsPerPage);
-         const orders = await order
-            .find({})
-            .limit(itemsPerPage)
-            .populate('user_id', 'first_name last_name email')
-            .select('_id total_amount order_status created_on')
-            .sort({ created_on: -1 });
 
-         res.render('orderList', { orders, totalPages, page });
+
+         res.render('orderList',{orders,totalPages, page});
       }
    } catch (error) {
       console.error(error);
@@ -639,6 +725,9 @@ module.exports = {
    orderList,
    orders,
    ordersDetail,
-   updateOrderStatus
+   updateOrderStatus,
+   coupons,
+   createCoupon,
+   editCoupon
 }
 
