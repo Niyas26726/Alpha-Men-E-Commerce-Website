@@ -29,26 +29,26 @@ const userModel = new mongoose.Schema({
    },
    addresses: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'address', // Reference to the Address model
+      ref: 'address', 
    }],
    cart: [
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'product', // Reference to the Product model
+          ref: 'product', 
         },
         quantity: {
           type: Number,
-          default: 1, // Default quantity is 1
+          default: 1, 
         },
       },
     ],
    wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'product', // Reference to the Product model
+        ref: 'product', 
       },
-    ],
+   ],
    blocked: {
       type: Boolean,
       default: false

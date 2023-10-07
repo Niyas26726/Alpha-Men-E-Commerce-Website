@@ -37,7 +37,7 @@ const addressModel = new mongoose.Schema({
    },
    userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Reference to the User model
+    ref: 'user', 
     required: true,
   },
    type: {

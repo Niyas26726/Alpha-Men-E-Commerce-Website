@@ -362,11 +362,6 @@ const updateProduct = async (req, res) => {
        categoryId,
      } = req.body;
 
-     // Parse the removeImageIndices JSON string back to an array
-
-   //   console.log("removeImageIndices " + removeImageIndices);
-
-     // Remove images from the `img` array based on the indices
      const updatedImages = existingProduct.images.filter((_, index) => !removeImageIndices.includes(index));
 
      existingProduct.product_name = product_name;
@@ -381,7 +376,7 @@ const updateProduct = async (req, res) => {
      existingProduct.material = material;
      existingProduct.shipping_fee = shipping_fee;
      existingProduct.tax_rate = tax_rate;
-     existingProduct.images = updatedImages; // Update the images with the filtered array
+     existingProduct.images = updatedImages; 
 
      await existingProduct.save();
      console.log("redirect to editProduct Product and image updated successfully ");
@@ -393,8 +388,6 @@ const updateProduct = async (req, res) => {
      res.redirect(`/admin/editProduct/${productId}?err=${true}&msg=Internal server error`);
    }
  }
-
- 
 
 const loadAddUser = async (req, res) => {
    try {
@@ -408,7 +401,6 @@ const loadAddUser = async (req, res) => {
 
 const userList = async (req, res) => {
    try {
-      // const categorieData = await category.find({});
       const userData = await User.find({});
       console.log("users "+userData);
          res.render('userList', {users:userData})
@@ -418,7 +410,7 @@ const userList = async (req, res) => {
 }
 
 const orderList = async (req, res) => {
-   const itemsPerPage = 10;
+   const itemsPerPage = 2;
    const page = parseInt(req.query.page) || 1;
 
    try {

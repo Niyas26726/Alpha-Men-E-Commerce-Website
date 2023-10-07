@@ -11,7 +11,7 @@ const productModel = new mongoose.Schema({
   },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'category', // Reference to the Category model
+    ref: 'category', 
     required: true,
   },
   regular_price: {
@@ -23,22 +23,22 @@ const productModel = new mongoose.Schema({
     required: true,
   },
   created_on: {
-    type: String, // Store date as a string
+    type: String, 
     default: function () {
       const now = new Date();
       const day = now.getDate().toString().padStart(2, '0');
-      const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed
+      const month = (now.getMonth() + 1).toString().padStart(2, '0'); 
       const year = now.getFullYear().toString();
       return `${day}-${month}-${year}`;
     },
   },
 
   updated_on: {
-    type: String, // Store date as a string
+    type: String, 
     default: function () {
       const now = new Date();
       const day = now.getDate().toString().padStart(2, '0');
-      const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed
+      const month = (now.getMonth() + 1).toString().padStart(2, '0'); 
       const year = now.getFullYear().toString();
       return `${day}-${month}-${year}`;
     },

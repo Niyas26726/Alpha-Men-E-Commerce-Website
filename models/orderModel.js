@@ -25,7 +25,7 @@
     },
     coupon_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'coupon', // Reference to the Product model,
+      ref: 'coupon',
       default:null
     },
     shipping_charge: {
@@ -81,7 +81,7 @@
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user', // Reference to the User model
+      ref: 'user', 
       required: true,
     },
     address: [

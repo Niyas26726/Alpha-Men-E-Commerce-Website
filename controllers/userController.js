@@ -59,9 +59,6 @@ const insertUser = async (req, res) => {
    }
 }
 
-
-// login user
-
 const loadLogin = async (req, res) => {
    try {
 
@@ -88,7 +85,6 @@ const loadHome = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       
-      // Initialize a placeholder user object with an empty wishlist
       const user = { wishlist: [] };
 
       if (req.session.user_id) {
@@ -262,7 +258,6 @@ const userAccount = async (req, res) => {
      const msg = req.query.msg;
      const userData = await User.findOne({ _id: user_id }).populate('addresses');
  
-     // Fetch the user's orders from the database
      const userOrders = await Order.find({ user_id: user_id });
  
      console.log("userData " + userData);
@@ -342,16 +337,12 @@ const updateUserAccount = async (req, res) => {
          });
       }
 
-      // Use Mongoose to update the user data
       const updatedUser = await User.findByIdAndUpdate(user_id, updatedUserData, { new: true });
 
-      // Update user details in the database with the values from the form
-      // Your update logic here...
 
-      // Redirect or render the success view if the update is successful
       console.log("updatedUserData ");
       res.render('userAccount', {
-         user: updatedUserData, // Replace with the updated user data
+         user: updatedUserData, 
          product: productData,
          userOrders: userOrders,
          categories: categorieData,
@@ -361,7 +352,6 @@ const updateUserAccount = async (req, res) => {
       });
    } catch (error) {
       console.log(error.message);
-      // Handle other errors as needed...
    }
 }
 
@@ -456,13 +446,10 @@ const displayProduct = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const product_id = req.query.product_id;
-      // const userData = await User.findById({_id:req.session.user_id})
-      // Use product.findOne to retrieve a single product by its _id
       const productData = await product.findOne({ _id: product_id });
       const user = {wishlist:[]}
 
       if (!productData) {
-         // Handle the case where the product is not found
          return res.status(404).send('Product not found');
       }
 
@@ -488,9 +475,8 @@ const cart = async (req, res) => {
        
        if (req.session.user_id) {
            const user_id = req.session.user_id;
-           const userData = await User.findById(user_id).populate('cart.product'); // Populate the 'product' field in the 'cart' array
+           const userData = await User.findById(user_id).populate('cart.product'); 
            
-           // Calculate cart subtotal and shipping total
            let cartSubtotal = 0;
            let shippingTotal = 0;
            
@@ -498,10 +484,10 @@ const cart = async (req, res) => {
                const product = cartItem.product;
                const quantity = cartItem.quantity;
                
-               // Calculate subtotal for each item and add it to cartSubtotal
+               
                cartSubtotal += product.sales_price * quantity;
                
-               // If the product has a shipping_fee property, add it to shippingTotal
+              
                if (product.shipping_fee) {
                    shippingTotal += product.shipping_fee * quantity;
                }
@@ -512,8 +498,8 @@ const cart = async (req, res) => {
                user: userData,
                categories: categorieData,
                isAuthenticated: true,
-               cartSubtotal, // Pass the calculated subtotal
-               shippingTotal, // Pass the calculated shipping total
+               cartSubtotal, 
+               shippingTotal, 
            });
        } else {
            console.log("else case req.session.user_id is " + req.session.user_id);
@@ -532,9 +518,8 @@ const getCartTotals = async (req, res) => {
        
        if (req.session.user_id) {
            const user_id = req.session.user_id;
-           const userData = await User.findById(user_id).populate('cart.product'); // Populate the 'product' field in the 'cart' array
+           const userData = await User.findById(user_id).populate('cart.product'); 
            
-           // Calculate cart subtotal and shipping total
            let cartSubtotal = 0;
            let shippingTotal = 0;
            
@@ -542,10 +527,8 @@ const getCartTotals = async (req, res) => {
                const product = cartItem.product;
                const quantity = cartItem.quantity;
                
-               // Calculate subtotal for each item and add it to cartSubtotal
                cartSubtotal += product.sales_price * quantity;
                
-               // If the product has a shipping_fee property, add it to shippingTotal
                if (product.shipping_fee) {
                    shippingTotal += product.shipping_fee * quantity;
                }
@@ -553,13 +536,12 @@ const getCartTotals = async (req, res) => {
 
            console.log("req.session.user_id is " + req.session.user_id);
 
-           // Send cart data as JSON
            res.json({
                user: userData,
                categories: categorieData,
                isAuthenticated: true,
-               cartSubtotal, // Pass the calculated subtotal
-               shippingTotal, // Pass the calculated shipping total
+               cartSubtotal,
+               shippingTotal, 
            });
        } else {
            console.log("else case req.session.user_id is " + req.session.user_id);
@@ -847,11 +829,10 @@ const checkOutPage = async (req, res) => {
       const categorieData = await category.find({});
       const user_ID = req.session.user_id;
 
-      // Populate the user's cart and addresses with product details and address details
       const userData = await User.findById(user_ID)
         .populate({
           path: 'cart.product',
-          model: 'product', // Reference to the Product model
+          model: 'product', 
         })
         .populate('addresses');
 
@@ -873,13 +854,12 @@ const checkOutPage = async (req, res) => {
       const orderId = req.params.orderId;
 
       try {
-         // Fetch order details based on orderId and populate all related fields
          const orderDetails = await Order.findById(orderId)
             .populate([
                   {
                      path: 'user_id',
-                     model: 'user', // Reference to the User model
-                     select: 'first_name last_name email mobile', // Select the user-related fields
+                     model: 'user',
+                     select: 'first_name last_name email mobile', 
                   },
                   {
                      path: 'items.product_id',
@@ -1055,7 +1035,6 @@ const checkOutPage = async (req, res) => {
          console.log("selectedShippingAddress " + selectedShippingAddress);
          console.log("paymentOption " + paymentOption);
    
-         // Define the items array here
          const items = [];
    
          User.findById(userId)
@@ -1072,13 +1051,12 @@ const checkOutPage = async (req, res) => {
                console.log("billingAddress " + billingAddress);
                console.log("shippingAddress " + shippingAddress);
    
-               // Populate the items array
                items.push(
                   ...user.cart.map(cartItem => ({
                     product_id: cartItem.product._id,
                     quantity: cartItem.quantity,
                     sales_price: cartItem.product.sales_price,
-                    product_quantity: cartItem.product.stock || 0, // Add product quantity
+                    product_quantity: cartItem.product.stock || 0, 
                   }))
                 );
                 
@@ -1105,7 +1083,6 @@ const checkOutPage = async (req, res) => {
             .then(async savedOrder => {
                console.log('Order saved successfully:', savedOrder);
    
-               // Now the items array is accessible here
                for (const item of items) {
                   console.log("items ==>  ",items);
                   const Product = await product.findById(item.product_id);
@@ -1116,11 +1093,9 @@ const checkOutPage = async (req, res) => {
                   console.log("Product ==> ",Product);
                   console.log("Product.stock ==> ",Product.stock);
                   console.log("item.quantity ==> ",item.quantity);
-                  // Update product quantity by subtracting the ordered quantity
                   Product.stock -= item.quantity;
                   console.log("Product.quantity ==> ",Product.stock);
    
-                  // Save the updated product
                   await Product.save();
                   console.log("await Product.save(); ==> ",await Product.save());
                }
@@ -1201,7 +1176,6 @@ const verfiyUser = async (req, res) => {
          } else {
             res.redirect(`/login?err=${true}&msg=Invalid email or password`);
          }
-         // Invalid email or password
       } else {
          res.redirect(`/login?err=${true}&msg=Invalid email or password`);
       }
@@ -1232,7 +1206,7 @@ const returnOrder = async (req, res) => {
       const updatedOrder = await Order.findByIdAndUpdate(
          orderId,
          {
-           return_Reason: return_Reason ,// Insert returnReason into return_Reason field
+           return_Reason: return_Reason ,
            order_status: "Return Requested"
          },
          { new: true }
@@ -1344,12 +1318,10 @@ const sendOtp = async (req, res) => {
             }
          });
 
-         // Invalidate the OTP after 1 minute
          setTimeout(() => {
             generatedOTP = null;
             console.log("OTP invalidated after 1 minute");
          }, 1 * 60 * 1000);
-         // }
       }
       sendOTP();
 
