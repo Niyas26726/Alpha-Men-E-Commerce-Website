@@ -25,33 +25,42 @@
                         </div>
                     <% } %>
                     <!-- Coupon creation form -->
-                    <form method="post" action="/admin/coupons" id="createCouponForm">
+                    <form method="post" onsubmit="return createCouponValidation()" action="/admin/coupons" id="createCouponForm">
                       <div class="mb-4">
-                          <label for="coupon_id" class="form-label">Coupon ID</label>
-                          <input type="text" placeholder="Type here" name="coupon_id" class="form-control" id="coupon_id" required>
+                        <label for="coupon_id" class="form-label">Coupon ID</label>
+                        <input type="text" placeholder="Type here" name="coupon_id" class="form-control" id="coupon_id">
+                        <div id="couponIdError" class="text-danger"></div> <!-- Error message element for Coupon ID -->
                       </div>
                       <div class="mb-4">
                           <label for="limit" class="form-label">Limit</label>
-                          <input placeholder="Type here" name="limit" class="form-control" id="limit" required>
+                          <input placeholder="Type here" name="limit" class="form-control" id="limit">
+                          <div id="limitError" class="text-danger"></div> <!-- Error message element for Limit -->
                       </div>
                       <div class="mb-4" style="display: none;" id="expiry_Date_Div">
-                        <label for="expiry_Date" class="form-label">Expiry Date</label>
-                        <input type="text" placeholder="Type here" name="expiry_Date" class="form-control" id="expiry_Date" required>
+                          <label for="expiry_Date" class="form-label">Expiry Date</label>
+                          <input type="text" placeholder="Type here" name="expiry_Date" class="form-control" id="expiry_Date">
+                          <div id="expiryDateError" class="text-danger"></div> <!-- Error message element for Expiry Date -->
                       </div>
+                    
+
                       <div class="mb-4">
-                          <label for="minimum_Amount" class="form-label">Minimum Amount</label>
-                          <input placeholder="Type here" name="minimum_Amount" class="form-control" id="minimum_Amount" required>
+                        <label for="minimum_Amount" class="form-label">Minimum Amount</label>
+                        <input placeholder="Type here" name="minimum_Amount" class="form-control" id="minimum_Amount">
+                        <div id="minimumAmountError" class="text-danger"></div> <!-- Error message element for Minimum Amount -->
                       </div>
                       <div class="mb-4">
                           <label for="maximum_Discount" class="form-label">Maximum Discount</label>
-                          <input placeholder="Type here" name="maximum_Discount" class="form-control" id="maximum_Discount" required>
+                          <input placeholder="Type here" name="maximum_Discount" class="form-control" id="maximum_Discount">
+                          <div id="maximumDiscountError" class="text-danger"></div> <!-- Error message element for Maximum Discount -->
                       </div>
                       <div class="mb-4">
                           <label for="discount_Percentage" class="form-label">Discount Percentage</label>
-                          <input placeholder="Type here" name="discount_Percentage" class="form-control" id="discount_Percentage" required>
+                          <input placeholder="Type here" name="discount_Percentage" class="form-control" id="discount_Percentage">
+                          <div id="discountPercentageError" class="text-danger"></div> <!-- Error message element for Discount Percentage -->
                       </div>
+                                          
                       <div class="d-grid" id="coupon_btn">
-                        <button type="submit" onclick="alert(`hi`)" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
+                        <button type="submit" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
 
                         <button type="submit" class="btn btn-primary" id="editCouponBtn" style="display: none;">Edit Coupon</button>
                                                   
@@ -160,6 +169,95 @@ function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, ma
           alert('An error occurred while toggling block status');
       });
   }
+
+  function createCouponValidation() {
+   // Input fields
+   const couponId = document.getElementById('coupon_id');
+   const limit = document.getElementById('limit');
+   const expiryDate = document.getElementById('expiry_Date');
+   const minimumAmount = document.getElementById('minimum_Amount');
+   const maximumDiscount = document.getElementById('maximum_Discount');
+   const discountPercentage = document.getElementById('discount_Percentage');
+
+   // Error fields
+   const couponIdError = document.getElementById('couponIdError');
+   const limitError = document.getElementById('limitError');
+   const expiryDateError = document.getElementById('expiryDateError');
+   const minimumAmountError = document.getElementById('minimumAmountError');
+   const maximumDiscountError = document.getElementById('maximumDiscountError');
+   const discountPercentageError = document.getElementById('discountPercentageError');
+
+   // Regex
+   const idRegex = /^[A-Z][A-Za-z0-9]*$/; // Coupon ID starts with an uppercase letter and can include letters and numbers.
+   const numericRegex = /^\d+$/; // Numeric input (e.g., limit, minimumAmount, maximumDiscount, discountPercentage).
+   const dateRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY format for expiry date.
+
+   let isValid = true; // A flag to track overall validation
+
+   // Function to clear error message with a delay
+   function clearErrorWithDelay(errorField) {
+      setTimeout(() => {
+         errorField.innerHTML = '';
+      }, 5000); // 5000 milliseconds = 5 seconds
+   }
+
+   // Function to validate coupon ID
+   function validateCouponId() {
+      if (couponId.value.trim() === '') {
+         couponIdError.innerHTML = 'Coupon ID cannot be empty';
+         clearErrorWithDelay(couponIdError);
+         isValid = false;
+      } else if (!idRegex.test(couponId.value)) {
+         couponIdError.innerHTML = 'Coupon ID should start with a capital letter and can include letters and numbers';
+         clearErrorWithDelay(couponIdError);
+         isValid = false;
+      } else {
+         couponIdError.innerHTML = ''; // Clear error message
+      }
+   }
+
+   // Function to validate numeric fields
+   function validateNumericField(field, fieldError, fieldName) {
+      if (field.value.trim() === '') {
+         fieldError.innerHTML = `${fieldName} cannot be empty`;
+         clearErrorWithDelay(fieldError);
+         isValid = false;
+      } else if (!numericRegex.test(field.value)) {
+         fieldError.innerHTML = `Please enter a valid ${fieldName}`;
+         clearErrorWithDelay(fieldError);
+         isValid = false;
+      } else {
+         fieldError.innerHTML = ''; // Clear error message
+      }
+   }
+
+   // Function to validate expiry date
+   function validateExpiryDate() {
+      if (expiryDate.value.trim() === '') {
+         expiryDateError.innerHTML = 'Expiry Date cannot be empty';
+         clearErrorWithDelay(expiryDateError);
+         isValid = false;
+      } else if (!dateRegex.test(expiryDate.value)) {
+         expiryDateError.innerHTML = 'Please enter a valid expiry date in DD-MM-YYYY format';
+         clearErrorWithDelay(expiryDateError);
+         isValid = false;
+      } else {
+         expiryDateError.innerHTML = ''; // Clear error message
+      }
+   }
+
+   // Validate fields one by one
+   validateCouponId();
+   if (isValid) validateNumericField(limit, limitError, 'Limit');
+   if (isValid) validateNumericField(minimumAmount, minimumAmountError, 'Minimum Amount');
+   if (isValid) validateNumericField(maximumDiscount, maximumDiscountError, 'Maximum Discount');
+   if (isValid) validateNumericField(discountPercentage, discountPercentageError, 'Discount Percentage');
+   if (isValid) validateExpiryDate();
+
+   return isValid;
+}
+
+
 </script>
 
 <%- include("footer") %>
