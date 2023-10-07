@@ -418,31 +418,56 @@ const userList = async (req, res) => {
 }
 
 const orderList = async (req, res) => {
+   const itemsPerPage = 10;
+   const page = parseInt(req.query.page) || 1;
+
    try {
-      const orderData = await order.find({})
-         .populate('user_id', 'first_name last_name email') // Populate user information
-         .select('_id total_amount order_status created_on') // Select specific fields
-         // .sort({ created_on: 1 }); // Sort by created_on in descending order
+      const skipCount = (page - 1) * itemsPerPage;
+      const totalOrders = await order.countDocuments({});
+      const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
-      // Reverse the order of orderData array
-      orderData.reverse();
+      if (req.xhr) {
+         console.log("skipCount in ajax",skipCount);
+         console.log("itemsPerPage in ajax ",itemsPerPage);
+         // Handle AJAX request
+         const orders = await order
+            .find({})
+            .skip(skipCount)
+            .limit(itemsPerPage)
+            .populate('user_id', 'first_name last_name email')
+            .select('_id total_amount order_status created_on')
+            .sort({ created_on: -1 });
 
-      res.render('orderList', { orders: orderData });
+         res.json({ orders, totalPages, page });
+      } else {
+         console.log("itemsPerPage in normal rendering ",itemsPerPage);
+         // Handle initial rendering
+         const orders = await order
+            .find({})
+            .limit(itemsPerPage)
+            .populate('user_id', 'first_name last_name email')
+            .select('_id total_amount order_status created_on')
+            .sort({ created_on: -1 });
+
+         res.render('orderList', { orders, totalPages, page });
+      }
    } catch (error) {
-      console.log(error.message);
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
    }
 }
 
+
 const orders = async (req, res) => {
    const itemsPerPage = 10;
-   const page = parseInt(req.params.page);
+   const page = parseInt(req.query.page);
 
    try {
        const skipCount = (page - 1) * itemsPerPage;
-       const totalOrders = await orderModel.countDocuments({});
+       const totalOrders = await order.countDocuments({});
        const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
-       const orders = await orderModel
+       const ordersData = await order
            .find({})
            .skip(skipCount)
            .limit(itemsPerPage)
@@ -450,12 +475,13 @@ const orders = async (req, res) => {
            .select('_id total_amount order_status created_on')
            .sort({ created_on: -1 });
 
-       res.json({ orders, totalPages });
+       res.json({ orders: ordersData, totalPages, page });
    } catch (error) {
        console.error(error);
        res.status(500).json({ error: 'Internal Server Error' });
    }
 }
+
 
 const ordersDetail = async (req, res) => {
    console.log("Reached ordersDetail");

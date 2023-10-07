@@ -56,7 +56,7 @@ adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminContro
 adminRouter.get('/editProducts/',auth.isLogin,adminController.editProducts);
 adminRouter.get('/userList',auth.isLogin,adminController.userList);
 adminRouter.get('/orderList',auth.isLogin,adminController.orderList);
-adminRouter.get('/orders/:page',auth.isLogin,adminController.orders);
+adminRouter.get('/orders',auth.isLogin,adminController.orders);
 adminRouter.get('/ordersDetail/:orderId',auth.isLogin,adminController.ordersDetail);
 adminRouter.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus);
 // 

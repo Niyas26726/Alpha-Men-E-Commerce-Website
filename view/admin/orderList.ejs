@@ -1,169 +1,142 @@
 <%- include("header") %>
 
-<section class="content-main">
-   <div class="content-header">
-      <div>
-         <h2 class="content-title card-title">Order List</h2>
-         <p>Lorem ipsum dolor sit amet.</p>
+   <section class="content-main">
+      <div class="content-header">
+         <div>
+            <h2 class="content-title card-title">Order List</h2>
+            <p>Lorem ipsum dolor sit amet.</p>
+         </div>
+         <div>
+            <input type="text" placeholder="Search order ID" class="form-control bg-white">
+         </div>
       </div>
-      <div>
-         <input type="text" placeholder="Search order ID" class="form-control bg-white">
+      <div class="card mb-4">
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>#ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date</th>
+                        <th scope="col" class="text-end">Action</th>
+                     </tr>
+                  </thead>
+                  <tbody id="orderListContainer">
+                     <% for (const order of orders) { %>
+
+                        <% } %>
+
+                  </tbody>
+               </table>
+            </div> <!-- table-responsive //end -->
+         </div> <!-- card-body end// -->
+      </div> <!-- card end -->
+
+      <div class="pagination-area mt-30 mb-50">
+         <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center" id="pagination">
+               <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= i === page ? 'active' : '' %>">
+                     <a class="page-link" href="javascript:void(0);" onclick="fetchOrders(i)">${i}</a>
+                  </li>
+               <% } %>
+            </ul>
+         </nav>
       </div>
-   </div>
-   <div class="card mb-4">
-      <header class="card-header">
-         <!-- Search and filter options here -->
-      </header>
-      <div class="card-body">
-         <div class="table-responsive">
-            <table class="table table-hover">
-               <thead>
-                  <tr>
-                     <th>#ID</th>
-                     <th scope="col">Name</th>
-                     <th scope="col">Email</th>
-                     <th scope="col">Total</th>
-                     <th scope="col">Status</th>
-                     <th scope="col">Date</th>
-                     <th scope="col" class="text-end">Action</th>
-                  </tr>
-               </thead>
-               <tbody>
-                <% 
-                
-                for (const order of orders) { 
-             %>
-             <tr>
-                <td><%= order._id %></td>
-                <td><b><%= order.user_id.first_name %> <%= order.user_id.last_name %></b></td>
-                <td><%= order.user_id.email %></td>
-                <td>$<%= order.total_amount %></td>
-                <td>
-                   <span class="badge rounded-pill <%= 
-                   order.order_status === 'Pending' ? 'alert-warning' :
-                   order.order_status === 'Canceled' ? 'alert-danger' :
-                   order.order_status === 'Request Canceled' ? 'alert-danger' :
-                   order.order_status === 'Return Requested' ? 'alert-info' :
-                   'alert-success' %>">
-                   <%= order.order_status %>
-                </span>
-                </td>
-                <td><%= order.created_on %></td>
-                <td class="text-end">
-                   <a href="/admin/ordersDetail/<%= order._id %>" class="btn btn-md rounded font-sm">View Detail</a>
-                </td>
-             </tr>
-             <% } %>
-             
-                  
-               </tbody>
-            </table>
-         </div> <!-- table-responsive //end -->
-      </div> <!-- card-body end// -->
-   </div>
-   <!-- <div class="pagination-area mt-30 mb-50">
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-start">
-            <li class="page-item active"><a class="page-link" href="#">01</a></li>
-            <li class="page-item"><a class="page-link" href="#">02</a></li>
-            <li class="page-item"><a class="page-link" href="#">03</a></li>
-            <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-            <li class="page-item"><a class="page-link" href="#">16</a></li>
-            <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-        </ul>
-    </nav>
-</div> card end// -->
 
-   <!-- Pagination Area -->
-   <div class="pagination-area mt-30 mb-50">
-    <nav aria-label="Page navigation example">
-       <ul class="pagination justify-content-start" id="pagination-container">
-          <!-- Pagination links will be dynamically added here -->
-       </ul>
-    </nav>
- </div>
- <!-- Pagination Area End -->
+      
+              
+
+   </section> <!-- content-main end// -->
+
+   <%- include("footer") %>
 
 
-</section> <!-- content-main end// -->
+   <script>
+      // Function to fetch and update orders
+      function fetchOrders(page) {
+   $.ajax({
+      url: `/admin/orderList?page=${page}`,
+      method: 'GET',
+      dataType: 'json',
+      headers: {
+         'X-Requested-With': 'XMLHttpRequest', // Set the AJAX header
+      },
+      success: function (data) {
+         // Handle the JSON response here
+         const orders = data.orders;
 
-<%- include("footer") %>
+         // Clear the existing orders on the page
+         $('#orderListContainer').empty();
 
+         // Loop through the fetched orders and append them to the order list container
+         orders.forEach(order => {
+            const orderRow = `
+               <tr>
+                  <td>${order._id}</td>
+                  <td><b>${order.user_id.first_name} ${order.user_id.last_name}</b></td>
+                  <td>${order.user_id.email}</td>
+                  <td>$${order.total_amount}</td>
+                  <td>
+                     <span class="badge rounded-pill ${orderBadgeClass(order.order_status)}">
+                        ${order.order_status}
+                     </span>
+                  </td>
+                  <td>${order.created_on}</td>
+                  <td class="text-end">
+                     <a href="/admin/ordersDetail/${order._id}" class="btn btn-md rounded font-sm">View Detail</a>
+                  </td>
+               </tr>
+            `;
 
-<script>
-    // public/js/pagination.js
-
-const paginationContainer = document.getElementById('pagination-container');
-const ordersContainer = document.getElementById('orders-container');
-let currentPage = 1;
-
-const loadPage = (page) => {
-   fetch(`/admin/orders/${page}`)
-      .then((response) => response.json())
-      .then((data) => {
-         ordersContainer.innerHTML = '';
-
-         data.orders.forEach((order) => {
-            const orderElement = document.createElement('div');
-            // Populate orderElement with order data
-            ordersContainer.appendChild(orderElement);
+            $('#orderListContainer').append(orderRow);
          });
 
-         currentPage = page;
-         updatePagination(data.totalPages);
-      })
-      .catch((error) => {
+         // Update the pagination links based on the totalPages and currentPage
+         updatePagination(data.totalPages, data.page);
+      },
+      error: function (error) {
          console.error(error);
-      });
-};
-
-const updatePagination = (totalPages) => {
-   paginationContainer.innerHTML = '';
-
-   const previousButton = createPaginationButton('Previous', currentPage > 1);
-   previousButton.addEventListener('click', () => {
-      if (currentPage > 1) {
-         loadPage(currentPage - 1);
-      }
+      },
    });
+}
 
-   for (let page = 1; page <= totalPages; page++) {
-      const pageButton = createPaginationButton(page, page !== currentPage);
-      const link = pageButton.querySelector('.page-link');
-
-      link.addEventListener('click', () => {
-         if (page !== currentPage) {
-            loadPage(page);
+      // Function to determine the badge class based on order status
+      function orderBadgeClass(orderStatus) {
+         switch (orderStatus) {
+            case 'Pending':
+               return 'alert-warning';
+            case 'Canceled':
+            case 'Request Canceled':
+               return 'alert-danger';
+            case 'Return Requested':
+               return 'alert-info';
+            default:
+               return 'alert-success';
          }
-      });
-
-      paginationContainer.appendChild(pageButton);
-   }
-
-   const nextButton = createPaginationButton('Next', currentPage < totalPages);
-   nextButton.addEventListener('click', () => {
-      if (currentPage < totalPages) {
-         loadPage(currentPage + 1);
       }
-   });
-
-   paginationContainer.appendChild(previousButton);
-   paginationContainer.appendChild(nextButton);
-};
-
-const createPaginationButton = (text, isEnabled) => {
-   const button = document.createElement('li');
-   button.classList.add('page-item', isEnabled ? '' : 'disabled');
-
-   const link = document.createElement('a');
-   link.classList.add('page-link');
-   link.textContent = text;
-
-   button.appendChild(link);
-   return button;
-};
-
-// Initial load
-loadPage(currentPage);
-
-</script>
+   
+      // Function to update pagination links
+      function updatePagination(totalPages, currentPage) {
+         const pagination = $('#pagination');
+         pagination.empty();
+   
+         // Create pagination links
+         for (let i = 1; i <= totalPages; i++) {
+            const pageLink = `<li class="page-item ${i === currentPage ? 'active' : ''}">
+               <a class="page-link" href="javascript:void(0);" onclick="fetchOrders(${i})">${i}</a>
+            </li>`;
+            pagination.append(pageLink);
+         }
+      }
+   
+      // Initial page load
+      $(document).ready(function () {
+         fetchOrders(1); // Load the first page of orders
+      });
+   </script>
+   
