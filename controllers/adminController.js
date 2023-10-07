@@ -429,7 +429,6 @@ const orderList = async (req, res) => {
       if (req.xhr) {
          console.log("skipCount in ajax",skipCount);
          console.log("itemsPerPage in ajax ",itemsPerPage);
-         // Handle AJAX request
          const orders = await order
             .find({})
             .skip(skipCount)
@@ -441,7 +440,6 @@ const orderList = async (req, res) => {
          res.json({ orders, totalPages, page });
       } else {
          console.log("itemsPerPage in normal rendering ",itemsPerPage);
-         // Handle initial rendering
          const orders = await order
             .find({})
             .limit(itemsPerPage)

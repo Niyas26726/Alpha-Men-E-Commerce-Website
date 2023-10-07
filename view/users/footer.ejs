@@ -168,57 +168,6 @@ $(document).ready(function() {
     });
 });
 </script>
-<script>
-function updateCartCount() {
-    $.ajax({
-        url: '/getCartCount',
-        type: 'GET',
-        success: function (data) {
-            const cartCountSpan = document.getElementById('cart-count');
-            if (data.cartCount > 0) {
-                cartCountSpan.textContent = data.cartCount;
-                cartCountSpan.style.display = 'inline-block';
-            } else {
-                cartCountSpan.style.display = 'none';
-            }
-        },
-        error: function () {
-            console.error("Error fetching cart count");
-        }
-    });
-}
-
-$(document).ready(function () {
-    updateCartCount();
-});
-
-</script>
-
-<script>
-function updateWishlistCount() {
-    $.ajax({
-        url: '/getWishlistCount',
-        type: 'GET',
-        success: function (data) {
-            const wishlistCountSpan = document.getElementById('wishlist-count');
-            if (data.wishlistCount > 0) {
-                wishlistCountSpan.textContent = data.wishlistCount;
-                wishlistCountSpan.style.display = 'inline-block';
-            } else {
-                wishlistCountSpan.style.display = 'none';
-            }
-        },
-        error: function () {
-            console.error("Error fetching wishlist count");
-        }
-    });
-}
-
-$(document).ready(function () {
-    updateWishlistCount();
-});
-
-</script>
 
 <script>
     function addToWishlist(productId) {
