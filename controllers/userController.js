@@ -4,6 +4,7 @@ const otpGenerator = require('otp-generator');
 const category = require('../models/categoryModel');
 const product = require('../models/productModel');
 const Address = require('../models/addressModel')
+const coupon = require('../models/couponModel'); 
 const Order = require('../models/orderModel')
 
 let generatedOTP = '';
@@ -828,7 +829,7 @@ const checkOutPage = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const user_ID = req.session.user_id;
-
+      const coupons = await coupon.find({})
       const userData = await User.findById(user_ID)
         .populate({
           path: 'cart.product',
@@ -838,10 +839,10 @@ const checkOutPage = async (req, res) => {
 
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('checkOutPage', { user: userData, categories: categorieData, isAuthenticated: true });
+         res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-         res.render('checkOutPage', { user: userData, categories: categorieData, isAuthenticated: false });
+         res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)

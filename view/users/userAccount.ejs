@@ -148,7 +148,7 @@
                                                   <!-- Iterate through userOrders to generate table rows -->
                                                   <% for (const order of userOrders) { %>
                                                     <tr class="text-center">
-                                                        <td><%= order.address[0].name %></td>
+                                                        <td><%= order.address && order.address[0] ? order.address[0].name : 'N/A' %></td>
                                                         <td><%= order.created_on %></td>
                                                         <td>
                                                             <% if (order.order_status === 'Placed') { %>

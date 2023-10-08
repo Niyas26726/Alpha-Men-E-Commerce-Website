@@ -71,47 +71,67 @@
                 </div>
                 <div class="col-md-9">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Coupon ID</th>
-                                    <th>Edit</th>
-                                    <th>View Details</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% coupons.forEach(function(coupon) { %>
-                                    <tr>
-                                        <td>
-                                            <%= coupon.coupon_id %>
-                                        </td>
-                                        <td>
-                                              <button class="btn btn-light rounded btn-sm font-sm"
-                                              onclick="editCoupon('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">Edit</button>
-                                        </td>
-                                        <td>
-                                          <button class="btn btn-info rounded btn-sm font-sm"
-                                          onclick="viewDetails('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">View Details</button>
-                                        </td>
-                                        <td>
-                                            <% if (coupon.valid) { %>
-                                                <button class="btn btn-success rounded btn-sm font-sm"
-                                                    onclick="toggleBlockUnblock('<%= coupon._id %>', false)">Unblock</button>
-                                            <% } else { %>
-                                                <!-- Block Button -->
-                                                <button class="btn btn-danger rounded btn-sm font-sm"
-                                                    onclick="toggleBlockUnblock('<%= coupon._id %>', true)">Block</button>
-                                            <% } %>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
+                      <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Coupon ID</th>
+                                <th>Edit</th>
+                                <th>View Details</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="couponListContainer">
+                          <% coupons.forEach(function(coupon) { %>
+                            <tr>
+                                <td>
+                                    <%= coupon.coupon_id %>
+                                </td>
+                                <td>
+                                      <button class="btn btn-light rounded btn-sm font-sm"
+                                      onclick="editCoupon('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">Edit</button>
+                                </td>
+                                <td>
+                                  <button class="btn btn-info rounded btn-sm font-sm"
+                                  onclick="viewDetails('<%= coupon._id %>', '<%= coupon.coupon_id %>', '<%= coupon.limit %>', '<%= coupon.expiry_Date %>', '<%= coupon.minimum_Amount %>', '<%= coupon.maximum_Discount %>', '<%= coupon.discount_Percentage %>')">View Details</button>
+                                </td>
+                                <td>
+                                  <%= coupon.valid ? 'Active' : 'Inactive' %>
+                                </td>
+                                <td>
+                                  <% if (!coupon.valid) { %>
+                                    <button class="btn btn-success rounded btn-sm font-sm" id="couponButton_<%= coupon._id %>"
+                                        onclick="toggleCouponValidity('<%= coupon._id %>', true)">Activate</button>
+                                  <% } else { %>
+                                    <!-- De-Activate Button -->
+                                    <button class="btn btn-danger rounded btn-sm font-sm" id="couponButton_<%= coupon._id %>"
+                                        onclick="toggleCouponValidity('<%= coupon._id %>', false)">De-Activate</button>
+                                  <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+
+                        </tbody>
+                    </table>
+                    
                     </div>
                 </div> <!-- .col// -->
             </div> <!-- .row // -->
         </div> <!-- card body .// -->
+
+        <div class="pagination-area mt-30 mb-50">
+          <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center" id="pagination">
+                  <% for (let i=1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= i === page ? 'active' : '' %>">
+                          <a class="page-link" href="javascript:void(0);" onclick="fetchCoupons(`<%= i %>`)"><%= i %></a>
+                      </li>
+                  <% } %>
+              </ul>
+          </nav>
+      </div>
+      
+
     </div> <!-- card .// -->
 </section>
 
@@ -132,6 +152,10 @@ function editCoupon(couponId, coupon_id, limit, expiry_Date, minimum_Amount, max
 
     // Update the form action to include couponId for editing
     document.getElementById('createCouponForm').action = `/admin/editCoupon/${couponId}`;
+    document.getElementById('createCouponForm').onsubmit = function() {
+    return editCouponValidation();
+  };
+
 }
 
 function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, maximum_Discount, discount_Percentage) {
@@ -149,115 +173,109 @@ function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, ma
     document.getElementById('editCouponBtn').style.display = 'none';
 }
   
-  function toggleBlockUnblock(categoryId, blockStatus) {
-      fetch(`/admin/toggleBlockStatus/${categoryId}`, {
-          method: 'POST',
+function toggleCouponValidity(couponId, blockStatus) {
+    // Create an object to send in the request body
+    const requestData = { blocked: blockStatus };
+
+    // Send a POST request to update coupon validity
+    fetch(`/admin/toggleBlockStatusCoupons/${couponId}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestData),
+})
+.then(response => response.json())
+.then(data => {
+  window.location.reload()
+    // console.log('Response data:', data);
+    // console.log('data.blockStatus:', data.blockStatus);
+    // if (data) {
+    // // Toggle the button text and class
+    // const button = document.getElementById(`couponButton_${couponId}`);
+    // console.log('button:', button);
+    // console.log('couponButton_${couponId} :', couponId);
+
+    // if (data.blockStatus === true) {
+    //   console.log("Reached inside the if ");
+    //   button.textContent = 'De-Activate';
+    //   button.className = 'btn btn-danger rounded btn-sm font-sm';
+    // } else {
+    //   button.textContent = 'Activate';
+    //   button.className = 'btn btn-success rounded btn-sm font-sm';
+    //   console.log("Reached inside the else ");
+    // }
+
+
+    // // Update the coupon validity status
+    // const couponStatus = document.getElementById(`couponStatus_${couponId}`);
+    // couponStatus.textContent = data.blockStatus === true ? 'Inactive' : 'Active';
+// } else {
+//     console.error('Failed to toggle coupon validity');
+//     alert('An error occurred while toggling coupon validity');
+// }
+
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while toggling coupon validity');
+});
+
+}
+  // Function to fetch coupons with pagination
+  function fetchCoupons(page) {
+      $.ajax({
+          url: `/admin/coupons?page=${page}`, // Update the URL to match your backend endpoint
+          method: 'GET',
+          dataType: 'json',
           headers: {
-              'Content-Type': 'application/json'
+              'X-Requested-With': 'XMLHttpRequest',
           },
-          body: JSON.stringify({ blocked: blockStatus })
-      })
-      .then(response => {
-          if (response.ok) {
-              location.reload(); // Reload the page to reflect the updated status
-          } else {
-              alert('Failed to toggle block status');
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred while toggling block status');
+          success: function (data) {
+            const coupons = data.coupons;
+            console.log("coupons  ==> ",coupons);
+              $('#couponListContainer').empty(); // Clear existing coupons
+  
+              coupons.forEach(coupon => {
+                  const couponRow = `
+                      <tr>
+                          <td>${coupon.coupon_id}</td>
+                          <td>
+                              <button class="btn btn-light rounded btn-sm font-sm"
+                                  onclick="editCoupon('${coupon._id}', '${coupon.coupon_id}', '${coupon.limit}', '${coupon.expiry_Date}', '${coupon.minimum_Amount}', '${coupon.maximum_Discount}', '${coupon.discount_Percentage}')">Edit</button>
+                          </td>
+                          <td>
+                              <button class="btn btn-info rounded btn-sm font-sm"
+                                  onclick="viewDetails('${coupon._id}', '${coupon.coupon_id}', '${coupon.limit}', '${coupon.expiry_Date}', '${coupon.minimum_Amount}', '${coupon.maximum_Discount}', '${coupon.discount_Percentage}')">View Details</button>
+                          </td>
+                          <td>
+                            ${coupon.valid ?  'Active' : 'Inactive'}
+                          </td>
+                          <td>
+                              ${!coupon.valid ? `
+                                <button class="btn btn-success rounded btn-sm font-sm" id="couponButton_${coupon._id}"
+                                  onclick="toggleCouponValidity('${coupon._id}', true)">Activate</button>` :
+                                  `<button class="btn btn-danger rounded btn-sm font-sm" id="couponButton_${coupon._id}"
+                                  onclick="toggleCouponValidity('${coupon._id}', false)">De-Activate</button>`
+                              }
+                          </td>
+                      </tr>
+                  `;
+  
+                  $('#couponListContainer').append(couponRow);
+              });
+  
+              // Update the active page
+              $('#pagination .page-item').removeClass('active');
+              $(`#pagination .page-item:nth-child(${page})`).addClass('active');
+          },
+          error: function (error) {
+              console.error(error);
+          },
       });
   }
 
-  function createCouponValidation() {
-   // Input fields
-   const couponId = document.getElementById('coupon_id');
-   const limit = document.getElementById('limit');
-   const expiryDate = document.getElementById('expiry_Date');
-   const minimumAmount = document.getElementById('minimum_Amount');
-   const maximumDiscount = document.getElementById('maximum_Discount');
-   const discountPercentage = document.getElementById('discount_Percentage');
-
-   // Error fields
-   const couponIdError = document.getElementById('couponIdError');
-   const limitError = document.getElementById('limitError');
-   const expiryDateError = document.getElementById('expiryDateError');
-   const minimumAmountError = document.getElementById('minimumAmountError');
-   const maximumDiscountError = document.getElementById('maximumDiscountError');
-   const discountPercentageError = document.getElementById('discountPercentageError');
-
-   // Regex
-   const idRegex = /^[A-Z][A-Za-z0-9]*$/; // Coupon ID starts with an uppercase letter and can include letters and numbers.
-   const numericRegex = /^\d+$/; // Numeric input (e.g., limit, minimumAmount, maximumDiscount, discountPercentage).
-   const dateRegex = /^\d{2}-\d{2}-\d{4}$/; // DD-MM-YYYY format for expiry date.
-
-   let isValid = true; // A flag to track overall validation
-
-   // Function to clear error message with a delay
-   function clearErrorWithDelay(errorField) {
-      setTimeout(() => {
-         errorField.innerHTML = '';
-      }, 5000); // 5000 milliseconds = 5 seconds
-   }
-
-   // Function to validate coupon ID
-   function validateCouponId() {
-      if (couponId.value.trim() === '') {
-         couponIdError.innerHTML = 'Coupon ID cannot be empty';
-         clearErrorWithDelay(couponIdError);
-         isValid = false;
-      } else if (!idRegex.test(couponId.value)) {
-         couponIdError.innerHTML = 'Coupon ID should start with a capital letter and can include letters and numbers';
-         clearErrorWithDelay(couponIdError);
-         isValid = false;
-      } else {
-         couponIdError.innerHTML = ''; // Clear error message
-      }
-   }
-
-   // Function to validate numeric fields
-   function validateNumericField(field, fieldError, fieldName) {
-      if (field.value.trim() === '') {
-         fieldError.innerHTML = `${fieldName} cannot be empty`;
-         clearErrorWithDelay(fieldError);
-         isValid = false;
-      } else if (!numericRegex.test(field.value)) {
-         fieldError.innerHTML = `Please enter a valid ${fieldName}`;
-         clearErrorWithDelay(fieldError);
-         isValid = false;
-      } else {
-         fieldError.innerHTML = ''; // Clear error message
-      }
-   }
-
-   // Function to validate expiry date
-   function validateExpiryDate() {
-      if (expiryDate.value.trim() === '') {
-         expiryDateError.innerHTML = 'Expiry Date cannot be empty';
-         clearErrorWithDelay(expiryDateError);
-         isValid = false;
-      } else if (!dateRegex.test(expiryDate.value)) {
-         expiryDateError.innerHTML = 'Please enter a valid expiry date in DD-MM-YYYY format';
-         clearErrorWithDelay(expiryDateError);
-         isValid = false;
-      } else {
-         expiryDateError.innerHTML = ''; // Clear error message
-      }
-   }
-
-   // Validate fields one by one
-   validateCouponId();
-   if (isValid) validateNumericField(limit, limitError, 'Limit');
-   if (isValid) validateNumericField(minimumAmount, minimumAmountError, 'Minimum Amount');
-   if (isValid) validateNumericField(maximumDiscount, maximumDiscountError, 'Maximum Discount');
-   if (isValid) validateNumericField(discountPercentage, discountPercentageError, 'Discount Percentage');
-   if (isValid) validateExpiryDate();
-
-   return isValid;
-}
-
-
-</script>
+ </script>
+  
 
 <%- include("footer") %>

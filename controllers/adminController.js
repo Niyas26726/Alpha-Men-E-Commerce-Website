@@ -67,21 +67,44 @@ const logout = async (req, res) => {
 }
 
 const coupons = async (req, res) => {
-   console.log("Reached coupons");
+   const itemsPerPage = 10;
+   const page = parseInt(req.query.page) || 1;
+
    try {
-         const err = req.query.err;
-         const msg = req.query.msg;
-         console.log(typeof err);
-         const couponData = await coupon.find({});
-         if (err) {
-            res.render('coupons', {coupons: couponData, message: '', errMessage: msg })
-         } else {
-            res.render('coupons', {coupons: couponData, message: msg , errMessage: '' })
-         }
+       const skipCount = (page - 1) * itemsPerPage;
+       const totalOrders = await coupon.countDocuments({});
+       const totalPages = Math.ceil(totalOrders / itemsPerPage);
+       const err = req.query.err;
+       const msg = req.query.msg;
+       console.log(typeof err);
+       const couponData = await coupon
+       .find({})
+       .skip(skipCount)
+       .limit(itemsPerPage)
+
+       console.log("couponData  ==> ",couponData);
+       console.log("totalOrders  ==> ",totalOrders);
+       console.log("totalPages  ==> ",totalPages);
+       console.log("page  ==> ",page);
+ 
+       
+       // Check if it's an AJAX request
+       if (req.xhr) {
+           // Respond with JSON for AJAX requests
+           res.json({ coupons: couponData, totalPages, page });
+       } else {
+           // Render the EJS template for normal HTTP requests
+           if (err) {
+               res.render('coupons', { coupons: couponData, message: '', errMessage: msg, totalPages, page });
+           } else {
+               res.render('coupons', { coupons: couponData, message: msg, errMessage: '', totalPages, page });
+           }
+       }
    } catch (error) {
-      console.log(error.message)
+       console.log(error.message);
    }
 }
+
 
 const createCoupon = async (req, res) => {
    console.log("Reached createCoupon");
@@ -170,6 +193,37 @@ const categories = async (req, res) => {
    } catch (error) {
       console.log(error.message)
    }
+}
+
+const toggleBlockStatusCoupons = async (req, res) => {
+   try {
+      console.log("Reached toggleBlockStatusCoupons");
+      const couponId = req.params.couponId;
+      const blockStatus = req.body.blocked;
+
+    
+      const couponData = await coupon.findById(couponId);
+      console.log("couponId ===> ",couponId);
+      console.log("couponData.valid ===> ",couponData.valid);
+      console.log("blockStatus ===> ",blockStatus);
+
+    
+      if (!couponData) {
+        return res.status(404).json({ message: 'Coupon not found' });
+      }
+    
+      couponData.valid = blockStatus; // Toggle coupon validity
+      
+      await couponData.save();
+      console.log("couponData.valid ===> ",couponData.valid);
+
+    
+      return res.status(200).json({blockStatus, message: 'Coupon validity updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  
 }
 
 const addCategories = async (req, res) => {
@@ -499,7 +553,7 @@ const userList = async (req, res) => {
 }
 
 const orderList = async (req, res) => {
-   const itemsPerPage = 2;
+   const itemsPerPage = 10;
    const page = parseInt(req.query.page) || 1;
 
    try {
@@ -568,7 +622,7 @@ const ordersDetail = async (req, res) => {
         .populate({
           path: 'user_id',
           model: User,
-          select: 'first_name last_name email mobile addresses',
+          select: 'first_name last_name email mobile address',
         })
         .populate({
           path: 'items.product_id',
@@ -728,6 +782,7 @@ module.exports = {
    updateOrderStatus,
    coupons,
    createCoupon,
-   editCoupon
+   editCoupon,
+   toggleBlockStatusCoupons
 }
 

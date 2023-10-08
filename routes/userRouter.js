@@ -81,6 +81,7 @@ userRouter.post('/removeCartItem/:cartItemId',auth.isLogin,userController.remove
 userRouter.post('/clearCart',auth.isLogin,userController.clearCart);
 userRouter.get('/getCartCount',auth.isLogin,userController.getCartCount);
 userRouter.get('/getWishlistCount',auth.isLogin,userController.getWishlistCount);
+
 userRouter.get('/checkOutPage',auth.isLogin,userController.checkOutPage);
 userRouter.post('/processPayment',auth.isLogin,userController.processPayment);
 
