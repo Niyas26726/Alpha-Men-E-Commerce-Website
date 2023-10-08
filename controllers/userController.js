@@ -260,6 +260,7 @@ const userAccount = async (req, res) => {
      const userData = await User.findOne({ _id: user_id }).populate('addresses');
  
      const userOrders = await Order.find({ user_id: user_id });
+     
  
      console.log("userData " + userData);
  
@@ -735,8 +736,12 @@ const removeCartItem = async (req, res) => {
        user.cart.splice(cartItemIndex, 1);
 
        await user.save();
+       const numberOfItemsInCart = user.cart.length;
 
-       res.json({ message: 'Cart item removed successfully' });
+
+      console.log("numberOfItemsInCart  ===> ",numberOfItemsInCart);
+
+       res.json({ count: numberOfItemsInCart, message: 'Cart item removed successfully' });
    } catch (error) {
        console.error('Error removing cart item:', error);
        res.status(500).json({ error: 'Internal server error' });
@@ -836,6 +841,8 @@ const checkOutPage = async (req, res) => {
           model: 'product', 
         })
         .populate('addresses');
+
+        console.log("coupons ===> ",coupons);
 
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);

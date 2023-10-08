@@ -21,7 +21,7 @@
                             <%if(user.cart.length != 0){%>
                             <table class="table shopping-summery text-center clean">
                                 <thead>
-                                    <tr class="main-heading">
+                                    <tr class="main-heading" id="hide_Row">
                                         <th scope="col">Image</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Price</th>
@@ -65,6 +65,9 @@
                                     <h2>Your cart is empty</h2>
                                 </div>
                                 <%}%>
+                                <div class=" text-center" style="display: none;" id="cart_Empty">
+                                    <h2>Your cart is empty</h2>
+                                </div>
                         </div>
                         <div class="cart-action text-end">
                             <!-- <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a> -->
@@ -166,18 +169,28 @@ function removeCartItem(cartItemId) {
     fetch(`/removeCartItem/${cartItemId}`, {
         method: 'POST',
     })
-    .then(response => {
-        if (response.ok) {
-            const rowToRemove = document.getElementById(`cartItemRow_${cartItemId}`);
-            if (rowToRemove) {
-                updateCartTotals();
-                updateCartCount();
-                rowToRemove.remove();
+.then(response => {
+    if (response.ok) {
+        response.json().then(data => {
+            if (data.count==0) {
+                const cartTable = document.querySelector('.table.shopping-summery tbody');
+                cartTable.innerHTML = ''; 
+                const cartTableBody = document.getElementById('hide_Row');
+                cartTableBody.style.display = 'none'; 
+                const cart_Empty = document.getElementById('cart_Empty');
+                cart_Empty.style.display = 'block'; 
             }
-        } else {
-            alert('Failed to remove item from the cart');
+        });
+        const rowToRemove = document.getElementById(`cartItemRow_${cartItemId}`);
+        if (rowToRemove) {
+            updateCartTotals();
+            updateCartCount();
+            rowToRemove.remove();
         }
-    })
+    } else {
+        alert('Failed to remove item from the cart');
+    }
+})
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while removing item from the cart');
@@ -193,9 +206,17 @@ function clearCart() {
         if (response.ok) {
             const cartTableBody = document.querySelector('.table.shopping-summery tbody');
             if (cartTableBody) {
-                cartTableBody.innerHTML = ''; 
+                // cartTableBody.innerHTML = ''; 
                 updateCartTotals()
                 updateCartCount();
+                const cartTable = document.querySelector('.table.shopping-summery tbody');
+                cartTable.innerHTML = ''; 
+                const cartRow = document.getElementById('hide_Row');
+                cartRow.style.display = 'none'; 
+                const cart_Empty = document.getElementById('cart_Empty');
+                cart_Empty.style.display = 'block'; 
+
+
             }
         } else {
             alert('Failed to clear the cart');
@@ -220,7 +241,6 @@ function updateSubtotal(cartItemId, newQuantity) {
 }
 
 function updateCartTotals() {
-    alert("Reached updateCartTotals");
     fetch('/getCartTotals', {
         method: 'GET',
         headers: {

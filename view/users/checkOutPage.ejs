@@ -196,20 +196,24 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mb-30 mt-50">
-                                    <div class="heading_s1 mb-3">
-                                        <h4>Apply Coupon</h4>
+                                <div class="mb-30 mt-50 p-15" style="background-color: #aeccc5; border: 2px; border-radius: 1rem;  border-color: black;">
+                                    <div class="heading_s1 mb-3 p-10 text-center">
+                                        <h4><u>Apply Coupon</u></h4>
                                     </div>
                                     <div class="total-amount">
                                         <div class="left">
                                             <div class="coupon">
-                                                <form action="#" target="_blank">
-                                                    <div class="form-row row justify-content-center">
-                                                        <div class="form-group col-lg-6">
-                                                            <input class="font-medium" name="Coupon" placeholder="Enter Your Coupon">
+                                                <form>
+                                                    <div class="form-row row justify-content-center p-20">
+                                                        <div class="form-group col-lg-6 text-end" style="background-color: white; border-radius: 0.7rem; padding: 0.5rem;">
+                                                            <select class="font-medium" id="couponSelect">
+                                                                <% coupons.forEach(coupon => { %>
+                                                                    <option value="<%= coupon.code %>"><%= coupon.coupon_id %></option>
+                                                                <% }); %>
+                                                            </select>
                                                         </div>
-                                                        <div class="form-group col-lg-6">
-                                                            <button class="btn  btn-sm"><i class="fi-rs-label mr-10"></i>Apply</button>
+                                                        <div class="form-group col-lg-3 text-center">
+                                                            <button class="btn btn-sm" id="applyCouponBtn" onclick="applyCoupon(event)"><i class="fi-rs-label mr-10"></i>Apply</button>
                                                         </div>
                                                     </div>
                                                 </form>
@@ -217,6 +221,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                                                
                                 
                                 <div class="login_wrap widget-taber-content p-30 background-white border-radius-5 mt-40">
                                     <div class="padding_eight_all bg-white">
@@ -282,6 +287,16 @@
         text: "Please select a payment option.",
       });
       return false;
+    }
+
+    function applyCoupon(event) {
+    event.preventDefault(); // Prevent the form submission
+
+    const couponSelect = document.getElementById('couponSelect');
+    const selectedCoupon = couponSelect.value;
+    alert("selectedCoupon  ===>  ",selectedCoupon)
+    console.log("selectedCoupon  ===>  ",selectedCoupon)
+
     }
 
     // Add the selected addresses and payment option to the form data
