@@ -856,6 +856,22 @@ const checkOutPage = async (req, res) => {
    }
 }
 
+const getCouponDetails = async (req, res) => {
+   console.log("Reached getCouponDetails");
+   try {
+      const coupons = await coupon.findById(req.params.couponId);
+      if (!coupons || !coupons.valid) {
+        return res.status(404).json({ message: 'Coupon not found or invalid.' });
+      }
+  
+      res.json(coupons);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error.' });
+    }
+  
+}
+
    const getOrderDetails = async (req, res) => {
       console.log("Reached getOrderDetails");
 
@@ -1030,9 +1046,9 @@ const checkOutPage = async (req, res) => {
       console.log("Reached processPayment");
       try {
          const userId = req.session.user_id;
+         const coupon_id = req.query.couponId;
          const categorieData = await category.find({});
          const productData = await product.find({});
-         const user = 1;
          const userData = await User.findById({ _id: userId });
    
          const selectedBillingAddress = req.body.selectedBillingAddress;
@@ -1042,6 +1058,7 @@ const checkOutPage = async (req, res) => {
          console.log("selectedBillingAddress " + selectedBillingAddress);
          console.log("selectedShippingAddress " + selectedShippingAddress);
          console.log("paymentOption " + paymentOption);
+         console.log("coupon_id " + coupon_id);
    
          const items = [];
    
@@ -1475,6 +1492,7 @@ module.exports = {
    processPayment,
    getOrderDetails,
    cancelOrder,
-   returnOrder
+   returnOrder,
+   getCouponDetails
 }
 

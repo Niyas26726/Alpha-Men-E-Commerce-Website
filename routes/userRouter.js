@@ -83,6 +83,7 @@ userRouter.get('/getCartCount',auth.isLogin,userController.getCartCount);
 userRouter.get('/getWishlistCount',auth.isLogin,userController.getWishlistCount);
 
 userRouter.get('/checkOutPage',auth.isLogin,userController.checkOutPage);
+userRouter.get('/getCouponDetails/:couponId',auth.isLogin,userController.getCouponDetails);
 userRouter.post('/processPayment',auth.isLogin,userController.processPayment);
 
 

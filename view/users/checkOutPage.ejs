@@ -203,25 +203,38 @@
                                     <div class="total-amount">
                                         <div class="left">
                                             <div class="coupon">
-                                                <form>
                                                     <div class="form-row row justify-content-center p-20">
                                                         <div class="form-group col-lg-6 text-end" style="background-color: white; border-radius: 0.7rem; padding: 0.5rem;">
                                                             <select class="font-medium" id="couponSelect">
                                                                 <% coupons.forEach(coupon => { %>
-                                                                    <option value="<%= coupon.code %>"><%= coupon.coupon_id %></option>
+                                                                    <option data-coupon-id="<%= coupon._id %>" value="<%= coupon._id %>"><%= coupon.coupon_id %></option>
                                                                 <% }); %>
                                                             </select>
                                                         </div>
                                                         <div class="form-group col-lg-3 text-center">
-                                                            <button class="btn btn-sm" id="applyCouponBtn" onclick="applyCoupon(event)"><i class="fi-rs-label mr-10"></i>Apply</button>
+                                                            <button type="button" class="btn btn-sm" id="applyCouponBtn" onclick="applyCoupon()"><i class="fi-rs-label mr-10"></i>Apply</button>
                                                         </div>
                                                     </div>
-                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Hidden div for displaying coupon details -->
+                                    <div id="couponDetails" style="display: none;">
+                                        <div class="row justify-content-center p-20">
+                                            <div class="col-lg-6 text-end">
+                                                <p>Maximum Discount: <span id="maxDiscount"></span></p>
+                                                <p>Discount Percentage: <span id="discountPercentage"></span>%</p>
+                                                <p>Uses Left : <span id="limit"></span></p>
+                                            </div>
+                                            <div class="col-lg-3 text-center">
+                                                <button type="button" class="btn btn-sm btn-danger" id="cancelCouponBtn" onclick="cancelCoupon()">Cancel</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                                                 
+                                                                                                
                                 
                                 <div class="login_wrap widget-taber-content p-30 background-white border-radius-5 mt-40">
                                     <div class="padding_eight_all bg-white">
@@ -252,6 +265,7 @@
 <%-include("footer")-%>
 
 <script>
+    let selectedCouponId = ''      
     document.addEventListener("DOMContentLoaded", function () {
   const checkoutForm = document.getElementById("checkoutForm");
   const proceedToPaymentBtn = document.getElementById("proceedToPayment");
@@ -289,17 +303,6 @@
       return false;
     }
 
-    function applyCoupon(event) {
-    event.preventDefault(); // Prevent the form submission
-
-    const couponSelect = document.getElementById('couponSelect');
-    const selectedCoupon = couponSelect.value;
-    alert("selectedCoupon  ===>  ",selectedCoupon)
-    console.log("selectedCoupon  ===>  ",selectedCoupon)
-
-    }
-
-    // Add the selected addresses and payment option to the form data
     const formData = new FormData(checkoutForm);
     formData.append("selectedBillingAddress", selectedBillingAddress.value);
     formData.append("selectedShippingAddress", selectedShippingAddress.value);
@@ -309,12 +312,21 @@
     alert("selectedShippingAddress "+selectedShippingAddress.value)
     alert("paymentOption "+paymentOption.value)
 
+      // Check if a coupon is selected
+  if (selectedCouponId) {
+    // Add the selected coupon ID as a parameter
+    formData.append("couponId", selectedCouponId);
+  }
+
+  // Update the form action
+  checkoutForm.action = "/processPayment" + (selectedCouponId ? `?couponId=${selectedCouponId}` : "");
+  console.log("checkoutForm.action ",checkoutForm.action);
+
     return true;
   }
 
   proceedToPaymentBtn.addEventListener("click", function () {
     if (validateForm()) {
-      // Submit the form with the selected addresses and payment option
       checkoutForm.submit();
     }
   });
@@ -325,20 +337,118 @@ function isRadioChecked(radioGroup) {
 }
 
 
-    function updateGrandTotal() {
-        const subtotals = document.querySelectorAll(".product-subtotal");
-        let grandTotal = 0;
+// function applyCoupon(button) {
+//     const couponSelect = document.getElementById('couponSelect');
+//     const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+//      selectedCouponId = selectedOption.getAttribute('data-coupon-id');
 
-        subtotals.forEach(subtotalElement => {
-            const subtotalValue = parseFloat(subtotalElement.textContent.replace("$", ""));
-            grandTotal += subtotalValue;
+//     alert("selectedCouponId: " + selectedCouponId);
+
+// }
+
+// async function applyCoupon(button) {
+//     alert("Reached applyCoupon")
+//     const couponSelect = document.getElementById('couponSelect');
+//     const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+//     const selectedCouponId = selectedOption.getAttribute('data-coupon-id');
+
+//     try {
+//         const response = await fetch(`/getCouponDetails/${selectedCouponId}`);
+//         if (!response.ok) {
+//             throw new Error(`Failed to fetch coupon details: ${response.status}`);
+//         }
+
+//         const couponDetails = await response.json();
+//         const grandTotalElement = document.getElementById("grandTotal");
+//         const grandTotal = parseFloat(grandTotalElement.textContent.replace("$", ""));
+//         const discountPercentage = couponDetails.discount_Percentage / 100;
+//         let discountAmount = grandTotal * discountPercentage;
+
+//         if (discountAmount > couponDetails.maximum_Discount) {
+//             discountAmount = couponDetails.maximum_Discount;
+//         }
+
+//         const updatedGrandTotal = grandTotal - discountAmount;
+//         grandTotalElement.innerHTML = `<strong>$${updatedGrandTotal.toFixed(2)}</strong>`;
+//     } catch (error) {
+//         console.error(error);
+//         alert("Failed to apply coupon. Please try again later.");
+//     }
+// }
+
+let originalGrandTotal = '';
+function applyCoupon() {
+    const couponSelect = document.getElementById('couponSelect');
+    const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+     selectedCouponId = selectedOption.getAttribute('data-coupon-id');
+
+    fetch(`/getCouponDetails/${selectedCouponId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch coupon details: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(couponDetails => {
+            const discountPercentage = couponDetails.discount_Percentage;
+            const maximumDiscount = couponDetails.maximum_Discount;
+            const minimum_Amount = couponDetails.minimum_Amount;
+            const limit = couponDetails.limit;
+
+            const grandTotalElement = document.getElementById('grandTotal');
+            const grandTotalValue = parseFloat(grandTotalElement.textContent.replace("$", ""));
+            let discountedTotal = '';
+            originalGrandTotal = grandTotalValue;
+
+            if (grandTotalValue >= minimum_Amount) {
+                const discountAmount = grandTotalValue * (discountPercentage / 100);
+                if (discountAmount > maximumDiscount) {
+                    discountedTotal = grandTotalValue - maximumDiscount;
+                } else {
+                    discountedTotal = grandTotalValue - discountAmount;
+                }
+            }
+
+            document.getElementById('maxDiscount').textContent = `$${maximumDiscount.toFixed(2)}`;
+            document.getElementById('discountPercentage').textContent = discountPercentage;
+            document.getElementById('limit').textContent = limit;
+
+            grandTotalElement.innerHTML = `<strong>$${discountedTotal.toFixed(2)}</strong>`;
+
+            document.getElementById('couponDetails').style.display = 'block';
+
+            document.getElementById('applyCouponBtn').style.display = 'none';
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Failed to apply coupon. Please try again later.");
         });
+}
 
-        const grandTotalAmount = document.getElementById("grandTotal");
-        grandTotalAmount.innerHTML = `<strong>$${grandTotal.toFixed(2)}</strong>`;
-    }
+function cancelCoupon() {
+    const grandTotalElement = document.getElementById('grandTotal');
+    grandTotalElement.innerHTML = `<strong>$${originalGrandTotal.toFixed(2)}</strong>`;
 
-    updateGrandTotal();
+    document.getElementById('couponDetails').style.display = 'none';
+
+    document.getElementById('applyCouponBtn').style.display = 'block';
+}
+
+
+function updateGrandTotal() {
+    const subtotals = document.querySelectorAll(".product-subtotal");
+    let grandTotal = 0;
+
+    subtotals.forEach(subtotalElement => {
+        const subtotalValue = parseFloat(subtotalElement.textContent.replace("$", ""));
+        grandTotal += subtotalValue;
+    });
+
+    const grandTotalAmount = document.getElementById("grandTotal");
+    grandTotalAmount.innerHTML = `<strong>$${grandTotal.toFixed(2)}</strong>`;
+}
+
+updateGrandTotal();
 
   </script>
   

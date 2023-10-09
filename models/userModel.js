@@ -43,6 +43,18 @@ const userModel = new mongoose.Schema({
         },
       },
     ],
+    coupons:[
+      {
+         coupon_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Coupon', 
+          },
+          no_of_times_used: {
+            type: Number,
+            default: 0, 
+          },
+      },
+    ],
    wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,

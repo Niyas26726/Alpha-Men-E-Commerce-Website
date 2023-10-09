@@ -206,7 +206,6 @@ function clearCart() {
         if (response.ok) {
             const cartTableBody = document.querySelector('.table.shopping-summery tbody');
             if (cartTableBody) {
-                // cartTableBody.innerHTML = ''; 
                 updateCartTotals()
                 updateCartCount();
                 const cartTable = document.querySelector('.table.shopping-summery tbody');
@@ -215,8 +214,6 @@ function clearCart() {
                 cartRow.style.display = 'none'; 
                 const cart_Empty = document.getElementById('cart_Empty');
                 cart_Empty.style.display = 'block'; 
-
-
             }
         } else {
             alert('Failed to clear the cart');
