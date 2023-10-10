@@ -1,218 +1,223 @@
 <%- include("header") %>
 
 <section class="content-main">
-        <form enctype="multipart/form-data">
+    <form enctype="multipart/form-data" action="/admin/editProducts/<%= products._id %>" method="POST">
 
-        <input type="hidden"  value="<%= products._id %>" name="editID" id="">
+        <input type="hidden" value="<%= products._id %>" name="editID" id="editID">
         <div class="row">
-        <div class="col-9">
-            <div class="content-header">
-                <h2 class="content-title">Edit Product</h2>
-                <% if (message) { %>
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Edit Product</h2>
+                    <% if (message) { %>
                     <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
                         <%= message %>
                     </div>
-                <% } %>
-                <% if (errMessage) { %>
+                    <% } %>
+                    <% if (errMessage) { %>
                     <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
                         <%= errMessage %>
                     </div>
-                <% } %>
-                <div>
-                    <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
+                    <% } %>
+                    <div>
+                        <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Basic</h4>
-                </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <label for="product_name" class="form-label">Product Name</label>
-                        <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" value="<%= products.product_name %>" required>
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Basic</h4>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label">Description</label>
-                        <textarea placeholder="Type here" class="form-control" rows="4" name="description" required><%= products.description %></textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="mb-4">
-                                <label class="form-label">Regular price</label>
-                                <div class="row gx-2">
-                                    <input placeholder="$" type="text" class="form-control" name="regular_price" value="<%= products.regular_price %>" required>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <label for="product_name" class="form-label">Product Name</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                                name="product_name" value="<%= products.product_name %>" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea placeholder="Type here" class="form-control" rows="4" name="description"
+                                required><%= products.description %></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Regular price</label>
+                                    <div class="row gx-2">
+                                        <input placeholder="$" type="text" class="form-control" name="regular_price"
+                                            value="<%= products.regular_price %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Sales price</label>
+                                    <input placeholder="$" type="text" class="form-control" name="sales_price"
+                                        value="<%= products.sales_price %>" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label">Size</label>
+                                <select class="form-select" name="size" required>
+                                    <option value="s" <%= products.size === 's' ? 'selected' : '' %>>s</option>
+                                    <option value="M" <%= products.size === 'M' ? 'selected' : '' %>>M</option>
+                                    <option value="L" <%= products.size === 'L' ? 'selected' : '' %>>L</option>
+                                    <option value="XL" <%= products.size === 'XL' ? 'selected' : '' %>>XL</option>
+                                    <option value="XXL" <%= products.size === 'XXL' ? 'selected' : '' %>>XXL</option>
+                                    <option value="XXXL" <%= products.size === 'XXXL' ? 'selected' : '' %>>XXXL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Brand</label>
+                                    <div class="row gx-2">
+                                        <input placeholder="Type here" type="text" class="form-control" name="brand"
+                                            value="<%= products.brand_name %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Stock</label>
+                                    <input placeholder="0" type="text" class="form-control" name="stock"
+                                        value="<%= products.stock %>" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label">Color</label>
+                                <input placeholder="Type here" type="text" class="form-control" name="color"
+                                    value="<%= products.color %>" required>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-4">
+                                    <label class="form-label">Material</label>
+                                    <input placeholder="Type here" type="text" class="form-control" name="material"
+                                        value="<%= products.material %>" required>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="mb-4">
-                                <label class="form-label">Sales price</label>
-                                <input placeholder="$" type="text" class="form-control" name="sales_price" value="<%= products.sales_price %>" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label">Size</label>
-                            <select class="form-select" name="size" required>
-                              <option value="s" <%= products.size === 's' ? 'selected' : '' %>>s</option>
-                              <option value="M" <%= products.size === 'M' ? 'selected' : '' %>>M</option>
-                              <option value="L" <%= products.size === 'L' ? 'selected' : '' %>>L</option>
-                              <option value="XL" <%= products.size === 'XL' ? 'selected' : '' %>>XL</option>
-                              <option value="XXL" <%= products.size === 'XXL' ? 'selected' : '' %>>XXL</option>
-                              <option value="XXXL" <%= products.size === 'XXXL' ? 'selected' : '' %>>XXXL</option>
-                            </select>
-                        </div>
-                
-                </div>
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="mb-4">
-                                <label class="form-label">Brand</label>
-                                <div class="row gx-2">
-                                    <input placeholder="Type here" type="text" class="form-control" name="brand" value="<%= products.brand_name %>" required>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <h4>Shipping</h4>
+                                <div class="mb-4">
+                                    <label class="form-label">Shipping Fee</label>
+                                    <div class="row gx-2">
+                                        <input placeholder="$" type="text" class="form-control" name="shipping_fee"
+                                            value="<%= products.shipping_fee %>" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="mb-4">
-                                <label class="form-label">Stock</label>
-                                <input placeholder="0" type="text" class="form-control" name="stock" value="<%= products.stock %>" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label">Color</label>
-                            <input placeholder="Type here" type="text" class="form-control" name="color" value="<%= products.color %>" required>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="mb-4">
-                                <label class="form-label">Material</label>
-                                <input placeholder="Type here" type="text" class="form-control" name="material" value="<%= products.material %>" required>
-                            </div>
+                        <div class="mb-4">
+                            <label class="form-label">Tax rate</label>
+                            <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate"
+                                value="<%= products.tax_rate %>" required>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <h4>Shipping</h4>
-                            <div class="mb-4">
-                                <label class="form-label">Shipping Fee</label>
-                                <div class="row gx-2">
-                                    <input placeholder="$" type="text" class="form-control" name="shipping_fee" value="<%= products.shipping_fee %>" required>
-                                </div>
-                            </div>
-                        </div>
+                </div> <!-- card end// -->
+            </div>
+            <div class="col-lg-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Media</h4>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label">Tax rate</label>
-                        <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate" value="<%= products.tax_rate %>" required>
-                    </div>
-                </div>
-            </div> <!-- card end// -->
-        </div>
-        <div class="col-lg-3">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Media</h4>
-                </div>
-                <div class="card-body">
-                    <div class="input-upload">
-                        <label for="">Images:</label>
-                        <% if (products.images && products.images.length > 0) { %>
+                    <div class="card-body">
+                        <div class="input-upload">
+                            <label for="">Images:</label>
+                            <% if (products.images && products.images.length > 0) { %>
                             <div class="row">
                                 <% products.images.forEach(function(image, index) { %>
-                                    <div class="col-lg-6 mb-3">
-                                        <div class="image-container">
-                                            <img src="/admin/productImages/<%= image %>" alt="Product Image" class="product-image">
-                                            <button class="remove-image-btn" data-index="<%= index %>" type="button">Remove</button>
-                                            <input type="hidden" id="remove-image-indices" name="removeImageIndices" value="">
-                                        </div>
+                                <div class="col-lg-6 mb-3">
+                                    <div class="image-container">
+                                        <img src="/admin/productImages/<%= image %>" alt="Product Image"
+                                            class="product-image">
+                                        <button class="remove-image-btn" data-index="<%= index %>" type="button">Remove</button>
+                                        <input type="hidden" id="remove-image-indices" name="removeImageIndices" value="">
                                     </div>
+                                </div>
                                 <% }); %>
                             </div>
                             <input type="hidden" id="image-index">
                             <div class="selected-image-container">
                                 <img src="" alt="Selected Image" class="selected-image" style="display: none;">
                             </div>
-                        <% } else { %>
+                            <% } else { %>
                             <p>No images available for this product.</p>
-                        <% } %>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
+                <!-- card end// -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Organization</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row gx-2">
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-label">Category</label>
+                                <select name="categoryId" class="form-select">
+                                    <option value="<%= products.categoryId._id %>" selected><%= products.categoryId.name %></option>
+                                    <% categories.forEach(function(category) { %>
+                                    <% if (category._id.toString() !== products.categoryId._id.toString()) { %>
+                                    <option value="<%= category._id %>"><%= category.name %></option>
+                                    <% } %>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        </div> <!-- row.// -->
+                    </div>
+                </div> <!-- card end// -->
             </div>
-            <!-- card end// -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Organization</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row gx-2">
-                        <div class="col-sm-6 mb-3">
-                            <label class="form-label">Category</label>
-                            <select name="categoryId" class="form-select">
-                              <option value="<%= products.categoryId._id %>" selected><%= products.categoryId.name %></option>
-                              <% categories.forEach(function(category) { %>
-                                  <% if (category._id.toString() !== products.categoryId._id.toString()) { %>
-                                      <option value="<%= category._id %>"><%= category.name %></option>
-                                  <% } %>
-                              <% }); %>
-                          </select>
-                        </div>
-                    </div> <!-- row.// -->
-                </div>
-            </div> <!-- card end// -->
         </div>
-</form>
+    </form>
 </section> <!-- content-main end// -->
-       
+
 <%- include("footer") %>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const removeImageButtons = document.querySelectorAll(".remove-image-btn");
-    const removeImageIndices = new Set();
+document.addEventListener("DOMContentLoaded", function () {
+  const removeImageButtons = document.querySelectorAll(".remove-image-btn");
+  const removeImageIndices = new Set();
 
-    removeImageButtons.forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            const index = btn.getAttribute("data-index");
+  removeImageButtons.forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const index = btn.getAttribute("data-index");
 
-            if (removeImageIndices.has(index)) {
-                removeImageIndices.delete(index);
-                btn.textContent = "Remove";
-            } else {
-                removeImageIndices.add(index);
-                btn.textContent = "Cancel";
-            }
-            const numericArray = Array.from(removeImageIndices, item => parseInt(item)); // or parseFloat(item) for floating-point numbers
+      if (removeImageIndices.has(index)) {
+        removeImageIndices.delete(index);
+        btn.textContent = "Remove";
+      } else {
+        removeImageIndices.add(index);
+        btn.textContent = "Cancel";
+      }
+      const numericArray = Array.from(removeImageIndices, item => parseInt(item));
 
-            const jsonString = JSON.stringify(numericArray);
-            alert("jsonString "+jsonString)
+      const jsonString = JSON.stringify(numericArray);
 
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function () {
+      const form = document.querySelector("form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
         const formData = new FormData(form);
         formData.append("removeImageIndices", jsonString);
-        console.log("removeImageIndices "+formData)
-        window.location.reload()
-        // fetch("/admin/editProducts/<%= products._id %>", {
-        //     method: "POST",
-        //     body: formData,
-        // })
-        //     .then((response) => response.json())
-        //     .then((data) => {
-        //         // Handle the response from the server, if needed
-        //     })
-        //     .catch((error) => {
-        //         // Handle errors, if any
-        //     });
-    });
-});
+        const editID = document.querySelector("#editID").value;
+
+        fetch(`/admin/editProduct/${editID}`, { // Updated to use the correct URL
+          method: "POST",
+          body: formData,
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle the response from the server, if needed
+        })
+        .catch((error) => {
+          // Handle errors, if any
+          console.error(error);
         });
+      });
     });
-
-
+  });
+});
 </script>
-
-
-
-
-

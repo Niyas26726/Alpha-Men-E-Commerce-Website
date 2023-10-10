@@ -458,38 +458,98 @@ const editProducts = async (req, res) => {
       const productId = req.query.productId;
       console.log("productId "+productId);
       const productData = await product.findById(productId).populate('categoryId');
+      const imagesData = productData.images; 
 
       console.log(typeof err);
       const categorieData = await category.find({});
       if (err) {
-         res.render('editProducts', {products:productData,categories:categorieData, message: '', errMessage: msg })
+         res.render('editProducts', {products:productData, categories:categorieData, images: imagesData, message: '', errMessage: msg })
       } else {
-         res.render('editProducts', {products:productData,categories:categorieData, message: msg , errMessage: '' })
+         res.render('editProducts', {products:productData, categories:categorieData, images: imagesData, message: msg , errMessage: '' })
       }
    } catch (error) {
       console.log(error.message)
    }
 }
 
-const updateProduct = async (req, res) => {
-   const productId = req.params.productId;
-   console.log("Reached updateProduct ");
-   console.log("productId " + productId);
-   console.log("Received JSON data:", req.body.removeImageIndices);
-   const removeImageIndices = JSON.parse(req.body.removeImageIndices);
+// const updateProduct = async (req, res) => {
+//    console.log("Reached updateProduct ");
+//    const productId = req.query.productId;
+//    console.log("productId " + productId);
+//    console.log("Received JSON data:", req.body.removeImageNames);
+//    const removeImageNames = req.body.removeImageNames;
+//    console.log("removeImageNames :", removeImageNames);
    
-   try {
-     const existingProduct = await product.findById(productId);
-     console.log("existingProduct " + existingProduct);
+//    try {
+//      const existingProduct = await product.findById(productId);
+//      console.log("existingProduct " + existingProduct);
      
-     if (!existingProduct) {
-        console.log("redirect to editProduct Product not found ");
-        res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=Product not found`);
-      }else if (req.files.length > 5) {
-      console.log("redirect to editProduct You can upload up to 3 images ");
-      res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=You can onlyupload upto 4 images`);
-   }
+//      if (!existingProduct) {
+//         console.log("redirect to editProduct Product not found ");
+//         res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=Product not found`);
+//       }else if (req.files.length > 5) {
+//       console.log("redirect to editProduct You can upload up to 3 images ");
+//       res.redirect(`/admin/editProduct?productId=${productId}&err=${true}&msg=You can onlyupload upto 4 images`);
+//    }
 
+//      const {
+//        product_name,
+//        description,
+//        regular_price,
+//        sales_price,
+//        size,
+//        brand,
+//        stock,
+//        color,
+//        material,
+//        shipping_fee,
+//        tax_rate,
+//        categoryId,
+//      } = req.body;
+
+//    //   const updatedImages = existingProduct.images.filter((_, index) => !removeImageNames.includes(index));
+//      const updatedImages = existingProduct.images.filter((imageName) => !removeImageNames.has(imageName));
+
+//      existingProduct.product_name = product_name;
+//      existingProduct.description = description;
+//      existingProduct.categoryId = categoryId;
+//      existingProduct.regular_price = regular_price;
+//      existingProduct.sales_price = sales_price;
+//      existingProduct.brand_name = brand;
+//      existingProduct.stock = stock;
+//      existingProduct.size = size;
+//      existingProduct.color = color;
+//      existingProduct.material = material;
+//      existingProduct.shipping_fee = shipping_fee;
+//      existingProduct.tax_rate = tax_rate;
+//      existingProduct.images = updatedImages; 
+
+//      await existingProduct.save();
+//      console.log("redirect to editProduct Product and image updated successfully ");
+//      res.redirect(`/admin/editProduct/${productId}?err=${""}&msg=Product and image updated successfully`);
+
+//    } catch (error) {
+//      console.error(error);
+//      console.log("redirect to editProduct Internal server error ");
+//      res.redirect(`/admin/editProduct/${productId}?err=${true}&msg=Internal server error`);
+//    }
+//  }
+
+const updateProduct = async (req, res) => {
+   const productId = req.params.productId; // Updated to use params instead of query
+   const existingProduct = await product.findById(productId);
+   const removeImageNames = req.body.removeImageIndices.map(index => existingProduct.images[index]);
+
+   try {
+ 
+     if (!existingProduct) {
+       return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=Product not found`);
+     }
+ 
+     if (req.files.length > 4) { // Updated to check against 4 instead of 5
+       return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=You can only upload up to 4 images`);
+     }
+ 
      const {
        product_name,
        description,
@@ -504,9 +564,10 @@ const updateProduct = async (req, res) => {
        tax_rate,
        categoryId,
      } = req.body;
-
-     const updatedImages = existingProduct.images.filter((_, index) => !removeImageIndices.includes(index));
-
+ 
+     console.log("removeImageNames  ===> ",removeImageNames);
+     const updatedImages = existingProduct.images.filter(imageName => !removeImageNames.includes(imageName));
+ 
      existingProduct.product_name = product_name;
      existingProduct.description = description;
      existingProduct.categoryId = categoryId;
@@ -519,19 +580,17 @@ const updateProduct = async (req, res) => {
      existingProduct.material = material;
      existingProduct.shipping_fee = shipping_fee;
      existingProduct.tax_rate = tax_rate;
-     existingProduct.images = updatedImages; 
-
+     existingProduct.images = updatedImages;
+ 
      await existingProduct.save();
-     console.log("redirect to editProduct Product and image updated successfully ");
-     res.redirect(`/admin/editProduct/${productId}?err=${""}&msg=Product and image updated successfully`);
-
+ 
+     return res.redirect(`/admin/editProduct?productId=${productId}&err=false&msg=Product and image updated successfully`);
    } catch (error) {
      console.error(error);
-     console.log("redirect to editProduct Internal server error ");
-     res.redirect(`/admin/editProduct/${productId}?err=${true}&msg=Internal server error`);
+     return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=Internal server error`);
    }
  }
-
+ 
 const loadAddUser = async (req, res) => {
    try {
 
