@@ -180,23 +180,33 @@
                                                         </div>
                                                         <div class="product-action-1">
                                                             <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
-                                                                    <% if (user && user.wishlist.includes(product._id)) { %>
-                                                                        <a id="wishlist-link-<%= product._id %>"
-                                                                           class="action-btn hover-up in-wishlist"
-                                                                           href="#"
-                                                                           onclick="toggleWishlist('<%= product._id %>')"
-                                                                           aria-label="Remove from Wishlist">
-                                                                            <i class="fi-rs-heart"></i>
-                                                                        </a>
-                                                                    <% } else { %>
-                                                                        <a id="wishlist-link-<%= product._id %>"
-                                                                           class="action-btn hover-up"
-                                                                           href="#"
-                                                                           onclick="toggleWishlist('<%= product._id %>')"
-                                                                           aria-label="Add To Wishlist">
-                                                                            <i class="fi-rs-heart"></i>
-                                                                        </a>
-                                                                    <% } %>
+                                                            <% if (user) { %>
+                                                                <% if (user.wishlist && user.wishlist.includes(product._id)) { %>
+                                                                    <a id="wishlist-link-<%= product._id %>"
+                                                                       class="action-btn hover-up in-wishlist"
+                                                                       href="#"
+                                                                       onclick="toggleWishlist('<%= product._id %>')"
+                                                                       aria-label="Remove from Wishlist">
+                                                                        <i class="fi-rs-heart"></i>
+                                                                    </a>
+                                                                <% } else { %>
+                                                                    <a id="wishlist-link-<%= product._id %>"
+                                                                       class="action-btn hover-up"
+                                                                       href="#"
+                                                                       onclick="toggleWishlist('<%= product._id %>')"
+                                                                       aria-label="Add To Wishlist">
+                                                                        <i class="fi-rs-heart"></i>
+                                                                    </a>
+                                                                <% } %>
+                                                            <% } else { %>
+                                                                <a id="wishlist-link-<%= product._id %>"
+                                                                   class="action-btn hover-up"
+                                                                   href="#"
+                                                                   onclick="toggleWishlist('<%= product._id %>')"
+                                                                   aria-label="Add To Wishlist">
+                                                                    <i class="fi-rs-heart"></i>
+                                                                </a>
+                                                            <% } %>
                                                             <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                                         </div>
                                                         <!-- <% if (product.hot) { %>

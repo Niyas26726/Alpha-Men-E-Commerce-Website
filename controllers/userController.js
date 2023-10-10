@@ -470,6 +470,23 @@ const displayProduct = async (req, res) => {
    }
 }
 
+
+const blocked = async (req, res) => {
+   console.log("Reached blocked");
+   try {
+      const userId = req.session.user_id;
+      const coupon_id = req.query.couponId;
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const userData = await User.findById(userId);
+     res.render('blocked', { user: userData, product: productData, categories: categorieData, isAuthenticated: false });
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+
+
 const cart = async (req, res) => {
    console.log("Reached cart");
    try {
@@ -1079,7 +1096,11 @@ const processPayment = async (req, res) => {
       const categorieData = await category.find({});
       const productData = await product.find({});
       const userData = await User.findById({ _id: userId });
-      const couponData = await coupon.findById({ _id: coupon_id });
+      let couponData 
+      if(coupon_id){
+
+         couponData = await coupon.findById({ _id: coupon_id });
+      }
 
       const selectedBillingAddress = req.body.selectedBillingAddress;
       const selectedShippingAddress = req.body.selectedShippingAddress;
@@ -1133,7 +1154,8 @@ const processPayment = async (req, res) => {
                address: [billingAddress, shippingAddress],
             };
 
-            if (coupon_id) {
+            if (coupon_id !== null) {
+               console.log("coupon_id ===> ",coupon_id);
                orderData.coupon_id = coupon_id;
             }
 
@@ -1160,8 +1182,10 @@ const processPayment = async (req, res) => {
                console.log("await Product.save(); ==> ", await Product.save());
             }
 
-               const userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
+            let userCoupon
 
+            if(couponData){
+               userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
                if (userCoupon) {
                   userCoupon.no_of_times_used++;
                } else {
@@ -1170,6 +1194,9 @@ const processPayment = async (req, res) => {
                      no_of_times_used: 1,
                   });
                }
+            }
+
+
 
                await userData.save();
 
@@ -1541,6 +1568,7 @@ module.exports = {
    getOrderDetails,
    cancelOrder,
    returnOrder,
-   getCouponDetails
+   getCouponDetails,
+   blocked
 }
 

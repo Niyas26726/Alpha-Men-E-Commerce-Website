@@ -54,11 +54,15 @@ adminRouter.post('/editCategory',auth.isLogin, adminController.editCategory);
 adminRouter.post('/toggleBlockStatus/:categoryId',auth.isLogin, adminController.toggleBlockStatus);
 adminRouter.post('/toggleBlockStatusUsers/:userID',auth.isLogin, adminController.toggleBlockStatusUsers);
 adminRouter.post('/toggleBlockStatusProducts/:categoryId',auth.isLogin, adminController.toggleBlockStatusProducts);
+
+
 adminRouter.get('/productsList',auth.isLogin,adminController.productsList);
 adminRouter.get('/addProduct',auth.isLogin,adminController.addProduct);
 adminRouter.post('/addProduct',auth.isLogin, upload.array('images'), adminController.publishProduct);
 adminRouter.get('/editProducts',auth.isLogin, upload.array('images'),adminController.editProducts);
 adminRouter.post('/editProducts/:productId',auth.isLogin, upload.array('images'), adminController.updateProduct);
+
+
 adminRouter.get('/userList',auth.isLogin,adminController.userList);
 adminRouter.get('/orderList',auth.isLogin,adminController.orderList);
 adminRouter.get('/orders',auth.isLogin,adminController.orders);

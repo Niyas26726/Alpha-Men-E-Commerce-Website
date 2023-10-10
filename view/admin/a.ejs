@@ -1,0 +1,81 @@
+
+
+
+<script>
+
+
+  $(document).ready(function () {
+      // Add an event listener to the update button
+      $("#updateButton").click(function (e) {
+          e.preventDefault(); // Prevent the default form submission
+  
+          // Serialize the form data
+          let formData = new FormData($("#productForm")[0]);
+  
+          // Append additional data to the FormData object
+          formData.append("removedImageFilenames", JSON.stringify(removedImageFilenames));
+  
+          // Check if new images have been added
+          const imageInput = document.getElementById("images");
+          if (imageInput.files.length > 0) {
+              // for (let i = 0; i < imageInput.files.length; i++) {
+              //     const file = imageInput.files[i];
+              //     formData.append("newImages", file); // Use the field name 'newImages'
+              // }
+              formData.append("images", imageInput);
+          }
+  
+          // Send a POST request to the server
+          $.ajax({
+              type: "POST",
+              url: "/admin/editProduct", // Replace with your server endpoint URL
+              data: formData,
+              processData: false, // Don't process data (already FormData)
+              contentType: false, // Don't set content type (already FormData)
+              success: function (response) {
+                  // Handle the server response here
+                  window.location.href = '/admin/products';
+              },
+              error: function (xhr, status, error) {
+                  // Handle any errors here
+                  console.error(error);
+              }
+          });
+      });
+  });
+  
+  
+  
+  
+  
+         
+          let removedImageFilenames = [];
+  
+          // Event listener for remove buttons
+          $(".remove-button").on("click", function (event) {
+              event.preventDefault();
+  
+              // Get the image filename associated with the remove button
+              const filename = $(this).data("image-filename");
+              console.log("filename", filename);
+  
+              // Add the filename to the removedImageFilenames array
+              removedImageFilenames.push(filename);
+  
+              // Remove the image container from the page
+              const imageContainer = $(this).closest(".previous-image-container");
+              if (imageContainer) {
+                  imageContainer.remove();
+              }
+  
+              // Check if there are no images left after deletion
+              const remainingImages = $("#previousImages .previous-image-container").length;
+              if (remainingImages === 1) {
+                  // Show a message to indicate that at least one image is mandatory
+                  $("#imagesError").text("At least one image is mandatory.");
+                  // You can also prevent further deletions or handle it as needed
+              }
+          });
+  
+          
+      </script>

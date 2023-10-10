@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("removeImageIndices", jsonString);
         const editID = document.querySelector("#editID").value;
 
-        fetch(`/admin/editProduct/${editID}`, { // Updated to use the correct URL
+        fetch(`/admin/editProducts/${editID}`, { // Updated to use the correct URL
           method: "POST",
           body: formData,
         })

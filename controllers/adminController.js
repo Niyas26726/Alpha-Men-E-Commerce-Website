@@ -543,11 +543,11 @@ const updateProduct = async (req, res) => {
    try {
  
      if (!existingProduct) {
-       return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=Product not found`);
+       return res.redirect(`/admin/editProducts?productId=${productId}&err=${true}&msg=Product not found`);
      }
  
      if (req.files.length > 4) { // Updated to check against 4 instead of 5
-       return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=You can only upload up to 4 images`);
+       return res.redirect(`/admin/editProducts?productId=${productId}&err=${true}&msg=You can only upload up to 4 images`);
      }
  
      const {
@@ -584,10 +584,10 @@ const updateProduct = async (req, res) => {
  
      await existingProduct.save();
  
-     return res.redirect(`/admin/editProduct?productId=${productId}&err=false&msg=Product and image updated successfully`);
+     return res.redirect(`/admin/editProducts?productId=${productId}&err=${''}&msg=Product and image updated successfully`);
    } catch (error) {
      console.error(error);
-     return res.redirect(`/admin/editProduct?productId=${productId}&err=true&msg=Internal server error`);
+     return res.redirect(`/admin/editProducts?productId=${productId}&err=${true}&msg=Internal server error`);
    }
  }
  
@@ -626,7 +626,7 @@ const orderList = async (req, res) => {
       .limit(itemsPerPage)
       .populate('user_id', 'first_name last_name email')
       .select('_id total_amount order_status created_on')
-      .sort({ created_on: -1 });
+      .sort({ created_on: 1 });
 
 
       if (req.xhr) {
