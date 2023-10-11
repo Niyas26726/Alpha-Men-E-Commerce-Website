@@ -503,7 +503,6 @@ const cart = async (req, res) => {
             const product = cartItem.product;
             const quantity = cartItem.quantity;
 
-
             cartSubtotal += product.sales_price * quantity;
 
 

@@ -1,223 +1,503 @@
 <%- include("header") %>
 
-<section class="content-main">
-    <form enctype="multipart/form-data" action="/admin/editProducts/<%= products._id %>" method="POST">
-
-        <input type="hidden" value="<%= products._id %>" name="editID" id="editID">
-        <div class="row">
-            <div class="col-9">
-                <div class="content-header">
-                    <h2 class="content-title">Edit Product</h2>
-                    <% if (message) { %>
-                    <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
-                        <%= message %>
-                    </div>
-                    <% } %>
-                    <% if (errMessage) { %>
-                    <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
-                        <%= errMessage %>
-                    </div>
-                    <% } %>
-                    <div>
-                        <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
+    <section class="content-main">
+        <form enctype="multipart/form-data" action="/admin/editProducts/<%= products._id %>" method="POST">
+            <input type="hidden" value="<%= products._id %>" name="editID" id="editID">
+            <div class="row">
+                <div class="col-9">
+                    <div class="content-header">
+                        <h2 class="content-title">Edit Product</h2>
+                        <div id="successMessageForFetch" style="display: none;" class="alert alert-success text-center mt-5" role="alert"></div>
+                        <% if (message) { %>
+                            <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
+                                <%= message %>
+                            </div>
+                        <% } %>
+                        <% if (errMessage) { %>
+                            <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                                <%= errMessage %>
+                            </div>
+                        <% } %>
+                        <div>
+                            <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Basic</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <label for="product_name" class="form-label">Product Name</label>
-                            <input type="text" placeholder="Type here" class="form-control" id="product_name"
-                                name="product_name" value="<%= products.product_name %>" required>
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Basic</h4>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label">Description</label>
-                            <textarea placeholder="Type here" class="form-control" rows="4" name="description"
-                                required><%= products.description %></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <div class="mb-4">
-                                    <label class="form-label">Regular price</label>
-                                    <div class="row gx-2">
-                                        <input placeholder="$" type="text" class="form-control" name="regular_price"
-                                            value="<%= products.regular_price %>" required>
-                                    </div>
-                                </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Product Name</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" value="<%= products.product_name %>">
+                                <div id="productNameError" class="error" style="color: red;"></div>
                             </div>
-                            <div class="col-lg-4">
-                                <div class="mb-4">
-                                    <label class="form-label">Sales price</label>
-                                    <input placeholder="$" type="text" class="form-control" name="sales_price"
-                                        value="<%= products.sales_price %>" required>
-                                </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" rows="4" name="description"><%= products.description %></textarea>
+                                <div id="descriptionError" class="error" style="color: red;"></div>
                             </div>
-                            <div class="col-lg-4">
-                                <label class="form-label">Size</label>
-                                <select class="form-select" name="size" required>
-                                    <option value="s" <%= products.size === 's' ? 'selected' : '' %>>s</option>
-                                    <option value="M" <%= products.size === 'M' ? 'selected' : '' %>>M</option>
-                                    <option value="L" <%= products.size === 'L' ? 'selected' : '' %>>L</option>
-                                    <option value="XL" <%= products.size === 'XL' ? 'selected' : '' %>>XL</option>
-                                    <option value="XXL" <%= products.size === 'XXL' ? 'selected' : '' %>>XXL</option>
-                                    <option value="XXXL" <%= products.size === 'XXXL' ? 'selected' : '' %>>XXXL</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <div class="mb-4">
-                                    <label class="form-label">Brand</label>
-                                    <div class="row gx-2">
-                                        <input placeholder="Type here" type="text" class="form-control" name="brand"
-                                            value="<%= products.brand_name %>" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="mb-4">
-                                    <label class="form-label">Stock</label>
-                                    <input placeholder="0" type="text" class="form-control" name="stock"
-                                        value="<%= products.stock %>" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <label class="form-label">Color</label>
-                                <input placeholder="Type here" type="text" class="form-control" name="color"
-                                    value="<%= products.color %>" required>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="mb-4">
-                                    <label class="form-label">Material</label>
-                                    <input placeholder="Type here" type="text" class="form-control" name="material"
-                                        value="<%= products.material %>" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h4>Shipping</h4>
-                                <div class="mb-4">
-                                    <label class="form-label">Shipping Fee</label>
-                                    <div class="row gx-2">
-                                        <input placeholder="$" type="text" class="form-control" name="shipping_fee"
-                                            value="<%= products.shipping_fee %>" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Tax rate</label>
-                            <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate"
-                                value="<%= products.tax_rate %>" required>
-                        </div>
-                    </div>
-                </div> <!-- card end// -->
-            </div>
-            <div class="col-lg-3">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Media</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="input-upload">
-                            <label for="">Images:</label>
-                            <% if (products.images && products.images.length > 0) { %>
                             <div class="row">
-                                <% products.images.forEach(function(image, index) { %>
-                                <div class="col-lg-6 mb-3">
-                                    <div class="image-container">
-                                        <img src="/admin/productImages/<%= image %>" alt="Product Image"
-                                            class="product-image">
-                                        <button class="remove-image-btn" data-index="<%= index %>" type="button">Remove</button>
-                                        <input type="hidden" id="remove-image-indices" name="removeImageIndices" value="">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Regular price</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="$" type="text" class="form-control" id="regular_price" name="regular_price" value="<%= products.regular_price %>">
+                                            <div id="regularPriceError" class="error" style="color: red;"></div>
+                                        </div>
                                     </div>
                                 </div>
-                                <% }); %>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Sales price</label>
+                                        <input placeholder="$" type="text" class="form-control" id="sales_price" name="sales_price" value="<%= products.sales_price %>">
+                                        <div id="salesPriceError" class="error" style="color: red;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="form-label">Size</label>
+                                    <select class="form-select" id="size" name="size">
+                                        <option value="s" <%=products.size==='s' ? 'selected' : '' %>>s</option>
+                                        <option value="M" <%=products.size==='M' ? 'selected' : '' %>>M</option>
+                                        <option value="L" <%=products.size==='L' ? 'selected' : '' %>>L</option>
+                                        <option value="XL" <%=products.size==='XL' ? 'selected' : '' %>>XL</option>
+                                        <option value="XXL" <%=products.size==='XXL' ? 'selected' : '' %>>XXL</option>
+                                        <option value="XXXL" <%=products.size==='XXXL' ? 'selected' : '' %>>XXXL</option>
+                                    </select>
+                                    <div id="sizeError" class="error" style="color: red;"></div>
+                                </div>
                             </div>
-                            <input type="hidden" id="image-index">
-                            <div class="selected-image-container">
-                                <img src="" alt="Selected Image" class="selected-image" style="display: none;">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Brand</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="Type here" type="text" class="form-control" id="brand" name="brand" value="<%= products.brand_name %>">
+                                            <div id="brandError" class="error" style="color: red;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class "form-label">Stock</label>
+                                        <input placeholder="0" type="text" class="form-control" id="stock" name="stock" value="<%= products.stock %>">
+                                        <div id="stockError" class="error" style="color: red;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="form-label">Color</label>
+                                    <input placeholder="Type here" type="text" class="form-control" id="color" name="color" value="<%= products.color %>">
+                                    <div id="colorError" class="error" style="color: red;"></div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Material</label>
+                                        <input placeholder="Type here" type="text" class="form-control" id="material" name="material" value="<%= products.material %>">
+                                        <div id="materialError" class="error" style="color: red;"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <% } else { %>
-                            <p>No images available for this product.</p>
-                            <% } %>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h4>Shipping</h4>
+                                    <div class="mb-4">
+                                        <label class="form-label">Shipping Fee</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="$" type="text" class="form-control" id="shipping_fee" name="shipping_fee" value="<%= products.shipping_fee %>">
+                                            <div id="shippingFeeError" class="error" style="color: red;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Tax rate</label>
+                                <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate" value="<%= products.tax_rate %>">
+                                <div id="taxRateError" class="error" style="color: red;"></div>
+                            </div>
                         </div>
-                    </div>
+                    </div> <!-- card end// -->
                 </div>
-                <!-- card end// -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Organization</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row gx-2">
-                            <div class="col-sm-6 mb-3">
-                                <label class="form-label">Category</label>
-                                <select name="categoryId" class="form-select">
-                                    <option value="<%= products.categoryId._id %>" selected><%= products.categoryId.name %></option>
-                                    <% categories.forEach(function(category) { %>
-                                    <% if (category._id.toString() !== products.categoryId._id.toString()) { %>
-                                    <option value="<%= category._id %>"><%= category.name %></option>
-                                    <% } %>
-                                    <% }); %>
-                                </select>
+                <div class="col-lg-3">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Media</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="updated-images" style="display: none;">
+                                <label for="">Images:</label>
+                                <div class="row"></div>
                             </div>
-                        </div> <!-- row.// -->
-                    </div>
-                </div> <!-- card end// -->
+                            <div class="input-upload">
+                                <label for="">Images:</label>
+                                <% if (products.images && products.images.length > 0) { %>
+                                    <div class="row">
+                                        <% products.images.forEach(function(image, index) { %>
+                                            <div class="col-lg-6 mb-3">
+                                                <div class="image-container">
+                                                    <img src="/admin/productImages/<%= image %>" alt="Product Image" class="product-image">
+                                                    <button class="remove-image-btn" data-index="<%= index %>" type="button">Remove</button>
+                                                    <input type="hidden" id="remove-image-indices" name="removeImageIndices" value="">
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                    <input type="hidden" id="image-index">
+                                    <div class="selected-image-container">
+                                        <img src="" alt="Selected Image" class="selected-image" style="display: none;">
+                                    </div>
+                                <% } else { %>
+                                    <p>No images available for this product.</p>
+                                <% } %>
+                            </div>
+
+                            <div class="upload-images">
+                                <label for="images">Add Images:</label>
+                                <!-- <label for="">Can choose 4 images</label> -->
+                                <img src="/admin-assets/imgs/theme/upload.svg" alt="" style="width: 100px; height: 100px;">
+                                <input class="form-control" type="file" id="imageInput" name="images" multiple>
+                            </div>
+                            <div id="imagePreview" class="image-preview">
+                                <!-- Selected image previews will be displayed here -->
+                            </div>
+                            
+
+                            <!-- <div class="input-upload">
+                                <label for="">Can choose 4 images</label>
+                                <img src="/admin-assets/imgs/theme/upload.svg" alt="">
+                                <input class="form-control" type="file" name="images" multiple>
+                            </div> -->
+                        
+
+                        </div>
+                    </div> <!-- card end// -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Organization</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row gx-2">
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label">Category</label>
+                                    <select name="categoryId" class="form-select" id="categoryId">
+                                        <option value="<%= products.categoryId._id %>" selected><%= products.categoryId.name %></option>
+                                        <% categories.forEach(function(category) { %>
+                                            <% if (category._id.toString() !== products.categoryId._id.toString()) { %>
+                                                <option value="<%= category._id %>"><%= category.name %></option>
+                                            <% } %>
+                                        <% }); %>
+                                    </select>
+                                    <div id="categoryIdError" class="error" style="color: red;"></div>
+                                </div>
+                            </div> <!-- row.// -->
+                        </div>
+                    </div> <!-- card end// -->
+                </div>
             </div>
-        </div>
-    </form>
-</section> <!-- content-main end// -->
+        </form>
+    </section> <!-- content-main end// -->
 
-<%- include("footer") %>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const removeImageButtons = document.querySelectorAll(".remove-image-btn");
-  const removeImageIndices = new Set();
+    <%- include("footer") %>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const removeImageButtons = document.querySelectorAll(".remove-image-btn");
+            const removeImageIndices = new Set();
+    
+            removeImageButtons.forEach(function (btn) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const index = btn.getAttribute("data-index");
+    
+                    if (removeImageIndices.has(index)) {
+                        removeImageIndices.delete(index);
+                        btn.textContent = "Remove";
+                    } else {
+                        removeImageIndices.add(index);
+                        btn.textContent = "Cancel";
+                    }
+                });
+            });
+    
+            // Form event listener is here to ensure it's only attached once.
+            const form = document.querySelector("form");
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                // Convert the Set to an array and stringify it.
+                const numericArray = Array.from(removeImageIndices, item => parseInt(item));
+                const jsonString = JSON.stringify(numericArray);
+                formData.append("removeImageIndices", jsonString);
+                const editID = document.querySelector("#editID").value;
+    
+                fetch(`/admin/editProducts/${editID}`, {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`Request failed with status ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("data.message  ===>>> ", data.msg);
+                        console.log("data  ===>>> ", data);
+                        // Check if the data object contains a 'msg' property
+                        if (data.msg) {
+                            const successMessage = document.getElementById("successMessageForFetch");
+                            if (successMessage) {
+                                successMessage.innerHTML = data.msg;
+                                successMessage.style.display = 'block';
+                            }
+                        }
+                        if (data) {
+                            // Use the populateForm function here
+                            populateForm(data.updated_Product);
+                        }
+                    })
+                    .catch((error) => {
+                        // Handle errors, if any
+                        console.error(error);
+                    });
+            });
+    
+            // Define the populateForm function to set form values
+            function populateForm(data) {
+                // document.querySelector("#product_name").value = data.product_name;
+                // document.querySelector("#description").value = data.product_name;
+                // document.querySelector("#regular_price").value = data.regular_price;
+                // document.querySelector("#sales_price").value = data.sales_price;
+                // document.querySelector("#size").value = data.size;
+                // document.querySelector("#brand").value = data.brand_name;
+                // document.querySelector("#stock").value = data.stock;
+                // document.querySelector("#color").value = data.color;
+                // document.querySelector("#material").value = data.material;
+                // document.querySelector("#shipping_fee").value = data.shipping_fee;
+                // document.querySelector("#tax_rate").value = data.tax_rate;
+    
+                // Assuming 'data.images' is an array of image URLs
+                const imageContainers = document.querySelector(".input-upload");
+                data.images.forEach((imageURL, index) => {
+                    const img = document.createElement("img");
+                    img.src = imageURL;
+                    img.alt = "Product Image";
+                    img.className = "product-image";
+                    const removeBtn = document.createElement("button");
+                    removeBtn.textContent = "Remove";
+                    removeBtn.className = "remove-image-btn";
+                    removeBtn.dataset.index = index;
+                    removeBtn.type = "button";
+    
+                    // Append the image and remove button to the appropriate container
+//                     imageContainers.forEach(function (container) {
+//     container.style.display = "none"; // Hide each container
+// });
+// .style.display = "none";
+imageContainers.style.display = "none";
 
-  removeImageButtons.forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      const index = btn.getAttribute("data-index");
 
-      if (removeImageIndices.has(index)) {
-        removeImageIndices.delete(index);
-        btn.textContent = "Remove";
-      } else {
-        removeImageIndices.add(index);
-        btn.textContent = "Cancel";
-      }
-      const numericArray = Array.from(removeImageIndices, item => parseInt(item));
-
-      const jsonString = JSON.stringify(numericArray);
-
-      const form = document.querySelector("form");
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const formData = new FormData(form);
-        formData.append("removeImageIndices", jsonString);
-        const editID = document.querySelector("#editID").value;
-
-        fetch(`/admin/editProducts/${editID}`, { // Updated to use the correct URL
-          method: "POST",
-          body: formData,
-        })
-        .then((response) => response.json())
-        .then((data) => {
-          // Handle the response from the server, if needed
-        })
-        .catch((error) => {
-          // Handle errors, if any
-          console.error(error);
+                })
+    
+                // You may need to handle category selection separately based on your HTML structure
+                document.querySelector("#categoryId").value = data.categoryId;
+            }
         });
-      });
-    });
-  });
+    </script> -->
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Get the file input element and image preview container
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+
+// Add an event listener to the file input
+imageInput.addEventListener('change', function () {
+    // Clear any existing image previews
+    imagePreview.innerHTML = '';
+    const numImages = imageInput.files.length;
+    console.log("numImages  ===>>  ",numImages);
+    const numericArray = Array.from(removeImageIndices, item => parseInt(item));
+    const jsonString = JSON.stringify(numericArray);
+    console.log("jsonString   ====>>  ",jsonString);
+    console.log("numericArray   ====>>  ",numericArray);
+    const numericArray_Length = numericArray.length
+    const jsonString_Length = numericArray.length
+    console.log("jsonString_Length  ===>>>  ",jsonString_Length);
+    console.log("numericArray_Length  ===>>>  ",numericArray_Length);
+    const inputUpload = document.querySelector('.input-upload');
+
+// Check if 'input-upload' contains the 'row' div
+const rowDiv = inputUpload.querySelector('.row');
+
+
+    const imageCount = rowDiv.querySelectorAll('.image-container').length;
+    console.log(`Number of images: ${imageCount}`);
+    // Loop through the selected files
+    for (let i = 0; i < numImages; i++) {
+        // Create a container div for each image with remove button
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('image-container');
+
+        // Create an image element for the selected file
+        const imgElement = document.createElement('img');
+        imgElement.classList.add('preview-image');
+        imgElement.src = URL.createObjectURL(imageInput.files[i]);
+
+        // Create a remove button for the image
+        const removeButton = document.createElement('button');
+        removeButton.innerText = 'Remove';
+        removeButton.classList.add('remove-button');
+
+        // Add a click event listener to remove the image
+        removeButton.addEventListener('click', function () {
+            imageContainer.remove(); // Remove the image container
+            // Remove the corresponding file from the input's files array
+            imageInput.files = [...imageInput.files].filter((_, index) => index !== i);
+        });
+
+        // Append the image and remove button to the image container
+        imageContainer.appendChild(imgElement);
+        imageContainer.appendChild(removeButton);
+
+        // Append the image container to the image preview container
+        imagePreview.appendChild(imageContainer);
+    }
 });
-</script>
+
+
+            const removeImageButtons = document.querySelectorAll(".remove-image-btn");
+            const removeImageIndices = new Set();
+    
+            removeImageButtons.forEach(function (btn) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const index = btn.getAttribute("data-index");
+    
+                    if (removeImageIndices.has(index)) {
+                        removeImageIndices.delete(index);
+                        btn.textContent = "Remove";
+                    } else {
+                        removeImageIndices.add(index);
+                        btn.textContent = "Cancel";
+                    }
+                });
+            });
+    
+            const form = document.querySelector("form");
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const isValid = productEditValidation()
+                if(isValid){
+                const formData = new FormData(form);
+    
+                const numericArray = Array.from(removeImageIndices, item => parseInt(item));
+                const jsonString = JSON.stringify(numericArray);
+                formData.append("removeImageIndices", jsonString);
+                const editID = document.querySelector("#editID").value;
+    
+                fetch(`/admin/editProducts/${editID}`, {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`Request failed with status ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("data.message  ===>>> ", data.msg);
+                        console.log("data  ===>>> ", data);
+    
+                        if (data.msg) {
+                            // const successMessage = document.getElementById("successMessageForFetch");
+                            // if (successMessage) {
+                            //     successMessage.innerHTML = data.msg;
+                            //     successMessage.style.display = 'block';
+                            // }
+                            window.location.href = `/admin/editProducts?productId=${data.updated_Product._id}&err=${''}&msg=${data.msg}`;
+                        }
+                        // let html = '';
+                        // if (data) {
+                        //     if (data.updated_Product.images && data.updated_Product.images.length > 0) {
+                        //         const updatedImagesDiv = document.querySelector(".updated-images");
+                        //         const input_upload = document.querySelector(".input-upload");
+                        //         updatedImagesDiv.innerHTML = ''; 
+    
+                        //         data.updated_Product.images.forEach((imageURL, index) => {
+                        //              html+=`
+                        //             <div class="col-lg-6 mb-3">
+                        //                         <div class="image-container">
+                        //                             <img src="/admin/productImages/${imageURL}" alt="Product Image"
+                        //                                 class="product-image">
+                        //                             <button class="remove-image-btn" data-index="${index}"
+                        //                                 type="button">Remove</button>
+                        //                             <input type="hidden" id="remove-image-indices"
+                        //                                 name="removeImageIndices" value="">
+                        //                         </div>
+                        //                     </div>
+                        //             `;
+                        //         });
+                        //         console.log("html  ===>>  ",html);
+                        //         updatedImagesDiv.append(html);
+                        //         input_upload.style.display='none';
+                        //     updatedImagesDiv.style.display = "block";
+                        //     }
+                        // }
+
+//                         let html = '';
+//                         if (data) {
+//     if (data.updated_Product.images && data.updated_Product.images.length > 0) {
+//         const updatedImagesDiv = document.querySelector(".updated-images");
+//         const rowContainer = updatedImagesDiv.querySelector('.row'); // Target the .row element
+//         const input_upload = document.querySelector(".input-upload");
+//         data.updated_Product.images.forEach((imageURL, index) => {
+//             const html = `
+//                 <div class="col-lg-6 mb-3">
+//                     <div class="image-container">
+//                         <img src="/admin/productImages/${imageURL}" alt="Product Image"
+//                             class="product-image">
+//                         <button class="remove-image-btn" data-index="${index}"
+//                             type="button">Remove</button>
+//                         <input type="hidden" id="remove-image-indices"
+//                             name="removeImageIndices" value="">
+//                     </div>
+//                 </div>
+//             `;
+
+//             // Create a temporary element to hold the HTML
+//             const tempElement = document.createElement('div');
+//             tempElement.innerHTML = html;
+
+//             // Attach an event listener to the .row element for button clicks
+//             rowContainer.addEventListener('click', function (e) {
+//                 if (e.target && e.target.classList.contains('remove-image-btn')) {
+//                     e.preventDefault();
+//                     const newIndex = e.target.getAttribute("data-index");
+//                     // Handle the button click action here
+//                 }
+//             });
+
+//             // Append the HTML to the .row element
+//             rowContainer.appendChild(tempElement.firstElementChild);
+//         });
+
+//         // Show the updatedImagesDiv
+//         input_upload.style.display = "none";
+//         updatedImagesDiv.style.display = "block";
+//     }
+// }
+
+
+                    })
+                    .catch((error) => {
+                        // Handle errors, if any
+                        console.error(error);
+                    });
+                }
+            });
+        });
+    </script>
+    

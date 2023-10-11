@@ -536,9 +536,24 @@ const editProducts = async (req, res) => {
 //  }
 
 const updateProduct = async (req, res) => {
+   console.log("Reached updateProduct");
    const productId = req.params.productId; // Updated to use params instead of query
    const existingProduct = await product.findById(productId);
-   const removeImageNames = req.body.removeImageIndices.map(index => existingProduct.images[index]);
+   const removeImageIndices = req.body.removeImageIndices
+
+
+// Filter out the empty strings and parse the array within the string
+const parsedArray = removeImageIndices
+  .filter(item => item.trim() !== '')  // Remove empty strings
+  .map(item => JSON.parse(item));     // Parse the string into an array
+
+// Log the parsed array
+console.log("parsedArray  ===> ",parsedArray);
+
+// Access and console the inner array
+console.log("parsedArray[0]  ====>>> ",parsedArray[0]);
+
+
 
    try {
  
@@ -565,9 +580,13 @@ const updateProduct = async (req, res) => {
        categoryId,
      } = req.body;
  
-     console.log("removeImageNames  ===> ",removeImageNames);
-     const updatedImages = existingProduct.images.filter(imageName => !removeImageNames.includes(imageName));
- 
+    console.log("removeImageIndices  ===> ",removeImageIndices);
+    console.log("parsedArray[0]  ====>>> ", parsedArray[0]);
+
+    const updatedImages = existingProduct.images.filter((imageName, index) => !parsedArray[0].includes(index));
+    console.log("existingProduct.images  ===>>  ",existingProduct.images);
+    console.log(" updatedImages ====>> ",updatedImages);
+
      existingProduct.product_name = product_name;
      existingProduct.description = description;
      existingProduct.categoryId = categoryId;
@@ -582,9 +601,10 @@ const updateProduct = async (req, res) => {
      existingProduct.tax_rate = tax_rate;
      existingProduct.images = updatedImages;
  
-     await existingProduct.save();
- 
-     return res.redirect(`/admin/editProducts?productId=${productId}&err=${''}&msg=Product and image updated successfully`);
+     const updated_Product = await existingProduct.save();
+     const msg = 'Product and image updated successfully';
+     return res.json({ msg, updated_Product });
+     //  return res.redirect(`/admin/editProducts?productId=${productId}&err=${''}&msg=Product and image updated successfully`);
    } catch (error) {
      console.error(error);
      return res.redirect(`/admin/editProducts?productId=${productId}&err=${true}&msg=Internal server error`);
