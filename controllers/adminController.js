@@ -362,15 +362,33 @@ const toggleBlockStatusUsers = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
 }
-
 const productsList = async (req, res) => {
-   try {
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-         res.render('productsList', {categories:categorieData,products:productData})
-   } catch (error) {
-      console.log(error.message)
-   }
+  console.log("Reached productsList");
+  try {
+    
+    const itemsPerPage = 5;
+    const page = parseInt(req.query.page) || 1;
+    const skipCount = (page - 1) * itemsPerPage;
+    
+    const categories = await category.find({});
+     const totalProducts = await product.countDocuments({});
+     const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+     const productData = await product
+        .find({})
+        .skip(skipCount)
+        .limit(itemsPerPage);
+     if (req.xhr) {
+        // Handle AJAX request for paginated products
+        console.log("inside if ajax req");
+        res.json({ categories, products: productData, totalPages, page });
+     } else {
+        console.log("inside else normal req");
+        res.render('productsList', { categories, products: productData, totalPages, page });
+     }
+  } catch (error) {
+     console.log(error.message);
+  }
 }
 
 const addProduct = async (req, res) => {

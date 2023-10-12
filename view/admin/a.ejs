@@ -516,4 +516,40 @@ imageContainers.style.display = "none";
             });
         });
     </script>
-    
+    <script>
+
+const orderList = async (req, res) => {
+   const itemsPerPage = 10;
+   const page = parseInt(req.query.page) || 1;
+
+   try {
+      const skipCount = (page - 1) * itemsPerPage;
+      const totalOrders = await order.countDocuments({});
+      const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+      const orders = await order
+      .find({})
+      .skip(skipCount)
+      .limit(itemsPerPage)
+      .populate('user_id', 'first_name last_name email')
+      .select('_id total_amount order_status created_on')
+      .sort({ created_on: 1 });
+
+
+      if (req.xhr) {
+         console.log("skipCount in ajax",skipCount);
+         console.log("itemsPerPage in ajax ",itemsPerPage);
+
+         res.json({ orders, totalPages, page });
+      } else {
+         console.log("itemsPerPage in normal rendering ",itemsPerPage);
+
+
+         res.render('orderList',{orders,totalPages, page});
+      }
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+   }
+}
+    </script>
