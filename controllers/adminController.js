@@ -664,7 +664,10 @@ const orderList = async (req, res) => {
       .limit(itemsPerPage)
       .populate('user_id', 'first_name last_name email')
       .select('_id total_amount order_status created_on')
-      .sort({ created_on: 1 });
+      // .sort({ created_on: 1 });
+      // console.log("orders before reverse ===>>> ",orders);
+      // orders.reverse();
+      console.log("orders after reverse ===>>> ",orders);
 
 
       if (req.xhr) {

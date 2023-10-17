@@ -18,6 +18,22 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
+
+                            <div style="margin-bottom: 40px;">
+                                <% if (message) { %>
+                                    <div id="successMessage" class="alert alert-success text-center mt-5" role="alert">
+                                      <%= message %>
+                                    </div>
+                                  <% } %>
+                                  
+                                  <% if (errMessage) { %>
+                                    <div id="errorMessage" class="alert alert-danger text-center mt-5" role="alert">
+                                      <%= errMessage %>
+                                    </div>
+                                  <% } %> 
+                            </div>
+
+
                             <%if(user.cart.length != 0){%>
                             <table class="table shopping-summery text-center clean">
                                 <thead>
@@ -41,9 +57,9 @@
                                             <td class="price" data-title="Price" id="price_<%= cartItem._id %>"><span>$<%= cartItem.product.sales_price.toFixed(2) %></span></td>
                                             <td class="text-center" data-title="Quantity">
                                                 <div class="align-items-center">
-                                                    <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1)"><i class="fi-rs-minus"></i></a>
+                                                    <a href="#" class="qty-down" onclick="updateQuantity('<%= cartItem._id %>', -1,'<%= cartItem.product.stock %>')"><i class="fi-rs-minus"></i></a>
                                                     <input class="qty-input_<%= cartItem._id %>" value="<%= cartItem.quantity %>" min="1" readonly style="text-align: center; padding-left: 0px; width: 50px; color: black; background-color: #b8e4e2; height: 38px;">
-                                                    <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1)"><i class="fi-rs-plus"></i></a>
+                                                    <a href="#" class="qty-up" onclick="updateQuantity('<%= cartItem._id %>', 1,'<%= cartItem.product.stock %>')"><i class="fi-rs-plus"></i></a>
                                                 </div>
                                             </td>
                                                                                                                                                                                 
@@ -132,7 +148,8 @@
     
 <%-include("footer")-%>
 <script>
-function updateQuantity(cartItemId, change) {
+function updateQuantity(cartItemId, change, stock) {
+    console.log("stock  ===>>  ",stock);
     const quantityInput = document.querySelector(`.qty-input_${cartItemId}`);
     let currentQuantity = parseInt(quantityInput.value);
 
@@ -152,9 +169,22 @@ function updateQuantity(cartItemId, change) {
         if (response.ok) {
             updateSubtotal(cartItemId, newQuantity);
             updateCartTotals();
+            return response.json();
         } else {
             alert('Failed to update quantity');
             quantityInput.value = currentQuantity;
+        }
+    })
+    .then(data => {
+        const message = data.msg;
+        if (message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: message
+            });
+            quantityInput.value = currentQuantity;
+
         }
     })
     .catch(error => {

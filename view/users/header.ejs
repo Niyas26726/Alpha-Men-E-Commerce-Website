@@ -278,11 +278,12 @@
                                         <!-- <a href="/logout">
                                             <p>Logout</p>
                                         </a> -->
+                                        <%if(user.user_profile){%>
                                         <% if (user.user_profile[0]) { %>
                                             <a href="/userAccount">
                                                 <img src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="/admin-assets/imgs/icons/user.png" style="height: 30px; width: 30px; border-radius: 100%;">
                                             </a>
-                                            
+                                            <%}%>
                                         <% } else { %>
                                             <a href="/userAccount">
                                                 <img src="/admin-assets/imgs/icons/user.png" alt="" style="height: 30px; width: 30px; border-radius: 100%;">
@@ -370,11 +371,12 @@
                                         <!-- <a href="/logout">
                                             <p>Logout</p>
                                         </a> -->
+                                        <%if(user.user_profile){%>
                                         <% if (user.user_profile[0]) { %>
                                             <a href="/userAccount">
                                                 <img src="/admin-assets/imgs/people/<%= user.user_profile %>" alt="/admin-assets/imgs/icons/user.png" style="height: 30px; width: 30px; border-radius: 100%;">
                                             </a>
-                                            
+                                            <%}%>
                                         <% } else { %>
                                             <a href="/userAccount">
                                                 <img src="/admin-assets/imgs/icons/user.png" alt="" style="height: 30px; width: 30px; border-radius: 100%;">

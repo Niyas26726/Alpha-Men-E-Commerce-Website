@@ -1,4 +1,4 @@
-﻿<%-include("header")-%>
+﻿<%- include("header") %>
 
     <main class="main">
         <section class="mt-50 mb-50">
@@ -6,66 +6,70 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
-                            <table class="table shopping-summery text-center">
-                                <thead>
-                                    <tr class="main-heading">
-                                        <th scope="col" colspan="2">Product</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Stock Status</th>
-                                        <th scope="col">Action</th>
-                                        <th scope="col">Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="image product-thumbnail"><img src="assets/imgs/shop/product-1-1.jpg" alt="#"></td>
-                                        <td class="product-des product-name">
-                                            <h5 class="product-name"><a href="shop-product-right.html">J.Crew Mercantile Women's Short-Sleeve</a></h5>
-                                            <p class="font-xs">Maboriosam in a tonto nesciung eget<br> distingy magndapibus.
-                                            </p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$65.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="color3 font-weight-bold">In Stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm"><i class="fi-rs-shopping-bag mr-5"></i>Add to cart</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i class="fi-rs-trash"></i></a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="image"><img src="assets/imgs/shop/product-2-1.jpg" alt="#"></td>
-                                        <td class="product-des">
-                                            <h5 class="product-name"><a href="shop-product-right.html">Amazon Essentials Women's Tank</a></h5>
-                                            <p class="font-xs">Sit at ipsum amet clita no est,<br> sed amet sadipscing et gubergren</p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$75.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="color3 font-weight-bold">In Stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm"><i class="fi-rs-shopping-bag mr-5"></i>Add to cart</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i class="fi-rs-trash"></i></a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="image"><img src="assets/imgs/shop/product-3-1.jpg" alt="#"></td>
-                                        <td class="product-des">
-                                            <h5 class="product-name"><a href="shop-product-right.html">Amazon Brand - Daily Ritual Women's Jersey </a></h5>
-                                            <p class="font-xs">Erat amet et et amet diam et et.<br> Justo amet at dolore
-                                            </p>
-                                        </td>
-                                        <td class="price" data-title="Price"><span>$62.00 </span></td>
-                                        <td class="text-center" data-title="Stock">
-                                            <span class="text-danger font-weight-bold">Out of stock</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <button class="btn btn-sm btn-secondary"><i class="fi-rs-headset mr-5"></i>Contact Us</button>
-                                        </td>
-                                        <td class="action" data-title="Remove"><a href="#"><i class="fi-rs-trash"></i></a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <%if(user.wishlist.length !=0){%>
+                                <table class="table shopping-summery text-center" id="wishlistTable">
+                                    <thead>
+                                        <tr class="main-heading">
+                                            <th scope="col" colspan="2">Product</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Stock Status</th>
+                                            <th scope="col">Action</th>
+                                            <th scope="col">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% user.wishlist.forEach(item=> { %>
+                                            <tr id="remove_<%= item._id %>">
+                                                <td class="image product-thumbnail"><img
+                                                        src="/admin/productImages/<%= item.images %>"
+                                                        alt="<%= item.name %>" style="height: 80px; width: 60px;"></td>
+                                                <td class="product-des product-name">
+                                                    <h5 class="product-name"><a href="shop-product-right.html">
+                                                            <%= item.name %>
+                                                        </a></h5>
+                                                    <p class="font-xs">
+                                                        <%= item.description %>
+                                                    </p>
+                                                </td>
+                                                <td class="price" data-title="Price"><span>$<%= item.sales_price %>
+                                                            </span></td>
+                                                <td class="text-center" data-title="Stock">
+                                                    <%if(item.stock>=1){%>
+                                                        <span class="color3 font-weight-bold">In Stock</span>
+                                                        <%}else{%>
+                                                            <span class="color3 font-weight-bold">Out of stock</span>
+                                                            <%}%>
+                                                </td>
+                                                <td class="text-right" data-title="Cart">
+
+                                                    <%if(item.stock>=1){%>
+                                                        <button class="btn btn-sm"
+                                                            onclick="getLatestData('<%= item._id %>')"><i
+                                                                class="fi-rs-shopping-bag mr-5"></i>Add to cart</button>
+                                                        <%}else{%>
+                                                            <button class="btn btn-sm" disabled="true"
+                                                                onclick="getLatestData('<%= item._id %>')"><i
+                                                                    class="fi-rs-shopping-bag mr-5"></i>Add to
+                                                                cart</button>
+                                                            <%}%>
+                                                </td>
+                                                <td class="action" data-title="Remove">
+                                                    <a onclick="removeFromWishlist('<%= item._id %>')"><i
+                                                            class="fi-rs-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                    </tbody>
+                                </table>
+                                <%}else{%>
+                                    <div class=" text-center">
+                                        <h2>Your wishlist is empty</h2>
+                                    </div>
+                                    <%}%>
+                                        <div id="wishlistEmptyMessage" class="text-center" style="display: none;">
+                                            <h2>Your wishlist is empty</h2>
+                                        </div>
+
                         </div>
                     </div>
                 </div>
@@ -73,4 +77,33 @@
         </section>
     </main>
 
-<%-include("footer")-%>
+    <%- include("footer") %>
+
+        <script>
+            function removeFromWishlist(productID) {
+                const removeRow = document.getElementById(`remove_${productID}`);
+                removeRow.style.display = "none";
+                getWishlistCount()
+                toggleWishlist(productID);
+            }
+
+            function getWishlistCount() {
+                $.ajax({
+                    url: '/getWishlistCount',
+                    type: 'GET',
+                    success: function (data) {
+                        const wishlistEmptyMessage = document.getElementById('wishlistEmptyMessage');
+                        if (data.wishlistCount <= 0) {
+                            wishlistTable.style.display = "none";
+                            wishlistEmptyMessage.style.display = "block";
+                        } else {
+                            wishlistEmptyMessage.style.display = "none";
+                        }
+                    },
+                    error: function () {
+                        console.error("Error fetching wishlist count");
+                    }
+                });
+            }
+
+        </script>

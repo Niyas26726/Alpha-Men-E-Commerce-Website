@@ -10,43 +10,57 @@
                                 <div class="col-md-6 col-sm-12 col-xs-12">
                                     <!-- MAIN SLIDES -->
                                     <div class="product-image-slider">
+                                        <%if (isAuthenticated == true){%>
+                                        <input type="hidden" value="<%= quantityInCart %>" id="quantityInCart">
+                                        <%}%>
                                         <% if (product && product.images) { %>
-                                            <% product.images.slice(0, 4).forEach((image, index) => { %>
+                                            <% product.images.slice(0, 4).forEach((image, index)=> { %>
                                                 <figure class="border-radius-10">
                                                     <img src="/admin/productImages/<%=image %>" alt="product image">
                                                 </figure>
-                                            <% }); %>
-                                        <% } %>
+                                                <% }); %>
+                                                    <% } %>
                                     </div>
 
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15">
                                         <% if (product && product.images && Array.isArray(product.images)) { %>
-                                            <% product.images.slice(0, 4).forEach((image, index) => { %>
+                                            <% product.images.slice(0, 4).forEach((image, index)=> { %>
                                                 <div class="thumbnail-item">
-                                                    <img src="/admin/productImages/<%= image %>" alt="product image" data-image-id="<%= index %>">
+                                                    <img src="/admin/productImages/<%= image %>" alt="product image"
+                                                        data-image-id="<%= index %>">
                                                 </div>
-                                            <% }); %>
-                                        <% } %>
+                                                <% }); %>
+                                                    <% } %>
                                     </div>
 
-                                                                      
+
                                     <div class="social-icons single-share">
                                         <ul class="text-grey-5 d-inline-block">
                                             <li><strong class="mr-10">Share this:</strong></li>
-                                            <li class="social-facebook"><a href="#"><img src="assets/imgs/theme/icons/icon-facebook.svg" alt=""></a></li>
-                                            <li class="social-twitter"> <a href="#"><img src="assets/imgs/theme/icons/icon-twitter.svg" alt=""></a></li>
-                                            <li class="social-instagram"><a href="#"><img src="assets/imgs/theme/icons/icon-instagram.svg" alt=""></a></li>
-                                            <li class="social-linkedin"><a href="#"><img src="assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a></li>
+                                            <li class="social-facebook"><a href="#"><img
+                                                        src="assets/imgs/theme/icons/icon-facebook.svg" alt=""></a></li>
+                                            <li class="social-twitter"> <a href="#"><img
+                                                        src="assets/imgs/theme/icons/icon-twitter.svg" alt=""></a></li>
+                                            <li class="social-instagram"><a href="#"><img
+                                                        src="assets/imgs/theme/icons/icon-instagram.svg" alt=""></a>
+                                            </li>
+                                            <li class="social-linkedin"><a href="#"><img
+                                                        src="assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-12 col-xs-12">
                                     <div class="detail-info">
-                                        <h2 class="title-detail"><%=product.product_name%></h2>
+                                        <h2 class="title-detail">
+                                            <%=product.product_name%>
+                                        </h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
-                                                <span> Brands: <a href="shop-grid-right.html"><%=product.product_name%></a></span>
+                                                <span> Brands: <a href="shop-grid-right.html">
+                                                        <%=product.product_name%>
+                                                    </a></span>
                                             </div>
                                             <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
@@ -59,19 +73,26 @@
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
                                                 <ins><span class="text-brand">$<%=product.sales_price%></span></ins>
-                                                <ins><span class="old-price font-md ml-15">$<%=product.regular_price%></span></ins>
+                                                <ins><span class="old-price font-md ml-15">$<%=product.regular_price%>
+                                                    </span></ins>
                                                 <span class="save-price  font-md color3 ml-15">25% Off</span>
                                             </div>
                                         </div>
                                         <div class="bt-1 border-color-1 mt-15 mb-15"></div>
                                         <div class="short-desc mb-30">
-                                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquam rem officia, corrupti reiciendis minima nisi modi, quasi, odio minus dolore impedit fuga eum eligendi? Officia doloremque facere quia. Voluptatum, accusantium!</p>
+                                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquam rem
+                                                officia, corrupti reiciendis minima nisi modi, quasi, odio minus dolore
+                                                impedit fuga eum eligendi? Officia doloremque facere quia. Voluptatum,
+                                                accusantium!</p>
                                         </div>
                                         <div class="product_sort_info font-xs mb-30">
                                             <ul>
-                                                <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year AL Jazeera Brand Warranty</li>
-                                                <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
-                                                <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                                <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year AL Jazeera
+                                                    Brand Warranty</li>
+                                                <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return
+                                                    Policy</li>
+                                                <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available
+                                                </li>
                                             </ul>
                                         </div>
                                         <!-- <div class="attr-detail attr-color mb-15">
@@ -89,27 +110,27 @@
                                         <div class="attr-detail attr-size">
                                             <strong class="mr-10">Size</strong>
                                             <ul class="list-filter size-filter font-small">
-                                                <li <% if (product.size === 'S') { %>class="active"<% } %>>
-                                                    <a href="#">S</a>
+                                                <li <% if (product.size==='S' ) { %>class="active"<% } %>>
+                                                        <a href="#">S</a>
                                                 </li>
-                                                <li <% if (product.size === 'M') { %>class="active"<% } %>>
-                                                    <a href="#">M</a>
+                                                <li <% if (product.size==='M' ) { %>class="active"<% } %>>
+                                                        <a href="#">M</a>
                                                 </li>
-                                                <li <% if (product.size === 'L') { %>class="active"<% } %>>
-                                                    <a href="#">L</a>
+                                                <li <% if (product.size==='L' ) { %>class="active"<% } %>>
+                                                        <a href="#">L</a>
                                                 </li>
-                                                <li <% if (product.size === 'XL') { %>class="active"<% } %>>
-                                                    <a href="#">XL</a>
+                                                <li <% if (product.size==='XL' ) { %>class="active"<% } %>>
+                                                        <a href="#">XL</a>
                                                 </li>
-                                                <li <% if (product.size === 'XXL') { %>class="active"<% } %>>
-                                                    <a href="#">XXL</a>
+                                                <li <% if (product.size==='XXL' ) { %>class="active"<% } %>>
+                                                        <a href="#">XXL</a>
                                                 </li>
-                                                <li <% if (product.size === 'XXXL') { %>class="active"<% } %>>
-                                                    <a href="#">XXXL</a>
+                                                <li <% if (product.size==='XXXL' ) { %>class="active"<% } %>>
+                                                        <a href="#">XXXL</a>
                                                 </li>
                                             </ul>
                                         </div>
-                                                                                                                       
+
                                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                         <div class="detail-extralink" style="display: flex;">
                                             <!-- <div class="detail-qty border radius">
@@ -118,59 +139,67 @@
                                                 <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                             </div> -->
                                             <div class="detail-qty border radius">
-                                                <a href="#" class="qty-down" onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1)"><i class="fi-rs-angle-small-down"></i></a>
+                                                <a href="#" class="qty-down"
+                                                    onclick="updateQuantity_forProductQuantity('<%= product._id %>', -1)"><i
+                                                        class="fi-rs-angle-small-down"></i></a>
                                                 <span class="qty-val" id="qty-val_<%= product._id %>">1</span>
-                                                <a href="#" class="qty-up" onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1)"><i class="fi-rs-angle-small-up"></i></a>
+                                                <a href="#" class="qty-up"
+                                                    onclick="updateQuantity_forProductQuantity('<%= product._id %>', 1)"><i
+                                                        class="fi-rs-angle-small-up"></i></a>
                                             </div>
-                                                                                                                                                                                                                            
+
                                             <div class="product-extra-link2 ">
                                                 <!-- <button type="submit" class="button button-add-to-cart">Add to cart</button> -->
                                                 <% if (isAuthenticated) { %>
                                                     <div class="product-action-1 show">
                                                         <% if (product.stock> 0) { %>
-                                                                    <btton aria-label="Add To Cart" class="button button-add-to-cart"
-                                                                    href="#"
-                                                                    onclick="addToCart('<%= product._id %>')">Add to cart</btton>
+                                                            <btton aria-label="Add To Cart"
+                                                                class="button button-add-to-cart" href="#"
+                                                                onclick="addToCart('<%= product._id %>','<%= product.stock %>')">
+                                                                Add to cart</btton>
                                                             <% } else { %>
                                                                 <span class="out-of-stock">Out of Stock</span>
                                                                 <% } %>
                                                     </div>
 
                                                     <% } else { %>
-                                                    <form action="/login" method="GET">
-                                                        <input type="hidden" name="err" value="true">
-                                                        <input type="hidden" name="msg" value="Login to add product to cart">
-                                                        <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                                    </form>
-                                                <% } %>
-                                                <!-- <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> -->
+                                                        <form action="/login" method="GET">
+                                                            <input type="hidden" name="err" value="true">
+                                                            <input type="hidden" name="msg"
+                                                                value="Login to add product to cart">
+                                                            <button type="submit" class="button button-add-to-cart">Add
+                                                                to cart</button>
+                                                        </form>
+                                                        <% } %>
+                                                            <!-- <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> -->
 
-                                                <% if (user && user.wishlist.includes(product._id)) { %>
-                                                    <a id="wishlist-link-<%= product._id %>"
-                                                       class="action-btn active"
-                                                       href="#"
-                                                       onclick="toggleWishlist('<%= product._id %>')"
-                                                       aria-label="Remove from Wishlist">
-                                                        <i class="fi-rs-heart"></i>
-                                                    </a>
-                                                <% } else { %>
-                                                    <a id="wishlist-link-<%= product._id %>"
-                                                       class="action-btn"
-                                                       href="#"
-                                                       onclick="toggleWishlist('<%= product._id %>')"
-                                                       aria-label="Add To Wishlist">
-                                                        <i class="fi-rs-heart"></i>
-                                                    </a>
-                                                <% } %>
-                                                
-                            
-                                                <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                                                            <% if (user && user.wishlist.includes(product._id)) { %>
+                                                                <a id="wishlist-link-<%= product._id %>"
+                                                                    class="action-btn active" href="#"
+                                                                    onclick="toggleWishlist('<%= product._id %>')"
+                                                                    aria-label="Remove from Wishlist">
+                                                                    <i class="fi-rs-heart"></i>
+                                                                </a>
+                                                                <% } else { %>
+                                                                    <a id="wishlist-link-<%= product._id %>"
+                                                                        class="action-btn" href="#"
+                                                                        onclick="toggleWishlist('<%= product._id %>')"
+                                                                        aria-label="Add To Wishlist">
+                                                                        <i class="fi-rs-heart"></i>
+                                                                    </a>
+                                                                    <% } %>
+
+
+                                                                        <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                             </div>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
                                             <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
-                                            <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                            <li>Availability:<span class="in-stock text-success ml-5"><%=product.stock%> Items In Stock</span></li>
+                                            <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#"
+                                                    rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
+                                            <li>Availability:<span class="in-stock text-success ml-5">
+                                                    <%=product.stock%> Items In Stock
+                                                </span></li>
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
@@ -179,22 +208,30 @@
                             <div class="tab-style3">
                                 <ul class="nav nav-tabs text-uppercase">
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="Description-tab" data-bs-toggle="tab" href="#Description">Description</a>
+                                        <a class="nav-link active" id="Description-tab" data-bs-toggle="tab"
+                                            href="#Description">Description</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab" href="#Additional-info">Additional info</a>
+                                        <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab"
+                                            href="#Additional-info">Additional info</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab" href="#Reviews">Reviews (3)</a>
+                                        <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab"
+                                            href="#Reviews">Reviews (3)</a>
                                     </li>
                                 </ul>
                                 <div class="tab-content shop_info_tab entry-main-content">
                                     <div class="tab-pane fade show active" id="Description">
                                         <div class="">
-                                            <p>Uninhibited carnally hired played in whimpered dear gorilla koala depending and much yikes off far quetzal goodness and from for grimaced goodness unaccountably and meadowlark near unblushingly crucial scallop
+                                            <p>Uninhibited carnally hired played in whimpered dear gorilla koala
+                                                depending and much yikes off far quetzal goodness and from for grimaced
+                                                goodness unaccountably and meadowlark near unblushingly crucial scallop
                                                 tightly neurotic hungrily some and dear furiously this apart.</p>
-                                            <p>Spluttered narrowly yikes left moth in yikes bowed this that grizzly much hello on spoon-fed that alas rethought much decently richly and wow against the frequent fluidly at formidable acceptably flapped
-                                                besides and much circa far over the bucolically hey precarious goldfinch mastodon goodness gnashed a jellyfish and one however because.
+                                            <p>Spluttered narrowly yikes left moth in yikes bowed this that grizzly much
+                                                hello on spoon-fed that alas rethought much decently richly and wow
+                                                against the frequent fluidly at formidable acceptably flapped
+                                                besides and much circa far over the bucolically hey precarious goldfinch
+                                                mastodon goodness gnashed a jellyfish and one however because.
                                             </p>
                                             <ul class="product-more-infor mt-30">
                                                 <li><span>Type Of Packing</span> Bottle</li>
@@ -204,15 +241,27 @@
                                                 <li><span>Piece In One</span> Carton</li>
                                             </ul>
                                             <hr class="wp-block-separator is-style-dots">
-                                            <p>Laconic overheard dear woodchuck wow this outrageously taut beaver hey hello far meadowlark imitatively egregiously hugged that yikes minimally unanimous pouted flirtatiously as beaver beheld above forward
-                                                energetic across this jeepers beneficently cockily less a the raucously that magic upheld far so the this where crud then below after jeez enchanting drunkenly more much wow callously irrespective limpet.</p>
+                                            <p>Laconic overheard dear woodchuck wow this outrageously taut beaver hey
+                                                hello far meadowlark imitatively egregiously hugged that yikes minimally
+                                                unanimous pouted flirtatiously as beaver beheld above forward
+                                                energetic across this jeepers beneficently cockily less a the raucously
+                                                that magic upheld far so the this where crud then below after jeez
+                                                enchanting drunkenly more much wow callously irrespective limpet.</p>
                                             <h4 class="mt-30">Packaging & Delivery</h4>
                                             <hr class="wp-block-separator is-style-wide">
-                                            <p>Less lion goodness that euphemistically robin expeditiously bluebird smugly scratched far while thus cackled sheepishly rigid after due one assenting regarding censorious while occasional or this more crane
-                                                went more as this less much amid overhung anathematic because much held one exuberantly sheep goodness so where rat wry well concomitantly.
+                                            <p>Less lion goodness that euphemistically robin expeditiously bluebird
+                                                smugly scratched far while thus cackled sheepishly rigid after due one
+                                                assenting regarding censorious while occasional or this more crane
+                                                went more as this less much amid overhung anathematic because much held
+                                                one exuberantly sheep goodness so where rat wry well concomitantly.
                                             </p>
-                                            <p>Scallop or far crud plain remarkably far by thus far iguana lewd precociously and and less rattlesnake contrary caustic wow this near alas and next and pled the yikes articulate about as less cackled dalmatian
-                                                in much less well jeering for the thanks blindly sentimental whimpered less across objectively fanciful grimaced wildly some wow and rose jeepers outgrew lugubrious luridly irrationally attractively
+                                            <p>Scallop or far crud plain remarkably far by thus far iguana lewd
+                                                precociously and and less rattlesnake contrary caustic wow this near
+                                                alas and next and pled the yikes articulate about as less cackled
+                                                dalmatian
+                                                in much less well jeering for the thanks blindly sentimental whimpered
+                                                less across objectively fanciful grimaced wildly some wow and rose
+                                                jeepers outgrew lugubrious luridly irrationally attractively
                                                 dachshund.
                                             </p>
                                         </div>
@@ -326,11 +375,15 @@
                                                                         <div class="product-rating" style="width:90%">
                                                                         </div>
                                                                     </div>
-                                                                    <p>Thank you very fast shipping from Poland only 3days.</p>
+                                                                    <p>Thank you very fast shipping from Poland only
+                                                                        3days.</p>
                                                                     <div class="d-flex justify-content-between">
                                                                         <div class="d-flex align-items-center">
-                                                                            <p class="font-xs mr-30">December 4, 2020 at 3:12 pm </p>
-                                                                            <a href="#" class="text-brand btn-reply">Reply <i class="fi-rs-arrow-right"></i> </a>
+                                                                            <p class="font-xs mr-30">December 4, 2020 at
+                                                                                3:12 pm </p>
+                                                                            <a href="#"
+                                                                                class="text-brand btn-reply">Reply <i
+                                                                                    class="fi-rs-arrow-right"></i> </a>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -352,8 +405,11 @@
                                                                     <p>Great low price and works well.</p>
                                                                     <div class="d-flex justify-content-between">
                                                                         <div class="d-flex align-items-center">
-                                                                            <p class="font-xs mr-30">December 4, 2020 at 3:12 pm </p>
-                                                                            <a href="#" class="text-brand btn-reply">Reply <i class="fi-rs-arrow-right"></i> </a>
+                                                                            <p class="font-xs mr-30">December 4, 2020 at
+                                                                                3:12 pm </p>
+                                                                            <a href="#"
+                                                                                class="text-brand btn-reply">Reply <i
+                                                                                    class="fi-rs-arrow-right"></i> </a>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -372,11 +428,15 @@
                                                                         <div class="product-rating" style="width:90%">
                                                                         </div>
                                                                     </div>
-                                                                    <p>Authentic and Beautiful, Love these way more than ever expected They are Great earphones</p>
+                                                                    <p>Authentic and Beautiful, Love these way more than
+                                                                        ever expected They are Great earphones</p>
                                                                     <div class="d-flex justify-content-between">
                                                                         <div class="d-flex align-items-center">
-                                                                            <p class="font-xs mr-30">December 4, 2020 at 3:12 pm </p>
-                                                                            <a href="#" class="text-brand btn-reply">Reply <i class="fi-rs-arrow-right"></i> </a>
+                                                                            <p class="font-xs mr-30">December 4, 2020 at
+                                                                                3:12 pm </p>
+                                                                            <a href="#"
+                                                                                class="text-brand btn-reply">Reply <i
+                                                                                    class="fi-rs-arrow-right"></i> </a>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -396,25 +456,36 @@
                                                     </div>
                                                     <div class="progress">
                                                         <span>5 star</span>
-                                                        <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
+                                                        <div class="progress-bar" role="progressbar" style="width: 50%;"
+                                                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%
+                                                        </div>
                                                     </div>
                                                     <div class="progress">
                                                         <span>4 star</span>
-                                                        <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+                                                        <div class="progress-bar" role="progressbar" style="width: 25%;"
+                                                            aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%
+                                                        </div>
                                                     </div>
                                                     <div class="progress">
                                                         <span>3 star</span>
-                                                        <div class="progress-bar" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+                                                        <div class="progress-bar" role="progressbar" style="width: 45%;"
+                                                            aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%
+                                                        </div>
                                                     </div>
                                                     <div class="progress">
                                                         <span>2 star</span>
-                                                        <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+                                                        <div class="progress-bar" role="progressbar" style="width: 65%;"
+                                                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%
+                                                        </div>
                                                     </div>
                                                     <div class="progress mb-30">
                                                         <span>1 star</span>
-                                                        <div class="progress-bar" role="progressbar" style="width: 85%;" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%</div>
+                                                        <div class="progress-bar" role="progressbar" style="width: 85%;"
+                                                            aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%
+                                                        </div>
                                                     </div>
-                                                    <a href="#" class="font-xs text-muted">How are ratings calculated?</a>
+                                                    <a href="#" class="font-xs text-muted">How are ratings
+                                                        calculated?</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -429,27 +500,33 @@
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 <div class="form-group">
-                                                                    <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="9" placeholder="Write Comment"></textarea>
+                                                                    <textarea class="form-control w-100" name="comment"
+                                                                        id="comment" cols="30" rows="9"
+                                                                        placeholder="Write Comment"></textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="col-sm-6">
                                                                 <div class="form-group">
-                                                                    <input class="form-control" name="name" id="name" type="text" placeholder="Name">
+                                                                    <input class="form-control" name="name" id="name"
+                                                                        type="text" placeholder="Name">
                                                                 </div>
                                                             </div>
                                                             <div class="col-sm-6">
                                                                 <div class="form-group">
-                                                                    <input class="form-control" name="email" id="email" type="email" placeholder="Email">
+                                                                    <input class="form-control" name="email" id="email"
+                                                                        type="email" placeholder="Email">
                                                                 </div>
                                                             </div>
                                                             <div class="col-12">
                                                                 <div class="form-group">
-                                                                    <input class="form-control" name="website" id="website" type="text" placeholder="Website">
+                                                                    <input class="form-control" name="website"
+                                                                        id="website" type="text" placeholder="Website">
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
-                                                            <button type="submit" class="button button-contactForm">Submit
+                                                            <button type="submit"
+                                                                class="button button-contactForm">Submit
                                                                 Review</button>
                                                         </div>
                                                     </form>
@@ -470,21 +547,31 @@
                                                 <div class="product-img-action-wrap">
                                                     <div class="product-img product-img-zoom">
                                                         <a href="shop-product-right.html" tabindex="0">
-                                                            <img class="default-img" src="assets/imgs/shop/product-2-1.jpg" alt="">
-                                                            <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg" alt="">
+                                                            <img class="default-img"
+                                                                src="assets/imgs/shop/product-2-1.jpg" alt="">
+                                                            <img class="hover-img"
+                                                                src="assets/imgs/shop/product-2-2.jpg" alt="">
                                                         </a>
                                                     </div>
                                                     <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                        <a aria-label="Quick view" class="action-btn small hover-up"
+                                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
+                                                                class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist"
+                                                            class="action-btn small hover-up" href="shop-wishlist.html"
+                                                            tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up"
+                                                            href="shop-compare.html" tabindex="0"><i
+                                                                class="fi-rs-shuffle"></i></a>
                                                     </div>
-                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                    <div
+                                                        class="product-badges product-badges-position product-badges-mrg">
                                                         <span class="hot">Hot</span>
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">Ulstra Bass Headphone</a></h2>
+                                                    <h2><a href="shop-product-right.html" tabindex="0">Ulstra Bass
+                                                            Headphone</a></h2>
                                                     <div class="rating-result" title="90%">
                                                         <span>
                                                         </span>
@@ -501,21 +588,31 @@
                                                 <div class="product-img-action-wrap">
                                                     <div class="product-img product-img-zoom">
                                                         <a href="shop-product-right.html" tabindex="0">
-                                                            <img class="default-img" src="assets/imgs/shop/product-3-1.jpg" alt="">
-                                                            <img class="hover-img" src="assets/imgs/shop/product-3-2.jpg" alt="">
+                                                            <img class="default-img"
+                                                                src="assets/imgs/shop/product-3-1.jpg" alt="">
+                                                            <img class="hover-img"
+                                                                src="assets/imgs/shop/product-3-2.jpg" alt="">
                                                         </a>
                                                     </div>
                                                     <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                        <a aria-label="Quick view" class="action-btn small hover-up"
+                                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
+                                                                class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist"
+                                                            class="action-btn small hover-up" href="shop-wishlist.html"
+                                                            tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up"
+                                                            href="shop-compare.html" tabindex="0"><i
+                                                                class="fi-rs-shuffle"></i></a>
                                                     </div>
-                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                    <div
+                                                        class="product-badges product-badges-position product-badges-mrg">
                                                         <span class="sale">-12%</span>
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">Smart Bluetooth Speaker</a></h2>
+                                                    <h2><a href="shop-product-right.html" tabindex="0">Smart Bluetooth
+                                                            Speaker</a></h2>
                                                     <div class="rating-result" title="90%">
                                                         <span>
                                                         </span>
@@ -532,21 +629,31 @@
                                                 <div class="product-img-action-wrap">
                                                     <div class="product-img product-img-zoom">
                                                         <a href="shop-product-right.html" tabindex="0">
-                                                            <img class="default-img" src="assets/imgs/shop/product-4-1.jpg" alt="">
-                                                            <img class="hover-img" src="assets/imgs/shop/product-4-2.jpg" alt="">
+                                                            <img class="default-img"
+                                                                src="assets/imgs/shop/product-4-1.jpg" alt="">
+                                                            <img class="hover-img"
+                                                                src="assets/imgs/shop/product-4-2.jpg" alt="">
                                                         </a>
                                                     </div>
                                                     <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                        <a aria-label="Quick view" class="action-btn small hover-up"
+                                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
+                                                                class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist"
+                                                            class="action-btn small hover-up" href="shop-wishlist.html"
+                                                            tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up"
+                                                            href="shop-compare.html" tabindex="0"><i
+                                                                class="fi-rs-shuffle"></i></a>
                                                     </div>
-                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                    <div
+                                                        class="product-badges product-badges-position product-badges-mrg">
                                                         <span class="new">New</span>
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">HomeSpeak 12UEA Goole</a></h2>
+                                                    <h2><a href="shop-product-right.html" tabindex="0">HomeSpeak 12UEA
+                                                            Goole</a></h2>
                                                     <div class="rating-result" title="90%">
                                                         <span>
                                                         </span>
@@ -563,21 +670,31 @@
                                                 <div class="product-img-action-wrap">
                                                     <div class="product-img product-img-zoom">
                                                         <a href="shop-product-right.html" tabindex="0">
-                                                            <img class="default-img" src="assets/imgs/shop/product-5-1.jpg" alt="">
-                                                            <img class="hover-img" src="assets/imgs/shop/product-3-2.jpg" alt="">
+                                                            <img class="default-img"
+                                                                src="assets/imgs/shop/product-5-1.jpg" alt="">
+                                                            <img class="hover-img"
+                                                                src="assets/imgs/shop/product-3-2.jpg" alt="">
                                                         </a>
                                                     </div>
                                                     <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                        <a aria-label="Quick view" class="action-btn small hover-up"
+                                                            data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
+                                                                class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist"
+                                                            class="action-btn small hover-up" href="shop-wishlist.html"
+                                                            tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up"
+                                                            href="shop-compare.html" tabindex="0"><i
+                                                                class="fi-rs-shuffle"></i></a>
                                                     </div>
-                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                    <div
+                                                        class="product-badges product-badges-position product-badges-mrg">
                                                         <span class="hot">Hot</span>
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">Dadua Camera 4K 2022EF</a></h2>
+                                                    <h2><a href="shop-product-right.html" tabindex="0">Dadua Camera 4K
+                                                            2022EF</a></h2>
                                                     <div class="rating-result" title="90%">
                                                         <span>
                                                         </span>
@@ -606,12 +723,12 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 <% categories.forEach(function(category) { %>
-                                        <%if(category.blocked == false){%>
+                                    <%if(category.blocked==false){%>
                                         <li><a href="/categoryOther?categoryId=<%= category._id %>">
                                                 <%= category.name %>
                                             </a></li>
-                                            <%}%>
-                                        <% }); %>
+                                        <%}%>
+                                            <% }); %>
                             </ul>
                         </div>
                         <div class="widget-category mb-30">
@@ -647,54 +764,75 @@
         </section>
     </main>
 
-<%-include("footer")-%>
-<script>
-let quantityChanges = {};
+    <%-include("footer")-%>
+        <script>
+            let quantityChanges = {};
 
-function updateQuantity_forProductQuantity(productId, change) {
-    console.log("Reached updateQuantity_forProductQuantity");
+            function updateQuantity_forProductQuantity(productId, change) {
+                console.log("Reached updateQuantity_forProductQuantity");
 
-    const qtyValElement = document.getElementById(`qty-val_${productId}`);
-    
-    if (qtyValElement) {
-        console.log("qtyValElement: ", qtyValElement);
-        
-        let currentQuantity = parseInt(qtyValElement.innerHTML);
-        console.log("currentQuantity: ", currentQuantity);
-        if(isNaN(currentQuantity)){
-            console.log("Error")
-        }
-        if (!isNaN(currentQuantity)) {
-            let newQuantity = currentQuantity + change;
-            newQuantity = Math.max(1, newQuantity);
-            qtyValElement.innerHTML = newQuantity;
-            quantityChanges[productId] = newQuantity;
-            console.log("newQuantity: ", newQuantity);
-            console.log("quantityChanges: ", quantityChanges);
-        } else {
-            console.log("currentQuantity is NaN.");
-        }
-    } else {
-        console.log(`Element with ID 'qty-val_${productId}' not found.`);
-    }
-}
+                const qtyValElement = document.getElementById(`qty-val_${productId}`);
+
+                if (qtyValElement) {
+                    console.log("qtyValElement: ", qtyValElement);
+
+                    let currentQuantity = parseInt(qtyValElement.innerHTML);
+                    console.log("currentQuantity: ", currentQuantity);
+                    if (isNaN(currentQuantity)) {
+                        console.log("Error")
+                    }
+                    if (!isNaN(currentQuantity)) {
+                        let newQuantity = currentQuantity + change;
+                        newQuantity = Math.max(1, newQuantity);
+                        qtyValElement.innerHTML = newQuantity;
+                        quantityChanges[productId] = newQuantity;
+                        console.log("newQuantity: ", newQuantity);
+                        console.log("quantityChanges: ", quantityChanges);
+                    } else {
+                        console.log("currentQuantity is NaN.");
+                    }
+                } else {
+                    console.log(`Element with ID 'qty-val_${productId}' not found.`);
+                }
+            }
 
 
 
-    function addToCart(productId) {
+            function addToCart(productId, stock) {
     updateQuantity_forProductQuantity(productId, 0);
-    const selectedQuantity = quantityChanges[productId] || 1;
-    quantityChanges= 1;
-    fetch(`/addToCart/${productId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quantity: selectedQuantity }),
-    })
+    let selectedQuantity = quantityChanges[productId] || 1;
+    quantityChanges = 1;
+
+    // Get the current quantity in the cart
+    const quantityInCartElement = document.getElementById("quantityInCart");
+    const currentQuantityInCart = parseInt(quantityInCartElement.value) || 0;
+
+    // Check if the selected quantity exceeds the available stock
+    if (currentQuantityInCart + selectedQuantity > stock) {
+        selectedQuantity = stock - currentQuantityInCart;
+
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Quantity exceeds available stock.",
+        });
+    }
+
+    if (selectedQuantity > 0) {
+        // Update the value of the quantityInCart input element
+        const newQuantityInCart = currentQuantityInCart + selectedQuantity;
+        quantityInCartElement.value = newQuantityInCart;
+
+        fetch(`/addToCart/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: selectedQuantity }),
+        })
         .then((response) => {
             if (response.ok) {
-                updateCartCount(); 
+                updateCartCount();
                 // alert('Product added to cart successfully!');
             } else {
                 alert('Failed to add product to cart');
@@ -702,28 +840,12 @@ function updateQuantity_forProductQuantity(productId, change) {
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('An error occurred while adding the product to cart');
+            alert('An error occurred while adding the product to the cart');
         });
-}
-
-
-async function updateQuantityOnServer(productId, newQuantity) {
-    try {
-        const response = await fetch(`/addToCart/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ quantity: newQuantity }),
-        });
-
-        if (response.ok) {
-            console.log('Quantity updated on the server.');
-        } else {
-            console.error('Error updating quantity on the server.');
-        }
-    } catch (error) {
-        console.error('Error updating quantity:', error);
     }
 }
-</script>
+
+
+
+
+        </script>

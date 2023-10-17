@@ -7,6 +7,7 @@ const logger = require('morgan')
 const path = require('path')
 const userRouter = express();
 const auth = require('../middleware/userAuth')
+const checkCart = require('../middleware/paymentAuthentication')
 const userController = require('../controllers/userController');
 const config = require('../config/config')
 
@@ -72,6 +73,7 @@ userRouter.get('/blocked',auth.ifBlocked, userController.blocked);
 
 
 userRouter.get('/cart',auth.isBlocked,userController.cart);
+userRouter.get('/getLatestData',auth.isBlocked,userController.getLatestData);
 userRouter.get('/getCartTotals',auth.isBlocked,auth.isLogin,userController.getCartTotals);
 userRouter.post('/addToCart',auth.isBlocked,userController.addToCart);
 userRouter.post('/addToCart/:productId',auth.isBlocked,auth.isLogin,userController.addToCart_forProductQuantity);
@@ -86,9 +88,9 @@ userRouter.get('/getCartCount',auth.isBlocked,auth.isLogin,userController.getCar
 userRouter.get('/getWishlistCount',auth.isBlocked,auth.isLogin,userController.getWishlistCount);
 
 
-userRouter.get('/checkOutPage',auth.isBlocked,auth.isLogin,userController.checkOutPage);
-userRouter.get('/getCouponDetails/:couponId',auth.isBlocked,auth.isLogin,userController.getCouponDetails);
-userRouter.post('/processPayment',auth.isBlocked,auth.isLogin,userController.processPayment);
+userRouter.get('/checkOutPage',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.checkOutPage);
+userRouter.get('/getCouponDetails/:couponId',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.getCouponDetails);
+userRouter.post('/processPayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.processPayment);
 
 
 userRouter.get('/getOrderDetails/:orderId',auth.isBlocked,auth.isLogin,userController.getOrderDetails);

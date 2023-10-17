@@ -41,7 +41,6 @@
             margin-right: 100px;
         }
 
-        /* Add spacing to table cells */
         .table-responsive {
             margin-bottom: 20px;
         }
@@ -58,13 +57,11 @@
             vertical-align: middle;
         }
 
-        /* Add borders to table rows and cells */
         .table th,
         .table td {
             border: 1px solid #ddd;
         }
 
-        /* Style the product image */
         .product-image img {
             max-width: 100px;
             max-height: 100px;
@@ -74,7 +71,6 @@
             margin: 0 auto;
         }
 
-        /* Add spacing between table rows */
         .cart-item {
             margin-bottom: 10px;
         }
@@ -271,7 +267,7 @@
                                                 <div class="col-lg-6 text-end">
                                                     <p>Maximum Discount: <span id="maxDiscount"></span></p>
                                                     <p>Discount Percentage: <span id="discountPercentage"></span>%</p>
-                                                    <p>Uses Left : <span id="limit"></span></p>
+                                                    <p>Maximum use : <span id="limit"></span></p>
                                                 </div>
                                                 <div class="col-lg-3 text-center">
                                                     <button type="button" class="btn btn-sm btn-danger"
@@ -296,9 +292,9 @@
                                                     Delivery</label>
                                             </div>
                                             <div class="form-group radio-group">
-                                                <input type="radio" id="paypal" name="paymentOption" value="paypal"
+                                                <input type="radio" id="paypal" name="paymentOption" value="Online Payment"
                                                     class="radio-group-input">
-                                                <label for="paypal" class="radio-group-label">PayPal</label>
+                                                <label for="paypal" class="radio-group-label">Online Payment</label>
                                             </div>
                                             <div class="form-group text-center">
                                                 <button type="button" class="btn btn-primary"
@@ -322,11 +318,11 @@
                 const checkoutForm = document.getElementById("checkoutForm");
                 const proceedToPaymentBtn = document.getElementById("proceedToPayment");
                 const paymentRadios = document.querySelectorAll("input[name='paymentOption']");
+                const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
+                const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
+                const paymentOption = document.querySelector("input[name='paymentOption']:checked");
 
                 function validateForm() {
-                    const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
-                    const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
-                    const paymentOption = document.querySelector("input[name='paymentOption']:checked");
 
                     if (!selectedBillingAddress) {
                         Swal.fire({
@@ -364,13 +360,10 @@
                     alert("selectedShippingAddress " + selectedShippingAddress.value)
                     alert("paymentOption " + paymentOption.value)
 
-                    // Check if a coupon is selected
                     if (selectedCouponId) {
-                        // Add the selected coupon ID as a parameter
                         formData.append("couponId", selectedCouponId);
                     }
 
-                    // Update the form action
                     checkoutForm.action = "/processPayment" + (selectedCouponId ? `?couponId=${selectedCouponId}` : "");
                     console.log("checkoutForm.action ", checkoutForm.action);
 
@@ -379,7 +372,11 @@
 
                 proceedToPaymentBtn.addEventListener("click", function () {
                     if (validateForm()) {
+                        if (paymentOption.value == "Cash On Delivery") {
                         checkoutForm.submit();
+                        }else{
+                            
+                        }
                     }
                 });
             });
@@ -387,46 +384,6 @@
             function isRadioChecked(radioGroup) {
                 return Array.from(radioGroup).some((radio) => radio.checked);
             }
-
-
-            // function applyCoupon(button) {
-            //     const couponSelect = document.getElementById('couponSelect');
-            //     const selectedOption = couponSelect.options[couponSelect.selectedIndex];
-            //      selectedCouponId = selectedOption.getAttribute('data-coupon-id');
-
-            //     alert("selectedCouponId: " + selectedCouponId);
-
-            // }
-
-            // async function applyCoupon(button) {
-            //     alert("Reached applyCoupon")
-            //     const couponSelect = document.getElementById('couponSelect');
-            //     const selectedOption = couponSelect.options[couponSelect.selectedIndex];
-            //     const selectedCouponId = selectedOption.getAttribute('data-coupon-id');
-
-            //     try {
-            //         const response = await fetch(`/getCouponDetails/${selectedCouponId}`);
-            //         if (!response.ok) {
-            //             throw new Error(`Failed to fetch coupon details: ${response.status}`);
-            //         }
-
-            //         const couponDetails = await response.json();
-            //         const grandTotalElement = document.getElementById("grandTotal");
-            //         const grandTotal = parseFloat(grandTotalElement.textContent.replace("$", ""));
-            //         const discountPercentage = couponDetails.discount_Percentage / 100;
-            //         let discountAmount = grandTotal * discountPercentage;
-
-            //         if (discountAmount > couponDetails.maximum_Discount) {
-            //             discountAmount = couponDetails.maximum_Discount;
-            //         }
-
-            //         const updatedGrandTotal = grandTotal - discountAmount;
-            //         grandTotalElement.innerHTML = `<strong>$${updatedGrandTotal.toFixed(2)}</strong>`;
-            //     } catch (error) {
-            //         console.error(error);
-            //         alert("Failed to apply coupon. Please try again later.");
-            //     }
-            // }
 
             let originalGrandTotal = '';
             function applyCoupon() {
@@ -450,7 +407,7 @@
                             title: "Oops...",
                             text: couponDetails.message,
                         });
-                        return false
+                        return false    
                         }else{
                         const discountPercentage = couponDetails.discount_Percentage;
                         const maximumDiscount = couponDetails.maximum_Discount;
@@ -462,14 +419,12 @@
                         let discountedTotal = '';
                         originalGrandTotal = grandTotalValue;
 
-                        // if (grandTotalValue >= minimum_Amount) {
                             const discountAmount = grandTotalValue * (discountPercentage / 100);
                             if (discountAmount > maximumDiscount) {
                                 discountedTotal = grandTotalValue - maximumDiscount;
                             } else {
                                 discountedTotal = grandTotalValue - discountAmount;
                             }
-                        // }
                         document.getElementById('maxDiscount').textContent = `$${maximumDiscount.toFixed(2)}`;
                         document.getElementById('discountPercentage').textContent = discountPercentage;
                         document.getElementById('limit').textContent = limit;
@@ -511,5 +466,9 @@
             }
 
             updateGrandTotal();
+
+            function razorPayment(){
+
+            }
 
         </script>

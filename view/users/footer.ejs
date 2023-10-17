@@ -156,6 +156,9 @@
 <script src="js/createNewAddressValidation.js"></script>
 <script src="js/removeMessages.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
 <script>
 $(document).ready(function() {
     var currentPath = window.location.pathname;
@@ -193,7 +196,43 @@ $(document).ready(function() {
         });
     }
 
-    function addToCart(productId) {
+    function getLatestData(productId){
+        $.ajax({
+        url: `/getLatestData?productId=${productId}`, 
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            const product_Stock = data.stock;
+            const quantity = data.quantity;
+            console.log("product_Stock  ===>> ",product_Stock);
+            console.log("quantity  ===>> ",quantity);
+            console.log("productId  ===>> ",productId);
+
+            const msg = data.msg;
+            if(msg){
+                window.location.href = `/login?err=${true}&msg=${msg}`
+                console.log("msg  ===>> ",msg);
+            }
+            if(product_Stock-1 >= quantity){
+                addToCartFromHomeWithData(productId);
+            }else{
+                Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Quantity exceeds available stock.",
+        });
+            }
+
+        },
+        error: function(error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+
+    }
+
+    function addToCartFromHomeWithData(productId) {
+        alert("Reached addToCartFromHomeWithData")
         $.ajax({
             url: '/addToCart',
             type: 'POST',
@@ -215,6 +254,8 @@ $(document).ready(function() {
             }
         });
     }
+
+    
 
 function toggleWishlist(productId) {
     $.ajax({
