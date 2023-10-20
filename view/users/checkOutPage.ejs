@@ -292,8 +292,8 @@
                                                     Delivery</label>
                                             </div>
                                             <div class="form-group radio-group">
-                                                <input type="radio" id="paypal" name="paymentOption" value="Online Payment"
-                                                    class="radio-group-input">
+                                                <input type="radio" id="paypal" name="paymentOption"
+                                                    value="Online Payment" class="radio-group-input">
                                                 <label for="paypal" class="radio-group-label">Online Payment</label>
                                             </div>
                                             <div class="form-group text-center">
@@ -311,6 +311,7 @@
         </section>
     </main>
     <%-include("footer")-%>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
         <script>
             let selectedCouponId = ''
@@ -318,11 +319,11 @@
                 const checkoutForm = document.getElementById("checkoutForm");
                 const proceedToPaymentBtn = document.getElementById("proceedToPayment");
                 const paymentRadios = document.querySelectorAll("input[name='paymentOption']");
-                const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
-                const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
-                const paymentOption = document.querySelector("input[name='paymentOption']:checked");
 
                 function validateForm() {
+                    const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
+                    const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
+                    const paymentOption = document.querySelector("input[name='paymentOption']:checked");
 
                     if (!selectedBillingAddress) {
                         Swal.fire({
@@ -372,10 +373,92 @@
 
                 proceedToPaymentBtn.addEventListener("click", function () {
                     if (validateForm()) {
-                        if (paymentOption.value == "Cash On Delivery") {
-                        checkoutForm.submit();
-                        }else{
-                            
+                        const paymentOption = document.querySelector("input[name='paymentOption']:checked");
+                        const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
+                        const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
+
+                        const data = {
+                            paymentOption: paymentOption.value,
+                            selectedBillingAddress: selectedBillingAddress.value,
+                            selectedShippingAddress: selectedShippingAddress.value,
+                        }
+
+                        
+
+
+                        if (paymentOption.value == "Online Payment") {
+                            console.log("Online Payment");
+
+                            fetch('/processOnlinePayment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(data),
+                            })
+                                .then(response => {
+                                    if (response.ok) {
+                                        return response.json();
+                                    } else {
+                                        console.error('Response not ok');
+                                        throw new Error('Response not ok');
+                                    }
+                                })
+                                .then(data => {
+                                    console.log("Parsed response data:", data.message);
+                                    console.log("data.razorpayResponse.receipt:",  data.razorpayResponse.receipt);
+                                    console.log("data.razorpayResponse.receipt:", typeof data.razorpayResponse.receipt);
+                                    console.log("data.razorpayResponse.amount:",  data.razorpayResponse.amount);
+                                    console.log("data.razorpayResponse.amount:", typeof data.razorpayResponse.amount);
+
+                                    var options = {
+                            "key": "rzp_test_4iSz5duTC32yBs", // Enter the Key ID generated from the Dashboard
+                            "amount": data.razorpayResponse.amount , // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                            "currency": "INR",
+                            "name": "Acme Corp",
+                            "description": "Test Transaction",
+                            "image": "/assets/imgs/theme/favicon.svg",
+                            "order_id": data.razorpayResponse.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                            "handler": function (response) {
+                                alert(response.razorpay_payment_id);
+                                alert(response.razorpay_order_id);
+                                alert(response.razorpay_signature)
+                            },
+                            "prefill": {
+                                "name": "Gaurav Kumar",
+                                "email": "gaurav.kumar@example.com",
+                                "contact": "9000090000"
+                            },
+                            "notes": {
+                                "address": "Razorpay Corporate Office"
+                            },
+                            "theme": {
+                                "color": "#3399cc"
+                            },
+                            debug: true, // Add this option to enable debug logging
+
+                        };
+                        var rzp1 = new Razorpay(options);
+                        rzp1.on('payment.failed', function (response) {
+                            alert(response.error.code);
+                            alert(response.error.description);
+                            alert(response.error.source);
+                            alert(response.error.step);
+                            alert(response.error.reason);
+                            alert(response.error.metadata.order_id);
+                            alert(response.error.metadata.payment_id);
+                        });
+                            rzp1.open();
+
+
+                                })
+                                .catch(error => {
+                                    console.error('Fetch error:', error);
+                                });
+
+
+                        } else {
+                            checkoutForm.submit();
                         }
                     }
                 });
@@ -401,23 +484,23 @@
                     .then(couponDetails => {
                         console.log('Response from server:', couponDetails.message);
 
-                        if(couponDetails.message){
+                        if (couponDetails.message) {
                             Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: couponDetails.message,
-                        });
-                        return false    
-                        }else{
-                        const discountPercentage = couponDetails.discount_Percentage;
-                        const maximumDiscount = couponDetails.maximum_Discount;
-                        const minimum_Amount = couponDetails.minimum_Amount;
-                        const limit = couponDetails.limit;
+                                icon: "error",
+                                title: "Oops...",
+                                text: couponDetails.message,
+                            });
+                            return false
+                        } else {
+                            const discountPercentage = couponDetails.discount_Percentage;
+                            const maximumDiscount = couponDetails.maximum_Discount;
+                            const minimum_Amount = couponDetails.minimum_Amount;
+                            const limit = couponDetails.limit;
 
-                        const grandTotalElement = document.getElementById('grandTotal');
-                        const grandTotalValue = parseFloat(grandTotalElement.textContent.replace("$", ""));
-                        let discountedTotal = '';
-                        originalGrandTotal = grandTotalValue;
+                            const grandTotalElement = document.getElementById('grandTotal');
+                            const grandTotalValue = parseFloat(grandTotalElement.textContent.replace("$", ""));
+                            let discountedTotal = '';
+                            originalGrandTotal = grandTotalValue;
 
                             const discountAmount = grandTotalValue * (discountPercentage / 100);
                             if (discountAmount > maximumDiscount) {
@@ -425,15 +508,15 @@
                             } else {
                                 discountedTotal = grandTotalValue - discountAmount;
                             }
-                        document.getElementById('maxDiscount').textContent = `$${maximumDiscount.toFixed(2)}`;
-                        document.getElementById('discountPercentage').textContent = discountPercentage;
-                        document.getElementById('limit').textContent = limit;
+                            document.getElementById('maxDiscount').textContent = `$${maximumDiscount.toFixed(2)}`;
+                            document.getElementById('discountPercentage').textContent = discountPercentage;
+                            document.getElementById('limit').textContent = limit;
 
-                        grandTotalElement.innerHTML = `<strong>$${discountedTotal.toFixed(2)}</strong>`;
+                            grandTotalElement.innerHTML = `<strong>$${discountedTotal.toFixed(2)}</strong>`;
 
-                        document.getElementById('couponDetails').style.display = 'block';
+                            document.getElementById('couponDetails').style.display = 'block';
 
-                        document.getElementById('applyCouponBtn').style.display = 'none';
+                            document.getElementById('applyCouponBtn').style.display = 'none';
                         }
                     })
                     .catch(error => {
@@ -467,7 +550,7 @@
 
             updateGrandTotal();
 
-            function razorPayment(){
+            function razorPayment() {
 
             }
 

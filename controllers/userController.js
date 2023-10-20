@@ -91,7 +91,7 @@ const loadHome = async (req, res) => {
    console.log("Reached loadHome");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({});
+      const productData = await product.find({}).sort({ sales_price: 1 })
 
       const user = { wishlist: [] };
 
@@ -893,7 +893,7 @@ const loadHomeAfterLogin = async (req, res) => {
    console.log("Reached loadHomeAfterLogin");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({});
+      const productData = await product.find({}).sort({ sales_price: 1 })
       const user_ID = req.session.user_id
       const userData = await User.findById({ _id: user_ID })
 
@@ -1264,9 +1264,6 @@ const processPayment = async (req, res) => {
                   });
                }
             }
-
-
-
             await userData.save();
 
             const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
@@ -1280,60 +1277,175 @@ const processPayment = async (req, res) => {
    }
 }
 
-const generateRazorPay = async (orderID,totalAmount,req,res) => {
+const processOnlinePayment = async (req, res) => {
+   console.log("Reached processOnlinePayment");
+   try {
+      const userId = req.session.user_id;
+      const coupon_id = req.query.couponId;
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const userData = await User.findById({ _id: userId });
+      let couponData
+      if (coupon_id) {
+
+         couponData = await coupon.findById({ _id: coupon_id });
+      }
+
+      const selectedBillingAddress = req.body.selectedBillingAddress;
+      const selectedShippingAddress = req.body.selectedShippingAddress;
+      const paymentOption = req.body.paymentOption;
+
+      console.log("selectedBillingAddress " + selectedBillingAddress);
+      console.log("selectedShippingAddress " + selectedShippingAddress);
+      console.log("paymentOption " + paymentOption);
+      console.log("coupon_id " + coupon_id);
+      console.log("couponData " + couponData);
+
+      const items = [];
+
+      User.findById(userId)
+         .populate(['cart.product', "addresses"])
+         .exec()
+         .then(user => {
+            if (!user) {
+               throw new Error('User not found');
+            }
+
+            const billingAddress = user.addresses.find(address => address._id.equals(selectedBillingAddress));
+            const shippingAddress = user.addresses.find(address => address._id.equals(selectedShippingAddress));
+
+            console.log("billingAddress " + billingAddress);
+            console.log("shippingAddress " + shippingAddress);
+
+            items.push(
+               ...user.cart.map(cartItem => ({
+                  product_id: cartItem.product._id,
+                  quantity: cartItem.quantity,
+                  sales_price: cartItem.product.sales_price,
+                  product_quantity: cartItem.product.stock || 0,
+               }))
+            );
+
+
+            const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
+               return totalShippingFee + (cartItem.product.shipping_fee || 0);
+            }, 0);
+            console.log("shippingFee " + shippingFee);
+            const totalAmount = items.reduce((total, item) => {
+               return total + item.quantity * item.sales_price + shippingFee;
+            }, 0);
+
+            const orderData = {
+               items,
+               shipping_charge: shippingFee,
+               total_amount: totalAmount,
+               user_id: userId,
+               payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet" ? paymentOption : "",
+               address: [billingAddress, shippingAddress],
+            };
+            
+            if (coupon_id !== null) {
+               console.log("coupon_id ===> ", coupon_id);
+               orderData.coupon_id = coupon_id;
+            }
+
+            const newOrder = new Order(orderData);
+            const saved = newOrder.save();
+            console.log('Order saved successfully:', saved);
+            console.log('Order newOrder successfully:', newOrder);
+
+            if (paymentOption == "Online Payment") {
+               generateRazorPay(newOrder._id, newOrder.total_amount, req, res)
+                  .then(razorpayResponse => {
+                     // Assuming you receive a response from the RazorPay API
+                     // You can use the response to perform additional steps
+                     // Example: Save RazorPay response, update order status, etc.
+                     // You can customize this part as needed.
+                     
+                     console.log('RazorPay response:', razorpayResponse);
+      
+                     // Additional steps
+                     // 1. Build Integration
+                     // 2. Test Integration
+                     // 3. Go-live Checklist
+      
+                     // Return a success message to the client
+                     res.json({ message: 'Payment processed successfully',razorpayResponse: razorpayResponse });
+                  })
+                  .catch(error => {
+                     console.error('RazorPay error:', error);
+                     res.json({ message: 'Payment processing failed' });
+                  });
+            }
+         })
+         .then(async savedOrder => {
+            console.log('Order saved successfully:', savedOrder);
+
+            for (const item of items) {
+               console.log("items ==>  ", items);
+               const Product = await product.findById(item.product_id);
+               if (!Product) {
+                  console.error(`Product with ID ${item.product_id} not found.`);
+                  continue;
+               }
+               console.log("Product ==> ", Product);
+               console.log("Product.stock ==> ", Product.stock);
+               console.log("item.quantity ==> ", item.quantity);
+               Product.stock -= item.quantity;
+               console.log("Product.quantity ==> ", Product.stock);
+
+               await Product.save();
+               console.log("await Product.save(); ==> ", await Product.save());
+            }
+
+            let userCoupon
+
+            if (couponData) {
+               userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
+               if (userCoupon) {
+                  userCoupon.no_of_times_used++;
+               } else {
+                  userData.coupons.push({
+                     coupon_id: couponData._id,
+                     no_of_times_used: 1,
+                  });
+               }
+            }
+            await userData.save();
+
+            const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
+            // res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
+         })
+         .catch(error => {
+            console.error('Error saving order:', error);
+         });
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+
+const generateRazorPay = async (orderID, totalAmount, req, res) => {
    const options = {
-      amount: totalAmount*100, 
+      amount: totalAmount *100, 
       currency: 'INR', 
       receipt: orderID, 
-    };
+   };
 
-    instance.orders.create(options, (err, order) => {
-      console.log("order  ===>>>  ",order);
-   });
-}
+   return new Promise((resolve, reject) => {
+      instance.orders.create(options, (err, order) => {
+         if (err) {
+            console.error("RazorPay order creation error:", err);
+            reject(err);
+         } else {
+            console.log("RazorPay order ===>>> ", order);
 
-const verifyOnlinePayment = async(details)=>{
-   console.log('VerifyOnlinPayment: ',details);
-   return new Promise((resolve,reject)=>{
-      let hmac = Crypto.createHmac('sha256',process.env.RAZORPAY_SECRET_ID);
-      // Merging the two id's that come from the client side
-      // console.log('Razorpay order Id : ',details.payment.razorpay_order_id);
-      // console.log('Razorpay Payment Id : ',details.payment.razorpay_payment_id);
-      hmac.update(details.payment.razorpay_order_id+'|'+details.payment.razorpay_payment_id);
-      // Converted to string format
-      hmac = hmac.digest('hex');
-      // console.log(hmac);
-      // Compare the two hex code that come from the razorpay signature and created hex
-      // console.log(details.payment.razorpay_signature)
-      if(hmac == details.payment.razorpay_signature){
-         // If it matches we resolve it 
-         resolve();
-      }else{
-         // Doesn't match we reject
-         reject();
-      }
-   })
-}
-
-const updatePaymentStatus = (orderId,paymentStatus)=>{
-   return new Promise(async(resolve,reject)=>{
-      try {
-         if(paymentStatus){
-            const orderUpdate = await Order.findByIdAndUpdate({_id:new Object(orderId)},{$set:{orderStatus:'Placed'}})
-            .then(()=>{
-               resolve();
-            });
-         }else{
-            const orderUpdate = await Order.findByIdAndUpdate({_id:new Object(orderId)},{$set:{orderStatus:'Failed'}})
-            .then(()=>{
-               resolve()
-            });
+            // You can customize the response as needed
+            // For example, save the RazorPay order response, update the order status, etc.
+            resolve(order);
          }
-      } catch (error) {
-         reject(error);
-         console.log(error.message);
-      }
-   })
+      });
+   });
 }
 
 
@@ -1341,11 +1453,46 @@ const updatePaymentStatus = (orderId,paymentStatus)=>{
 const filteredByCatagoryFromHome = async (req, res) => {
    console.log("Reached filteredByCatagoryFromHome");
    try {
+      const sort = req.query.sort
+      
       const categoryId = req.query.categoryId;
       const categorieData = await category.find({});
       const productData = await product.find({});
-      const filteredProducts = await product.find({ categoryId });
-      const user = 1;
+      let filteredProducts;
+
+      if (categoryId && sort) {
+          req.session.categoryId = categoryId;
+          req.session.sort = sort;
+          const id = req.session.categoryId;
+          console.log("categoryId && sort");
+         console.log("categoryId ===>>>  ",categoryId);
+         console.log("sort ===>>>  ",sort);
+         console.log("id ===>>>  ",id);
+         console.log("sort ===>>>  ",sort);
+
+          filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
+      }else if(sort && req.session.categoryId){
+         const id = req.session.categoryId;
+         filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
+      }else if(categoryId && req.session.sort){
+         const sortno = req.session.sort
+         filteredProducts = await product.find({ categoryId: categoryId }).sort({ sales_price: sort });
+      } else {
+         if(categoryId || sort){
+            if(categoryId){
+          req.session.categoryId = categoryId;
+          filteredProducts = await product.find({ categoryId: categoryId });
+            }else if(! req.session.categoryId && sort){
+               filteredProducts = await product.find().sort({ sales_price: sort })
+            }
+            else{
+               const id = req.session.categoryId;
+               console.log("id ===>>>  ",id);
+               filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort })
+            }
+         }
+      }
+            const user = 1;     
 
 
       if (req.session.user_id) {
@@ -1414,8 +1561,8 @@ const verfiyUser = async (req, res) => {
 
 const userLogout = async (req, res) => {
    try {
-      req.session.user_id = null;
-      res.redirect('/');
+      req.session.destroy()
+           res.redirect('/');
    } catch (error) {
       console.log(error.message);
    }
@@ -1697,6 +1844,5 @@ module.exports = {
    blocked,
    getLatestData,
    generateRazorPay,
-   verifyOnlinePayment,
-   updatePaymentStatus
+   processOnlinePayment
 }

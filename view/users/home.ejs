@@ -112,13 +112,11 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Sort by</h5>
                             <ul class="categories">
-                                <li><a href="shop-grid-right.html">Popularity</a></li>
-                                <li><a href="shop-grid-right.html">Average rating</a></li>
-                                <li><a href="shop-grid-right.html">Price: Low to High</a></li>
-                                <li><a href="shop-grid-right.html">Price: High to Low</a></li>
+                                <li><a href="/category?sort=1">Price: Low to High</a></li>
+                                <li><a href="/category?sort=-1">Price: High to Low</a></li>
                             </ul>
                         </div>
-                        <div class="widget-category mb-30">
+                        <!-- <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Price Range</h5>
                             <ul class="categories">
                                 <li><a href="shop-grid-right.html">$0-$200</a></li>
@@ -135,7 +133,7 @@
                                 <h4>Save 17% on <br>Office Dress</h4>
                                 <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="col-lg-9">
                         <div class="tab-header">
@@ -2505,3 +2503,21 @@
 
 
 <%-include("footer")-%>
+
+<script>
+
+
+function sortByPrice(sort) {
+    $.ajax({
+        type: 'GET',
+        url: `/category?sort=${sort}`,
+        success: function(response) {
+            console.log(response);
+        },
+        error: function(error) {
+            console.error(error);
+        }
+    });
+}
+
+</script>
