@@ -1,0 +1,110 @@
+  <!-- The header element will appear on the top of each page of this invoice document. -->
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/theme/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/invoice_Styles.css">
+    <!-- Template CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+  </head>
+  <body>
+    <header>
+      <div class="headerSection">
+        <div class="logoAndName">
+          <svg>
+            <circle cx="50%" cy="50%" r="40%" stroke="black" stroke-width="3" fill="black" />
+          </svg>
+          <h1><%= invoiceData.companyName %></h1>
+        </div>
+        <div class="invoiceDetails">
+          <div>
+            <button id="download_invoice" onclick="download_invoice()">Download Invoice</button>
+
+          </div>
+          <h2>Invoice ID:-  <%= invoiceData.invoiceNumber %></h2>
+        </div>
+      </div>
+      <hr />
+      <div class="headerSection">
+        <div>
+          <h3>Invoice to</h3>
+          <p>
+            <b><%= invoiceData.clientName %></b>
+            <br>
+            <%= invoiceData.clientAddress %>
+            <br>
+            <%= invoiceData.clientCity %>
+            <br>
+            <a href="mailto:<%= invoiceData.clientEmail %>"><%= invoiceData.clientEmail %></a>
+            <br>
+            <%= invoiceData.clientPhone %>
+          </p>
+        </div>
+        <div>
+
+          <h3>Amount</h3>
+          <p>
+            <b><%= invoiceData.amount %></b>
+          </p>
+        </div>
+      </div>
+    </header>
+    <footer>
+      <a href="<%= invoiceData.companyWebsite %>"><%= invoiceData.companyWebsite %></a>
+      <a href="mailto:<%= invoiceData.companyEmail %>"><%= invoiceData.companyEmail %></a>
+      <span><%= invoiceData.companyPhone %></span>
+      <span><%= invoiceData.companyAddress %></span>
+    </footer>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th>Item Description</th>
+            <th>Rate</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% invoiceData.items.forEach(item => { %>
+            <tr>
+              <td>
+                <img src="/admin/productImages/<%= item.itemImage %>" alt="<%= item.itemImage %>" style="height:60px; width: 48px;">
+                <b style="margin-left: 50px; margin-bottom: 20px;"><%= item.itemName %></b>
+                <br>
+              </td>
+              <td>
+                <%= item.rate %>
+              </td>
+              <td>
+                <%= item.quantity %>
+              </td>
+              <td>
+                <%= item.total %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <table class="summary">
+        <tr class="total">
+          <th>Total</th>
+          <td><%= invoiceData.totalAmount %></td>
+        </tr>
+      </table>
+    </main>
+  </body>
+  </html>
+
+<script>
+  function download_invoice(){
+    document.getElementById("download_invoice").style.display="none"
+    window.print()
+  }
+</script>

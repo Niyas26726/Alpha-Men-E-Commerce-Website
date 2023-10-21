@@ -5,6 +5,7 @@ const nocache = require('nocache')
 const multer = require('multer');
 const logger = require('morgan')
 const path = require('path')
+const puppeteer = require('puppeteer')
 const userRouter = express();
 const auth = require('../middleware/userAuth')
 const checkCart = require('../middleware/paymentAuthentication')
@@ -37,6 +38,8 @@ userRouter.use(bodyParser.json());
 userRouter.use(bodyParser.urlencoded({extended:true}));
 userRouter.use(logger('dev'))
 userRouter.set('view engine','ejs');
+userRouter.engine('html', require('ejs').renderFile);
+
 userRouter.set('views','./view/users');
 
 
@@ -98,6 +101,8 @@ userRouter.post('/processOnlinePayment',auth.isBlocked,auth.isLogin,checkCart.is
 userRouter.get('/getOrderDetails/:orderId',auth.isBlocked,auth.isLogin,userController.getOrderDetails);
 userRouter.post('/returnOrder/:orderId',auth.isBlocked,auth.isLogin,userController.returnOrder);
 userRouter.post('/cancelOrder/:orderId',auth.isBlocked,auth.isLogin,userController.cancelOrder);
+userRouter.get('/showInvoice/:orderId',auth.isBlocked,auth.isLogin,userController.showInvoice);
+userRouter.post('/downloadInvoice/:orderId',auth.isBlocked,auth.isLogin,userController.downloadInvoice);
 
 
 userRouter.get('/addNewAddress',auth.isBlocked,auth.isLogin,userController.addNewAddress);

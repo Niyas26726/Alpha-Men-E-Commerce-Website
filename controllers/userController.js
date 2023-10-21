@@ -7,6 +7,8 @@ const Address = require('../models/addressModel')
 const coupon = require('../models/couponModel');
 const Order = require('../models/orderModel');
 const Razorpay = require('razorpay');
+const { default: puppeteer } = require('puppeteer');
+const path = require('path')
 
 let generatedOTP = '';
 let globalEmail = '';
@@ -1101,7 +1103,7 @@ const getOrderDetails = async (req, res) => {
                         Return Order
                         </button>
 
-                        <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="downloadInvoice('${orderDetails._id}')">Download Invoice</button>`
+                        <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="showInvoice('${orderDetails._id}')">View Invoice</button>`
                : ''
          }
             </div>
@@ -1550,6 +1552,8 @@ const filteredByCatagoryFromHome = async (req, res) => {
       const filter = {};
 
       if (req.session.searchQuery) {
+     
+      if (req.session.searchQuery) {
          filter.product_name = { $regex: new RegExp(req.session.searchQuery, 'i') };
      }
      
@@ -1564,6 +1568,7 @@ const filteredByCatagoryFromHome = async (req, res) => {
      } else {
          filteredProducts = await product.find(filter);
      }
+   }
      
 
          const user = 1;     
@@ -1720,6 +1725,138 @@ const cancelOrder = async (req, res) => {
       res.json({ message: 'Internal Server Error' });
    }
 }
+
+const downloadInvoice = async (req, res) => {
+   console.log("Reached downloadInvoice");
+
+   try {
+      const categorieData = await category.find({});
+      const productData = await product.find({});
+      const err = req.query.err;
+      const msg = req.query.msg;
+      const orderId = req.params.orderId;
+      console.log("orderId  ====>>>  ",orderId);
+
+      const browser = await puppeteer.launch({headless:false});
+      const page = await browser.newPage();
+      await page.goto(`${req.protocol}://${req.get('host')}`+`/getOrderDetails/${orderId}`,{
+         waitUntil:"networkidle2"
+      });
+      await page.setViewport({width:1680, height:1050});
+      const today_Date = new Date();
+      const new_PDF = await page.pdf({
+         path:`${path.join(__dirname,'../public/pfs',today_Date.getTime()+".pdf")}`,
+         productId:true,
+         format:"A4"
+      });
+
+      await browser.close();
+
+      const pdf_URL = `${path.join(__dirname,'../public/pfs',today_Date.getTime()+".pdf")}`;
+
+      res.set({
+         "content-Type":"application/pdf",
+         "content-Lenght":new_PDF.length
+      });
+      res.sendFile(pdf_URL)
+
+   } catch (error) {
+      console.error(error.message);
+   }
+};
+
+const showInvoice = async (req, res) => {
+   const orderId = req.params.orderId;
+   const user_id = req.session.user_id;
+   console.log("user_id`  ===>>>  ",`${user_id}`);
+
+   const orderDetails = await Order.findById(orderId)
+         .populate([
+            {
+               path: 'user_id',
+               model: 'user',
+               select: 'first_name last_name email mobile',
+            },
+            {
+               path: 'items.product_id',
+               model: 'product',
+            }
+         ]);
+
+         console.log("orderDetails:", orderDetails);
+
+
+   const shippingFeeTotal = orderDetails.items.reduce((total, item) => total + (item.product_id.shipping_fee || 0), 0);
+   const salesPriceTotal = orderDetails.items.reduce((total, item) => total + (item.sales_price * item.quantity), 0);
+   const grandTotal = (shippingFeeTotal || 0) + salesPriceTotal;
+         console.log("${orderDetails.user_id.first_name}  ===>>>  ",`${orderDetails.user_id.first_name}`);
+   const invoiceData = {
+      companyName: 'Alpha Men', 
+      invoiceNumber: orderId, 
+      invoiceDate: new Date().toLocaleDateString(),
+      clientName: `${orderDetails.user_id.first_name} ${orderDetails.user_id.last_name}`,
+      clientAddress: orderDetails.address[0].street,
+      clientCity: `${orderDetails.address[0].city_town_district}, ${orderDetails.address[0].state}, ${orderDetails.address[0].pincode}`,
+      city_town_district: `${orderDetails.address[0].city_town_district}`,
+      clientEmail: orderDetails.user_id.email,
+      clientPhone: orderDetails.user_id.mobile,
+      amount: `$${grandTotal.toFixed(2)}`, 
+      items: orderDetails.items.map(item => ({
+         itemImage:`${item.product_id.images[0]}`,
+         itemName: `${item.product_id.product_name}`, 
+         itemDescription: `${item.product_id.description}`, 
+         rate: `$${item.sales_price.toFixed(2)}`, 
+         quantity: item.quantity,
+         total: `$${(item.sales_price * item.quantity).toFixed(2)}`, 
+      })),
+      totalAmount: `$${grandTotal.toFixed(2)}`, 
+      companyWebsite: 'http://localhost:26726',
+      companyEmail: 'alphamen26726@gmail.com',
+      companyPhone: '9995112073',
+      companyAddress: '123 Alphabet Road, Suite 01, Indianapolis, IN 46260',
+     
+   };
+
+   console.log("Reached showInvoice");
+   
+   // Renderthe 'invoice' EJS template with the provided data
+   res.render('invoice', { invoiceData });
+}
+   // try {
+   //    const categorieData = await category.find({});
+   //    const productData = await product.find({});
+   //    const err = req.query.err;
+   //    const msg = req.query.msg;
+   //    const orderId = req.params.orderId;
+   //    console.log("orderId  ====>>>  ",orderId);
+
+   //    const browser = await puppeteer.launch({headless:false});
+   //    const page = await browser.newPage();
+   //    await page.goto(`${req.protocol}://${req.get('host')}`+`/getOrderDetails/${orderId}`,{
+   //       waitUntil:"networkidle2"
+   //    });
+   //    await page.setViewport({width:1680, height:1050});
+   //    const today_Date = new Date();
+   //    const new_PDF = await page.pdf({
+   //       path:`${path.join(__dirname,'../public/pfs',today_Date.getTime()+".pdf")}`,
+   //       productId:true,
+   //       format:"A4"
+   //    });
+
+   //    await browser.close();
+
+   //    const pdf_URL = `${path.join(__dirname,'../public/pfs',today_Date.getTime()+".pdf")}`;
+
+   //    res.set({
+   //       "content-Type":"application/pdf",
+   //       "content-Lenght":new_PDF.length
+   //    });
+   //    res.sendFile(pdf_URL)
+
+   // } catch (error) {
+   //    console.error(error.message);
+   // }
+// };
 
 const sendOtp = async (req, res) => {
    console.log("OTP Send");
@@ -1919,5 +2056,7 @@ module.exports = {
    getLatestData,
    generateRazorPay,
    processOnlinePayment,
-   search
+   search,
+   downloadInvoice,
+   showInvoice
 }

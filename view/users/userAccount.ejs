@@ -162,7 +162,7 @@
                                                         </td>
                                                         <td>$<%= order.total_amount.toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
                                                         <td>
-                                                            <a href="#" class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
+                                                            <a class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
                                                         </td>
                                                     </tr>
                                                 <% } %>
@@ -175,7 +175,7 @@
                                         <%} else {%>
                                             <div class="text-center">
                                                 <h2 class="mb-0">You have not made any orders yet</h2>
-                                                <a class="btn" href="#" onclick="goBack()"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                                                <a class="btn"  onclick="goBack()"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
 
                                             </div>
                                         <%}%>
@@ -519,6 +519,10 @@ function returnOrder(orderId) {
 
     submitReturnReason(orderId, returnReason);
   });
+}
+
+function showInvoice(orderId){
+    window.location.href= `/showInvoice/${orderId}`
 }
 
 function submitReturnReason(orderId, returnReason) {
