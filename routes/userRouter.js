@@ -59,6 +59,7 @@ userRouter.get('/category',auth.isBlocked,userController.filteredByCatagoryFromH
 userRouter.get('/categoryOther',auth.isBlocked,userController.filteredByCatagoryFromOther )
 userRouter.get('/userAccount',auth.isBlocked,auth.isLogin,userController.userAccount);
 userRouter.post('/userAccount',auth.isBlocked,auth.isLogin,upload.single('profileImage'),userController.updateUserAccount);
+userRouter.get('/search',auth.isBlocked,userController.search)
 
 
 

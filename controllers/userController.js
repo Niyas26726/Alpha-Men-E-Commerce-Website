@@ -91,7 +91,7 @@ const loadHome = async (req, res) => {
    console.log("Reached loadHome");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({}).sort({ sales_price: 1 })
+      const productData = await product.find({})
 
       const user = { wishlist: [] };
 
@@ -385,6 +385,57 @@ const special = async (req, res) => {
       console.log(error.message)
    }
 }
+
+const search = async (req, res) => {
+   console.log("Reached search");
+   try {
+      const categorieData = await category.find({});
+      const user = 1;
+      const searchQuery = req.query.searchQuery;
+      const categoryId = req.query.categoryId;
+      const sortParam = req.session.sort // Get the sorting parameter
+
+      console.log("searchQuery is ===>>>  ", searchQuery);
+      console.log("categoryId is ===>>>  ", categoryId);
+      console.log("sortParam is ===>>>  ", sortParam);
+
+      const filter = {};
+      if (categoryId) {
+          req.session.categoryId = categoryId;
+         console.log("req.session.categoryId ===>>>  ",req.session.categoryId);
+         filter.categoryId = categoryId;
+      }
+
+      if (searchQuery) {
+          req.session.searchQuery = searchQuery;
+         console.log("req.session.searchQuery ===>>>  ",req.session.searchQuery);
+         filter.product_name = { $regex: new RegExp(searchQuery, 'i') };
+      }
+      let productData
+
+      if(sortParam){
+         productData = await product.find(filter).sort(sortParam)
+
+      }else{
+         productData = await product.find(filter);
+      }
+
+
+      if (req.session.user_id) {
+         const user_ID = req.session.user_id;
+         const userData = await User.findById({ _id: user_ID });
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true });
+      } else {
+         console.log("else case req.session.user_id is " + req.session.user_id);
+         res.render('home', { user, product: productData, categories: categorieData, isAuthenticated: false });
+      }
+   } catch (error) {
+      console.log(error.message);
+   }
+}
+
+
 
 const all = async (req, res) => {
    console.log("Reached all");
@@ -893,7 +944,7 @@ const loadHomeAfterLogin = async (req, res) => {
    console.log("Reached loadHomeAfterLogin");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({}).sort({ sales_price: 1 })
+      const productData = await product.find({})
       const user_ID = req.session.user_id
       const userData = await User.findById({ _id: user_ID })
 
@@ -1461,16 +1512,18 @@ const filteredByCatagoryFromHome = async (req, res) => {
       let filteredProducts;
 
       if (categoryId && sort) {
-          req.session.categoryId = categoryId;
-          req.session.sort = sort;
-          const id = req.session.categoryId;
-          console.log("categoryId && sort");
+         req.session.categoryId = categoryId;
+         req.session.sort = sort;
+         const id = req.session.categoryId;
+         console.log("categoryId && sort");
          console.log("categoryId ===>>>  ",categoryId);
          console.log("sort ===>>>  ",sort);
          console.log("id ===>>>  ",id);
          console.log("sort ===>>>  ",sort);
+         console.log("req.session.sort ===>>>  ",req.session.sort);
+         console.log("req.session.categoryId ===>>>  ",req.session.categoryId);
 
-          filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
+         filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
       }else if(sort && req.session.categoryId){
          const id = req.session.categoryId;
          filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
@@ -1479,6 +1532,8 @@ const filteredByCatagoryFromHome = async (req, res) => {
          filteredProducts = await product.find({ categoryId: categoryId }).sort({ sales_price: sort });
       } else {
          if(categoryId || sort){
+            req.session.categoryId = categoryId;
+            req.session.sort = sort;
             if(categoryId){
           req.session.categoryId = categoryId;
           filteredProducts = await product.find({ categoryId: categoryId });
@@ -1492,7 +1547,26 @@ const filteredByCatagoryFromHome = async (req, res) => {
             }
          }
       }
-            const user = 1;     
+      const filter = {};
+
+      if (req.session.searchQuery) {
+         filter.product_name = { $regex: new RegExp(req.session.searchQuery, 'i') };
+     }
+     
+     if (req.session.categoryId || categoryId && req.session.sort || sort) {
+         filter.categoryId = req.session.categoryId || categoryId;
+         filteredProducts = await product.find(filter).sort({ sales_price: req.session.sort|| sort });
+     } else if (req.session.categoryId || categoryId) {
+         filter.categoryId = req.session.categoryId || categoryId;
+         filteredProducts = await product.find(filter);
+     } else if (req.session.sort || sort) {
+         filteredProducts = await product.find(filter).sort({ sales_price: req.session.sort|| sort });
+     } else {
+         filteredProducts = await product.find(filter);
+     }
+     
+
+         const user = 1;     
 
 
       if (req.session.user_id) {
@@ -1844,5 +1918,6 @@ module.exports = {
    blocked,
    getLatestData,
    generateRazorPay,
-   processOnlinePayment
+   processOnlinePayment,
+   search
 }

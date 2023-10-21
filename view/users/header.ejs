@@ -245,18 +245,18 @@
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
-                            <form action="#">
+                            <form action="/search" method="GET">
                                 <select name="categoryId" class="form-select" style="margin-right: -20px;">
-                                    <option>search All</option>
+                                    <option value="">search All</option>
                                     <% categories.forEach(function(category) { %>
                                         <%if(category.blocked == false){%>
-                                        <li><a href="/category?categoryId=<%= category._id %>">
+                                            <option value="<%= category._id %>"><a>
                                                 <%= category.name %>
-                                            </a></li>
+                                            </a></option>
                                             <%}%>
                                         <% }); %>
                                     </select>
-                                <input type="text" placeholder="Search for items...">
+                                    <input type="text" name="searchQuery" placeholder="Search for items">
                             </form>
                         </div>
                         <div class="header-action-right">
@@ -490,3 +490,4 @@
             </div>
         </div>
     </div>
+    
