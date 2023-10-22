@@ -1037,6 +1037,172 @@ const getCouponDetails = async (req, res) => {
 
 
 
+// const getOrderDetails = async (req, res) => {
+//    console.log("Reached getOrderDetails");
+
+//    const orderId = req.params.orderId;
+
+//    try {
+//       const orderDetails = await Order.findById(orderId)
+//          .populate([
+//             {
+//                path: 'user_id',
+//                model: 'user',
+//                select: 'first_name last_name email mobile',
+//             },
+//             {
+//                path: 'items.product_id',
+//                model: 'product',
+//             },
+//             {
+//                path: 'address',
+//                model: 'address',
+//             }
+//          ]);
+
+//       if (!orderDetails) {
+//          return res.status(404).send('Order not found');
+//       }
+//       const quantityTotal = orderDetails.items.reduce((total, item) => total + item.quantity, 0);
+//       const shippingFeeTotal = orderDetails.items.reduce((total, item) => total + (item.product_id.shipping_fee || 0), 0);
+//       const salesPriceTotal = orderDetails.items.reduce((total, item) => total + (item.sales_price * item.quantity), 0);
+//       const grandTotal = (shippingFeeTotal || 0) + salesPriceTotal;
+
+
+//       console.log("orderDetails ===> ", orderDetails);
+
+
+   //    const orderHtml = `
+   //       <div style="display: flex; flex-direction: row;">
+   //       <div style="flex: 1; margin-right: 20px;">
+   //          <h3 class="p-30 m-0">
+   //             Order Status: 
+   //          </h3>
+   //          <span id="order_status" style="margin-left:30px;" class="m-50 ${orderDetails.order_status === 'Placed'
+   //          ? 'alert alert-success'
+   //          : orderDetails.order_status === 'Canceled'
+   //             ? 'alert alert-danger'
+   //             : orderDetails.order_status === 'Return Requested'
+   //                ? 'alert alert-info'
+   //                : orderDetails.order_status === 'Request Canceled'
+   //                   ? 'alert alert-danger'
+   //                   : 'alert alert-success'
+   //       }">
+   //             ${orderDetails.order_status || 'N/A'}
+   //          </span>
+   //          <div>
+   //             ${orderDetails.order_status === 'Placed'
+   //          ? `<button id="cancel_button" style="margin: 30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
+   //          : orderDetails.order_status === 'Delivered'
+   //             ? `
+   //                      <button id="return_button"
+   //                      style="margin: 30px; background-color: #0dcaf0; display: block;"
+   //                      class="btn btn-info m-50"
+   //                      onclick="returnOrder('${orderDetails._id}')"
+   //                      >
+   //                      Return Order
+   //                      </button>
+
+   //                      <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="showInvoice('${orderDetails._id}')">View Invoice</button>`
+   //             : ''
+   //       }
+   //          </div>
+   //       </div>
+   //       <div style="flex: 1;">
+   //          <h2 class="p-30">Order details:</h2>
+   //          <p>Order ID: ${orderDetails._id}</p>
+   //          <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
+   //          <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
+   //          <p>Shipping Charge: ${orderDetails.shipping_charge || 'N/A'}</p>
+   //          <p>Total Amount: ${orderDetails.total_amount || 'N/A'}</p>
+   //       </div>
+   //    </div>
+      
+      
+   //       <h2 class="text-center p-30">User Addresses:</h2>
+   //       <div style="display: flex; flex-wrap: wrap;"> <!-- Use flex-wrap to wrap address items -->
+   //          ${orderDetails.address.map((address, index) => `
+   //                <div style="flex: 1; margin-right: 20px;"> <!-- Use flex and margin for equal spacing -->
+   //                   <p>${address.type}</p>
+   //                   <p>Name: ${address.name}</p>
+   //                   <p>City/Town/District: ${address.city_town_district}</p>
+   //                   <p>State: ${address.state}</p>
+   //                   <p>Address: ${address.address}</p>
+   //                   <p>Pincode: ${address.pincode}</p>
+   //                   <p>Landmark: ${address.landmark}</p>
+   //                   <p>Mobile: ${address.mobile}</p>
+   //                   <p>Alt Mobile: ${address.alt_mobile}</p>
+   //                </div>
+   //          `).join('')}
+   //       </div>
+      
+   //       <h2 class="text-center p-30">Order Items:</h2>
+   //       <style>                            
+   //       .product-image img {
+   //          max-width: 100px;
+   //          max-height: 100px;
+   //          width: auto;
+   //          height: auto;
+   //          display: block;
+   //          margin: 0 auto;
+   //       }
+   //    </style>                            
+   //    <table>
+   //       <thead>
+   //          <tr>
+   //                <th>Product</th>
+   //                <th>Quantity</th>
+   //                <th>Shipping Fee</th>
+   //                <th>Sales Price</th>
+   //          </tr>
+   //       </thead>
+   //       <tbody>
+   //          ${orderDetails.items.map((item, index) => `
+   //                <tr>
+   //                   <td>
+   //                      <div style="display: flex; align-items: center;">
+   //                            <div style="flex: 0 0 100px;"> <!-- Fixed width for the image -->
+   //                               <p class="product-image"><img src="/admin/productImages/${item.product_id.images[0]}" alt="Product Image" width="100" height="100"></p>
+   //                            </div>
+   //                            <div style="flex: 1;"> <!-- Flexible width for the product details -->
+   //                               <pclass="product-image"><strong>Item ${index + 1}:</strong></p>
+   //                               <p>Product Name: ${item.product_id.product_name}</p>
+   //                            </div>
+   //                      </div>
+   //                   </td>
+   //                   <td class="text-center">${item.quantity}</td>
+   //                   <td class="text-center">${item.product_id.shipping_fee || 'N/A'}</td>
+   //                   <td class="text-center">${item.sales_price}</td>
+   //                </tr>
+   //          `).join('')}
+   //       </tbody>
+   //       <tfoot>
+   //          <tr>
+   //                <td><strong>Total</strong></td>
+   //                <td class="text-center" id="quantity-total">${quantityTotal}</td>
+   //                <td class="text-center" id="shipping-fee-total">${shippingFeeTotal}</td>
+   //                <td class="text-center" id="sales-price-total">${salesPriceTotal}</td>
+   //          </tr>
+   //       </tfoot>
+   //    </table>
+   //    <div>
+   //    <strong>Grand Total:</strong>
+   //    <span id="grand-total" class="float-right"><strong>${grandTotal}</strong></span>
+   // </div>
+   // `;
+
+//       if (req.session.user_id) {
+//          res.send(orderHtml);
+//       }
+//       else {
+//          res.redirect('/')
+//       }
+//    } catch (error) {
+//       console.error('Error fetching order details:', error);
+//       res.status(500).send('Error fetching order details');
+//    }
+// }
+
 const getOrderDetails = async (req, res) => {
    console.log("Reached getOrderDetails");
 
@@ -1068,9 +1234,34 @@ const getOrderDetails = async (req, res) => {
       const salesPriceTotal = orderDetails.items.reduce((total, item) => total + (item.sales_price * item.quantity), 0);
       const grandTotal = (shippingFeeTotal || 0) + salesPriceTotal;
 
+      function isReturnAllowed(expectedDeliveryDate) {
+
+         const fiveDaysInMillis = function () {
+            const now = new Date();
+            const day = now.getDate() + 1;
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const year = now.getFullYear().toString();
+            return `${day}-${month}-${year}`;
+          }; 
+          
+         const currentMillis = function () {
+            const now = new Date();
+            const day = now.getDate();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const year = now.getFullYear().toString();
+            return `${day}-${month}-${year}`;
+          };
+
+         console.log("fiveDaysInMillis    ====>>>>  ",fiveDaysInMillis());
+         console.log("currentMillis    ====>>>>  ",currentMillis());
+         return currentMillis() <= expectedDeliveryDate + fiveDaysInMillis();
+      }
+      const expectedDeliveryMillis = orderDetails.delivered_on
+      console.log("expectedDeliveryMillis  ===>>>  ",expectedDeliveryMillis);
+      const isReturnButtonEnabled = orderDetails.order_status === 'Delivered' && isReturnAllowed(expectedDeliveryMillis);
+      console.log("isReturnButtonEnabled    ====>>>>  ",isReturnButtonEnabled);
 
       console.log("orderDetails ===> ", orderDetails);
-
 
       const orderHtml = `
          <div style="display: flex; flex-direction: row;">
@@ -1089,26 +1280,22 @@ const getOrderDetails = async (req, res) => {
                      : 'alert alert-success'
          }">
                ${orderDetails.order_status || 'N/A'}
-            </span>
-            <div>
+               </span>
+               <div>
                ${orderDetails.order_status === 'Placed'
-            ? `<button id="cancel_button" style="margin: 30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
-            : orderDetails.order_status === 'Delivered'
-               ? `
-                        <button id="return_button"
-                        style="margin: 30px; background-color: #0dcaf0; display: block;"
-                        class="btn btn-info m-50"
-                        onclick="returnOrder('${orderDetails._id}')"
-                        >
-                        Return Order
-                        </button>
-
+                  ? `<button id="cancel_button" style="margin: 30px; background-color: #F30000; display: block;" class="btn btn-success m-50" onclick="cancelOrder('${orderDetails._id}')">Cancel Order</button>`
+                  : orderDetails.order_status === 'Delivered'
+                     ? `
+                        ${isReturnButtonEnabled
+                           ? `<button id="return_button" style="margin: 30px; background-color: #0dcaf0; display: block;" class="btn btn-info m-50" onclick="returnOrder('${orderDetails._id}')">Return Order</button>`
+                           : `<p style="color: red; margin: 30px;">Return time has expired</p>`
+                        }
                         <button id="invoice_button" style="margin:30px; background-color: #00B517; display: block;" class="btn btn-info m-50" onclick="showInvoice('${orderDetails._id}')">View Invoice</button>`
-               : ''
-         }
+                     : ''
+               }
             </div>
-         </div>
-         <div style="flex: 1;">
+                        </div>
+            <div style="flex: 1;">
             <h2 class="p-30">Order details:</h2>
             <p>Order ID: ${orderDetails._id}</p>
             <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
@@ -1202,6 +1389,7 @@ const getOrderDetails = async (req, res) => {
       res.status(500).send('Error fetching order details');
    }
 }
+
 
 const processPayment = async (req, res) => {
    console.log("Reached processPayment");

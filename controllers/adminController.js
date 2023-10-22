@@ -764,7 +764,24 @@ const updateOrderStatus = async (req, res) => {
            }
        }
 
-       await order.findByIdAndUpdate(orderId, { order_status: selectedStatus });
+       if (selectedStatus == "Delivered") {
+         const deliveredDate = function () {
+           const now = new Date();
+           const day = now.getDate().toString().padStart(2, '0');
+           const month = (now.getMonth() + 1).toString().padStart(2, '0');
+           const year = now.getFullYear().toString();
+           return `${day}-${month}-${year}`;
+         };
+         const formattedDate = deliveredDate();
+         console.log("deliveredDate  ====>>> ", formattedDate);
+         const updated = await order.findByIdAndUpdate(orderId, {
+           order_status: selectedStatus,
+           delivered_on: formattedDate,
+         });
+         console.log("updated  ====>>> ", updated);
+       } else {
+         await order.findByIdAndUpdate(orderId, { order_status: selectedStatus });
+       }
 
        res.json({ success: true, message: 'Order status updated successfully' });
    } catch (error) {

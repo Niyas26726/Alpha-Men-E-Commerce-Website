@@ -39,6 +39,7 @@
 
 </style>
 
+
     <main class="main">
         <section class="pt-150 pb-150">
             <div class="container">
@@ -135,7 +136,8 @@
                                                 </thead>
                                                 <tbody>
                                                   <!-- Iterate through userOrders to generate table rows -->
-                                                  <% for (const order of userOrders) { %>
+                                                    <% userOrders.reverse().forEach(order => { %>
+
                                                     <tr class="text-center">
                                                         <td><%= order.address && order.address[0] ? order.address[0].name : 'N/A' %></td>
                                                         <td><%= order.created_on %></td>
@@ -165,13 +167,13 @@
                                                             <a class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
                                                         </td>
                                                     </tr>
-                                                <% } %>
-                                                  <!-- End of iteration -->
+                                                    <% }); %>
+                                                    <!-- End of iteration -->
                                                 </tbody>
                                               </table>
                                             </div>
                                           </div>
-                                        </div>
+                                        </div>                                          
                                         <%} else {%>
                                             <div class="text-center">
                                                 <h2 class="mb-0">You have not made any orders yet</h2>
@@ -582,4 +584,8 @@ function submitReturnReason(orderId, returnReason) {
     <%-include("footer")-%>
 
 
-    
+    <script>
+        $(document).ready(function () {
+          $('.table').DataTable();
+        });
+      </script>

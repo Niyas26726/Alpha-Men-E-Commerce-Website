@@ -72,7 +72,7 @@
       },
     },
     delivered_on: {
-      type: Date,
+      type: String,
       default: null
     },
     return_Reason:{
