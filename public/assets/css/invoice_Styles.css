@@ -326,10 +326,11 @@
   
   See Page Floats on https://www.princexml.com/howcome/2021/guides/float/.
   */
-  aside{
-    -prince-float: bottom;
-    padding:0 2cm .5cm 2cm;
-  }
+  aside {
+    position: absolute;
+    bottom: 0;
+    padding: 0 2cm .5cm 2cm;
+  }  
   
   /*
   The content itself is shown in 2 columns we use flexbox for this.
