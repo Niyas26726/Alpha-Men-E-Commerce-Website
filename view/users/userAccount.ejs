@@ -206,7 +206,15 @@
                                               <form id="returnForm">
                                                 <div class="form-group">
                                                   <label for="returnReason">Reason for Return:</label>
-                                                  <textarea class="form-control" id="returnReason" name="returnReason" rows="4" required></textarea>
+                                                  <select class="form-control" id="returnReason" name="returnReason">
+                                                    <option value="">Select a reason</option>
+                                                    <option value="Defective">Product Defective</option>
+                                                    <option value="color issue">Don't Like the Color</option>
+                                                    <option value="Size issue">Size Doesn't Fit</option>
+                                                    <option value="Different product delivered">Different product delivered</option>
+                                                    <option value="Product arrived late">Product arrived late</option>
+                                                    <!-- Add more reasons as needed -->
+                                                  </select>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Submit</button>
                                               </form>
@@ -214,6 +222,7 @@
                                           </div>
                                         </div>
                                       </div>
+                                                                            
 
                                       <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                         aria-labelledby="track-orders-tab">
@@ -517,9 +526,13 @@ function returnOrder(orderId) {
 
   $('#returnForm').submit(function (event) {
     event.preventDefault();
-    const returnReason = $('#returnReason').val();
+    const returnReason = $('#returnReason').val(); // Get the selected value from the dropdown
 
-    submitReturnReason(orderId, returnReason);
+    if (returnReason.trim() === '') {
+      alert('Please select a return reason.'); // Display an alert or handle the empty case as needed
+    } else {
+      submitReturnReason(orderId, returnReason);
+    }
   });
 }
 
@@ -559,18 +572,15 @@ function submitReturnReason(orderId, returnReason) {
 }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve the active tab from local storage
         const activeTab = localStorage.getItem('activeTab');
     
-        // If there's an active tab in local storage, set it as active
         if (activeTab) {
             const tab = document.querySelector(`[href="${activeTab}"]`);
             if (tab) {
-                tab.click(); // Activate the tab
+                tab.click();
             }
         }
     
-        // Add an event listener to store the active tab when it changes
         const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
         tabs.forEach(function(tab) {
             tab.addEventListener('click', function() {

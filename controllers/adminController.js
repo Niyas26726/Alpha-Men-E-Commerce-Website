@@ -751,18 +751,24 @@ const updateOrderStatus = async (req, res) => {
 
        if (selectedStatus === 'Request Approved') {
            const Order = await order.findById(orderId).populate('items.product_id');
+           const OrderDetails = await order.findById(orderId)
+           console.log("OrderDetails   ====>>>>  ",OrderDetails);
            if (!Order) {
                return res.status(404).json({ success: false, message: 'Order not found' });
            }
 
-           for (const item of Order.items) {
-               const Product = item.product_id;
-               const quantityToIncrease = item.quantity;
+           if(OrderDetails.return_Reason != "Defective"){
+            console.log("OrderDetails.return_Reason  ===>>>  ",OrderDetails.return_Reason);
+               for (const item of Order.items) {
+                  const Product = item.product_id;
+                  const quantityToIncrease = item.quantity;
 
-               await product.findByIdAndUpdate(Product, { $inc: { stock: quantityToIncrease } });
+                  await product.findByIdAndUpdate(Product, { $inc: { stock: quantityToIncrease } });
 
+            }
            }
-       }
+       
+         }
 
        if (selectedStatus == "Delivered") {
          const deliveredDate = function () {
