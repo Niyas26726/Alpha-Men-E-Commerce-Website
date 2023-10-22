@@ -9,6 +9,10 @@ const productModel = new mongoose.Schema({
     type: String,
     required: true,
   },
+  reviews:{
+    type:String,
+    default:null
+  },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'category', 
