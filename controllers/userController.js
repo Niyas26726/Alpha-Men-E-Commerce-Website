@@ -7,6 +7,7 @@ const Address = require('../models/addressModel')
 const coupon = require('../models/couponModel');
 const Order = require('../models/orderModel');
 const Razorpay = require('razorpay');
+const { ObjectId } = require('mongodb'); // Import the ObjectId constructor
 const { default: puppeteer } = require('puppeteer');
 const path = require('path')
 
@@ -508,30 +509,111 @@ const displayProduct = async (req, res) => {
    try {
       const categorieData = await category.find({});
       const product_id = req.query.product_id;
-      const productData = await product.findOne({ _id: product_id });
+      const productData = await product.findOne({ _id: product_id }).populate({
+         path: 'reviews.userID',
+         model: 'user',
+         select: 'first_name last_name user_profile',
+
+     });
+     console.log("productData is ", productData);
+     console.log("Number of reviews:", productData.reviews.length);
+     const noOfReviews = productData.reviews.length
+
       const user = { wishlist: [] }
 
       if (!productData) {
          return res.status(404).send('Product not found');
       }
+
+      let hasOrdered = false;
+
       
       if (req.session.user_id) {
-         const user_id = req.session.user_id
+         const user_id = req.session.user_id;
+         const hasOrderedProduct = await Order.find({
+            user_id: user_id,
+            'items.product_id': product_id,
+            order_status: { $in: ['Delivered','Request Approved','Return Requested','Request Canceled'] }, // Exclude cancelled orders
+         });
+         console.log("hasOrderedProduct is ", hasOrderedProduct);
+         console.log("hasOrderedProduct.length is ", hasOrderedProduct.length);
          const userData = await User.findById({ _id: user_id })
          const productInCart = userData.cart.find(item => item.product.equals(productData._id));
          const quantityInCart = productInCart ? productInCart.quantity : 0;
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('displayProduct', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, quantityInCart });
+         if(hasOrderedProduct.length != 0){
+            hasOrdered = true;
+         }
+         res.render('displayProduct', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, quantityInCart, noOfReviews: noOfReviews, hasOrdered});
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-
-         res.render('displayProduct', { user, product: productData, categories: categorieData, isAuthenticated: false,});
+         res.render('displayProduct', { user, product: productData, categories: categorieData, isAuthenticated: false, noOfReviews: noOfReviews, hasOrdered });
       }
    } catch (error) {
       console.log(error.message);
    }
 }
 
+const addReview = async (req, res) => {
+   console.log("Reached addReview");
+   try {
+      const product_id = req.query.productId;
+      const selectedcomment = req.body.comment;
+      const rating = req.body.rating;
+      console.log("product_id is " + product_id);
+      console.log("rating is " + rating);
+      console.log("selectedcomment is " + selectedcomment);
+      const productData = await product.findOne({ _id: product_id });
+      const user_id = req.session.user_id
+      if(!user_id){
+         const errMsg = `Login to add review about the product`
+      return res.json({errMsg});
+      }
+
+      const usedData = await User.findById(user_id)
+      console.log("usedData  ===>>>  ",usedData);
+      console.log("usedData.user_profile[0]  ===>>>  ",usedData.user_profile[0]);
+      if (!productData) {
+         return res.status(404).send('Product not found');
+      }
+
+      const userObjectId = new ObjectId(user_id);
+
+      const existingReview = productData.reviews.find(review => review.userID.equals(userObjectId));
+            console.log("existingReview is " + existingReview);
+
+      
+      if (existingReview) {
+         const errMsg = `You have already reviewed this product.`
+          return res.json({errMsg});
+      }
+
+
+      const newReview = {
+         text: selectedcomment,
+         date: new Date(),      
+         rating: rating,
+         userID: user_id
+      };
+      
+      productData.reviews.push(newReview);
+      
+      productData.save();
+
+      console.log("productData  ===>>>  ",productData);
+      // productData.reviews.forEach(review => {
+      //    console.log('Text:', review.text);
+      //    console.log('Rating:', review.rating);
+      //  });
+       
+ 
+
+      return res.json(productData);
+   } catch (error) {
+      console.log(error.message);
+      return res.send('Error adding review');
+   }
+}
 
 const blocked = async (req, res) => {
    console.log("Reached blocked");
@@ -984,6 +1066,33 @@ const checkOutPage = async (req, res) => {
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
          res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
+      }
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const orderSuccess = async (req, res) => {
+   console.log("Reached checkOutPage");
+   try {
+      const categorieData = await category.find({});
+      const user_ID = req.session.user_id;
+      const coupons = await coupon.find({})
+      const userData = await User.findById(user_ID)
+         .populate({
+            path: 'cart.product',
+            model: 'product',
+         })
+         .populate('addresses');
+
+      console.log("coupons ===> ", coupons);
+
+      if (req.session.user_id) {
+         console.log("req.session.user_id is " + req.session.user_id);
+         res.render('orderPlacedPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true });
+      } else {
+         console.log("else case req.session.user_id is " + req.session.user_id);
+         res.render('orderPlacedPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -1508,7 +1617,7 @@ const processPayment = async (req, res) => {
             await userData.save();
 
             const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
-            res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
+            res.redirect('/orderSuccess');
          })
          .catch(error => {
             console.error('Error saving order:', error);
@@ -2246,5 +2355,7 @@ module.exports = {
    processOnlinePayment,
    search,
    downloadInvoice,
-   showInvoice
+   showInvoice,
+   addReview,
+   orderSuccess
 }

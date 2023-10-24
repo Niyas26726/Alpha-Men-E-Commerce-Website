@@ -9,10 +9,17 @@ const productModel = new mongoose.Schema({
     type: String,
     required: true,
   },
-  reviews:{
-    type:String,
-    default:null
-  },
+  reviews: [
+    {
+        text: String,
+        date: Date,
+        rating: Number,
+        userID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+        },
+    },
+],
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'category', 

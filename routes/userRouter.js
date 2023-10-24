@@ -66,12 +66,14 @@ userRouter.get('/search',auth.isBlocked,userController.search)
 
 
 
+
 userRouter.get('/formals',auth.isBlocked,userController.formals);
 userRouter.get('/special',auth.isBlocked,userController.special);
 userRouter.get('/all',auth.isBlocked,userController.all);
 userRouter.get('/about',auth.isBlocked,userController.about);
 userRouter.get('/contact',auth.isBlocked,userController.contact);
-userRouter.get('/displayProduct',auth.isBlocked,userController.displayProduct);
+userRouter.get('/displayProduct',userController.displayProduct);
+userRouter.post('/addReview',auth.isBlocked,userController.addReview);
 userRouter.get('/blocked',auth.ifBlocked, userController.blocked);
 
 
@@ -94,7 +96,8 @@ userRouter.get('/getWishlistCount',auth.isBlocked,auth.isLogin,userController.ge
 
 userRouter.get('/checkOutPage',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.checkOutPage);
 userRouter.get('/getCouponDetails/:couponId',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.getCouponDetails);
-userRouter.post('/processPayment',auth.isBlocked,auth.isLogin,userController.processPayment);
+userRouter.get('/orderSuccess',auth.isBlocked,auth.isLogin,userController.orderSuccess);
+userRouter.post('/processPayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.processPayment);
 userRouter.post('/processOnlinePayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.processOnlinePayment);
 
 
