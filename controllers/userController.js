@@ -1725,7 +1725,8 @@ const processOnlinePayment = async (req, res) => {
                shipping_charge: shippingFee,
                total_amount: totalAmount,
                user_id: userId,
-               payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet" ? paymentOption : "",
+               payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
+               payment_status: paymentOption == "Online Payment" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
                address: [billingAddress, shippingAddress],
             };
             
@@ -1738,23 +1739,12 @@ const processOnlinePayment = async (req, res) => {
             const saved = newOrder.save();
             console.log('Order saved successfully:', saved);
             console.log('Order newOrder successfully:', newOrder);
+            console.log('Order newOrder._id successfully:', newOrder._id);
 
             if (paymentOption == "Online Payment") {
                generateRazorPay(newOrder._id, newOrder.total_amount, req, res)
                   .then(razorpayResponse => {
-                     // Assuming you receive a response from the RazorPay API
-                     // You can use the response to perform additional steps
-                     // Example: Save RazorPay response, update order status, etc.
-                     // You can customize this part as needed.
-                     
                      console.log('RazorPay response:', razorpayResponse);
-      
-                     // Additional steps
-                     // 1. Build Integration
-                     // 2. Test Integration
-                     // 3. Go-live Checklist
-      
-                     // Return a success message to the client
                      res.json({ message: 'Payment processed successfully',razorpayResponse: razorpayResponse });
                   })
                   .catch(error => {

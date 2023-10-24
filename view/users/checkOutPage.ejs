@@ -297,18 +297,18 @@
                                             <div class="form-group radio-group">
                                                 <input type="radio" id="creditCard" name="paymentOption"
                                                     value="Cash On Delivery" class="radio-group-input">
-                                                <label for="creditCard" class="radio-group-label">Cash On
+                                                <label for="Cash On Delivery" class="radio-group-label">Cash On
                                                     Delivery</label>
                                             </div>
                                             <div class="form-group radio-group">
-                                                <input type="radio" id="paypal" name="paymentOption"
+                                                <input type="radio" id="Wallet Payment" name="paymentOption"
                                                     value="Wallet Payment" class="radio-group-input">
-                                                <label for="paypal" class="radio-group-label">Wallet Payment</label>
+                                                <label for="Wallet Payment" class="radio-group-label">Wallet Payment</label>
                                             </div>
                                             <div class="form-group radio-group">
-                                                <input type="radio" id="paypal" name="paymentOption"
+                                                <input type="radio" id="Online Payment" name="paymentOption"
                                                     value="Online Payment" class="radio-group-input">
-                                                <label for="paypal" class="radio-group-label">Online Payment</label>
+                                                <label for="Online Payment" class="radio-group-label">Online Payment</label>
                                             </div>
 
                                             <div class="form-group text-center">
@@ -372,9 +372,6 @@
                     formData.append("selectedShippingAddress", selectedShippingAddress.value);
                     formData.append("paymentOption", paymentOption.value);
 
-                    alert("selectedBillingAddress " + selectedBillingAddress.value)
-                    alert("selectedShippingAddress " + selectedShippingAddress.value)
-                    alert("paymentOption " + paymentOption.value)
 
                     if (selectedCouponId) {
                         formData.append("couponId", selectedCouponId);
@@ -430,7 +427,7 @@
                             "key": "rzp_test_4iSz5duTC32yBs", // Enter the Key ID generated from the Dashboard
                             "amount": data.razorpayResponse.amount , // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                             "currency": "INR",
-                            "name": "Acme Corp",
+                            "name": "Alpha Men",
                             "description": "Test Transaction",
                             "image": "/assets/imgs/theme/favicon.svg",
                             "order_id": data.razorpayResponse.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
@@ -440,9 +437,9 @@
                                 alert(response.razorpay_signature)
                             },
                             "prefill": {
-                                "name": "Gaurav Kumar",
-                                "email": "gaurav.kumar@example.com",
-                                "contact": "9000090000"
+                                "name": "<%= user.first_name %>"+" "+"<%= user.last_name %>",
+                                "email": "<%= user.email %>",
+                                "contact": "<%= user.mobile %>"
                             },
                             "notes": {
                                 "address": "Razorpay Corporate Office"
