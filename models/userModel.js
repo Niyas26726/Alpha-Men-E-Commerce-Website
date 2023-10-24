@@ -31,6 +31,23 @@ const userModel = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'address', 
    }],
+   wallet_Balance :{
+      type: Number,
+      default: 0
+   },
+   transaction :[
+      {
+      type:{
+         type :String,
+      },
+      amount:{
+         type :Number,
+      },
+      date :{
+         type :Date,
+      },
+   },
+],
    cart: [
       {
         product: {

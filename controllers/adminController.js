@@ -767,7 +767,20 @@ const updateOrderStatus = async (req, res) => {
 
             }
            }
-       
+
+           const user = await User.findById(OrderDetails.user_id).populate('transaction');
+           const totalAmount = OrderDetails.total_amount;
+           await User.findByIdAndUpdate(OrderDetails.user_id, { $inc: { wallet_Balance: totalAmount } });
+           const newTransaction = {
+            type: 'Credit',
+            amount: OrderDetails.total_amount,
+            date: new Date(),
+          };
+
+          user.transaction.push(newTransaction);
+
+         await user.save();
+
          }
 
        if (selectedStatus == "Delivered") {
@@ -783,6 +796,7 @@ const updateOrderStatus = async (req, res) => {
          const updated = await order.findByIdAndUpdate(orderId, {
            order_status: selectedStatus,
            delivered_on: formattedDate,
+           payment_status: "Paid"
          });
          console.log("updated  ====>>> ", updated);
        } else {

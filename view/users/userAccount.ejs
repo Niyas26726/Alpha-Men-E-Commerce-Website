@@ -226,37 +226,47 @@
 
                                       <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                         aria-labelledby="track-orders-tab">
-                                        <div class="card">
+                                        <div class="card col-md-6 mb-30">
                                             <div class="card-header">
-                                                <h5 class="mb-0">Orders tracking</h5>
+                                                <h5 class="mb-0">Wallet Balance</h5>
                                             </div>
-                                            <div class="card-body contact-from-area">
-                                                <p>To track your order please enter your OrderID in the box below and
-                                                    press "Track" button. This was given to you on your receipt and in
-                                                    the confirmation email you should have received.</p>
+                                            <div class="card-body contact-form-area">
                                                 <div class="row">
-                                                    <div class="col-lg-8">
-                                                        <form class="contact-form-style mt-30 mb-50" action="#"
-                                                            method="post">
-                                                            <div class="input-style mb-20">
-                                                                <label>Order ID</label>
-                                                                <input name="order-id"
-                                                                    placeholder="Found in your order confirmation email"
-                                                                    type="text" class="square">
-                                                            </div>
-                                                            <div class="input-style mb-20">
-                                                                <label>Billing email</label>
-                                                                <input name="billing-email"
-                                                                    placeholder="Email you used during checkout"
-                                                                    type="email" class="square">
-                                                            </div>
-                                                            <button class="submit submit-auto-width"
-                                                                type="submit">Track</button>
-                                                        </form>
-                                                    </div>
+                                                    <h3>Balance: $ <%= user.wallet_Balance %></h3>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        
+                                        <table class="table table-striped mt-30">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Type</th>
+                                                    <th>Amount</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% user.transaction.reverse().forEach(transaction => { %>
+                                                    <tr>
+                                                        <td><%= transaction._id %></td>
+                                                        <td>
+                                                            <% if (transaction.type === 'Debit') { %>
+                                                                <span class="badge rounded-pill alert-danger status-badge"><%= transaction.type %></span>
+                                                            <% } else if (transaction.type === 'Credit') { %>
+                                                                <span class="badge rounded-pill alert-success status-badge"><%= transaction.type %></span>
+                                                            <% } %>
+                                                        </td>
+                                                                                                    
+                                                        <td>$<%= transaction.amount %></td>
+                                                        <td><%= transaction.date.toDateString() %></td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                        
+
                                     </div>
                                     <div class="tab-pane fade" id="address" role="tabpanel"
                                         aria-labelledby="address-tab">

@@ -275,9 +275,14 @@ const userAccount = async (req, res) => {
       console.log("userData " + userData);
 
       if (req.session.user_id) {
-         console.log("req.session.user_id is " + req.session.user_id);
+         const walletBalance = userData.wallet_Balance;
+         const transactions = userData.transaction;
+
+         console.log("req.session.user_id is " , req.session.user_id);
+         console.log("walletBalance is " , walletBalance);
+         console.log("transactions is " , transactions);
          if (err == true) {
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: "", errMessage: msg, userOrders: userOrders });
+            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: "", errMessage: msg, userOrders: userOrders, walletBalance: walletBalance, transactions: transactions});
          } else {
             console.log("else case req.session.user_id is " + req.session.user_id);
 
@@ -1048,6 +1053,9 @@ const loadHomeAfterLogin = async (req, res) => {
 const checkOutPage = async (req, res) => {
    console.log("Reached checkOutPage");
    try {
+      const err = req.query.err
+      const msg = req.query.msg
+
       const categorieData = await category.find({});
       const user_ID = req.session.user_id;
       const coupons = await coupon.find({})
@@ -1061,11 +1069,15 @@ const checkOutPage = async (req, res) => {
       console.log("coupons ===> ", coupons);
 
       if (req.session.user_id) {
+         if(err){
+         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true, msg: msg});
+         }else{
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true });
+         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true,msg:""});
+         }
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-         res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
+         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -1503,6 +1515,7 @@ const getOrderDetails = async (req, res) => {
 const processPayment = async (req, res) => {
    console.log("Reached processPayment");
    try {
+      let errMsg = false;
       const userId = req.session.user_id;
       const coupon_id = req.query.couponId;
       const categorieData = await category.find({});
@@ -1563,7 +1576,8 @@ const processPayment = async (req, res) => {
                shipping_charge: shippingFee,
                total_amount: totalAmount,
                user_id: userId,
-               payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet" ? paymentOption : "",
+               payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
+               payment_status: paymentOption == "Online Payment" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
                address: [billingAddress, shippingAddress],
             };
             
@@ -1578,10 +1592,31 @@ const processPayment = async (req, res) => {
             console.log('Order newOrder successfully:', newOrder);
 
             if (paymentOption == "Online Payment") {
-               generateRazorPay(newOrder._id , newOrder.total_amount)             
-             }
+               generateRazorPay(newOrder._id, newOrder.total_amount);
+            } else if (paymentOption == "Wallet Payment") {
+               if (userData.wallet_Balance >= newOrder.total_amount) {
+                  userData.wallet_Balance -= newOrder.total_amount;
+            
+                  const newTransaction = {
+                     type: 'Debit',
+                     amount: newOrder.total_amount,
+                     date: new Date(),
+                  };
+            
+                  userData.transaction.push(newTransaction);
+            
+               } else {
+                  errMsg = true;
+                  console.error('Insufficient wallet balance');
+               return res.redirect(`/checkOutPage?err=${true}&msg=Insufficient wallet balance`);
+
+               }
+            }
+            
          })
          .then(async savedOrder => {
+            if(errMsg == false){
+
             console.log('Order saved successfully:', savedOrder);
 
             for (const item of items) {
@@ -1615,9 +1650,9 @@ const processPayment = async (req, res) => {
                }
             }
             await userData.save();
-
-            const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
-            res.redirect('/orderSuccess');
+               const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
+               return res.redirect('/orderSuccess');
+            }
          })
          .catch(error => {
             console.error('Error saving order:', error);
