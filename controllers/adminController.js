@@ -751,7 +751,7 @@ const updateOrderStatus = async (req, res) => {
 
        if (selectedStatus === 'Request Approved') {
            const Order = await order.findById(orderId).populate('items.product_id');
-           const OrderDetails = await order.findById(orderId)
+           const OrderDetails = await order.findByIdAndUpdate(orderId, { payment_status: 'Refunded' });
            console.log("OrderDetails   ====>>>>  ",OrderDetails);
            if (!Order) {
                return res.status(404).json({ success: false, message: 'Order not found' });

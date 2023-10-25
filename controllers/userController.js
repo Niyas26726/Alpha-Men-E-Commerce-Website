@@ -1598,6 +1598,26 @@ const processPayment = async (req, res) => {
                return total + item.quantity * item.sales_price + shippingFee;
             }, 0);
 
+            if (couponData) {
+               const currentDate = new Date();
+               const couponExpiryDate = new Date(couponData.expiry_Date);
+
+               console.log("couponExpiryDate   ===>>>  ",couponExpiryDate);
+             
+               if (couponData.minimum_Amount <= totalAmount && currentDate <= couponExpiryDate) {
+                 const discountPercentage = couponData.discount_Percentage / 100;
+                 const maxDiscount = couponData.maximum_Discount;
+                 
+                 let discountAmount = totalAmount * discountPercentage;
+                 if (discountAmount > maxDiscount) {
+                   discountAmount = maxDiscount;
+                 }
+                 
+                 totalAmount -= discountAmount;
+               }
+             }
+             
+
             const orderData = {
                items,
                shipping_charge: shippingFee,
@@ -2120,6 +2140,7 @@ const cancelOrder = async (req, res) => {
 
       console.log("order ==> ", order);
       console.log("order.items ==> ", order.items);
+      console.log("order.payment_method ==> ", order.payment_method);
 
       for (const item of order.items) {
          const curr_product_id = item.product_id;
@@ -2138,9 +2159,27 @@ const cancelOrder = async (req, res) => {
          }
       }
 
+      if (order.payment_method === "Wallet Payment" || order.payment_method === "Online Payment" || order.payment_method === "Cash On Delivery") {
+         const userId = order.user_id;
+         const user = await User.findById(userId);
+       
+         if (user) {
+           user.wallet_Balance += order.total_amount;
+       
+           user.transaction.push({
+             type: "Credit",
+             amount: order.total_amount,
+             date: new Date(),
+           });
+       
+           await user.save();
+         }
+       
+      }
       const updatedOrder = await Order.findByIdAndUpdate(
          orderId,
          { order_status: "Canceled" },
+         { payment_status: "Refunded" },
          { new: true }
       );
       console.log("updatedOrder.cancel_Request ", updatedOrder.order_status);
