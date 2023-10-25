@@ -268,6 +268,7 @@
                                                     <div class="left">
                                                         <div class="coupon">
                                                             <div class="form-row row justify-content-center p-20">
+                                                                <%if(coupons.length !=0){%>
                                                                 <div class="form-group col-lg-6 text-end"
                                                                     style="background-color: white; border-radius: 0.7rem; padding: 0.5rem;">
                                                                     <select class="font-medium" id="couponSelect">
@@ -284,6 +285,12 @@
                                                                         id="applyCouponBtn" onclick="applyCoupon()"><i
                                                                             class="fi-rs-label mr-10"></i>Apply</button>
                                                                 </div>
+                                                                <%}else{%>
+                                                                    <div class="text-center">
+                                                                        <p style="color: red;">No coupons available</p>
+                                                                    </div>
+                                                                    <%}%>
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -410,11 +417,20 @@
                         const paymentOption = document.querySelector("input[name='paymentOption']:checked");
                         const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
                         const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
-
-                        const data = {
+                        let data = {};
+                        data = {
                             paymentOption: paymentOption.value,
                             selectedBillingAddress: selectedBillingAddress.value,
                             selectedShippingAddress: selectedShippingAddress.value,
+                        }
+
+                        if("<%=largestShippingFee %>"){
+                            data = {
+                            paymentOption: paymentOption.value,
+                            selectedBillingAddress: selectedBillingAddress.value,
+                            selectedShippingAddress: selectedShippingAddress.value,
+                            largestShippingFee: "<%=largestShippingFee %>",
+                        }  
                         }
 
 
@@ -424,6 +440,7 @@
 
                         if (paymentOption.value == "Online Payment") {
                             console.log("Online Payment");
+                            console.log("Largest Shipping Fee:", "<%=largestShippingFee %>");
 
                             fetch(processOnlinePaymentAction, {
                                 method: 'POST',
@@ -442,6 +459,13 @@
                                 })
                                 .then(data => {
                                     console.log("Parsed response data:", data.message);
+                                    
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Oops...",
+                                        text: data.err,
+                                    });
+
                                     console.log("data.razorpayResponse.receipt:", data.razorpayResponse.receipt);
                                     console.log("data.razorpayResponse.receipt:", typeof data.razorpayResponse.receipt);
                                     console.log("data.razorpayResponse.amount:", data.razorpayResponse.amount);

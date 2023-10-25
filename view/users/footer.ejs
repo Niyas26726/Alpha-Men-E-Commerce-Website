@@ -215,6 +215,11 @@ $(document).ready(function() {
                 console.log("msg  ===>> ",msg);
             }
             if(product_Stock-1 >= quantity){
+                Swal.fire({
+            icon: "success",
+            title: "success",
+            text: "Product successfully added to cart.",
+        });
                 addToCartFromHomeWithData(productId);
             }else{
                 Swal.fire({
@@ -265,18 +270,19 @@ function toggleWishlist(productId) {
         data: JSON.stringify({ productId }),
         success: function (data) {
             if (data.status) {
-                // Toggle the 'in-wishlist' class to change the heart color
                 const wishlistBtn = $(`#wishlist-link-${productId}`);
                 wishlistBtn.find('i').toggleClass('in-wishlist');
                 
-                // Toggle the aria-label attribute
                 if (wishlistBtn.attr('aria-label') === 'Add To Wishlist') {
                     wishlistBtn.attr('aria-label', 'Remove from Wishlist');
+                    wishlistBtn.css('background-color', '#088178'); // Set the background color to red
+
                 } else {
                     wishlistBtn.attr('aria-label', 'Add To Wishlist');
+                    wishlistBtn.css('background-color', ''); // Remove the background color (reset to default)
+
                 }
                 
-                // Fetch and update the wishlist count
                 updateWishlistCount();
             } else {
                 window.location.href = `/login?err=${true}&msg=Login first to add to Wishlist`

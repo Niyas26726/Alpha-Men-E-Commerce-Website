@@ -59,16 +59,39 @@
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
                                                 <span> Brands: <a href="shop-grid-right.html">
-                                                        <%=product.product_name%>
+                                                        <%=product.brand_name%>
                                                     </a></span>
                                             </div>
-                                            <div class="product-rate-cover text-end">
+                                            <!-- <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
                                                     <div class="product-rating" style="width:90%">
                                                     </div>
                                                 </div>
                                                 <span class="font-small ml-5 text-muted"> (<%=noOfReviews%> reviews)</span>
-                                            </div>
+                                            </div> -->
+
+                                            <% if (noOfReviews > 0) { %>
+                                                <% let totalRating = 0; %>
+                                                <% product.reviews.forEach(review => { %>
+                                                  <% totalRating += review.rating; %>
+                                                <% }); %>
+                                                <% const averageRating = totalRating / noOfReviews; %>
+                                                <div class="product-rate-cover text-end">
+                                                  <div class="product-rate d-inline-block">
+                                                    <div class="product-rating" style="width: <%=(averageRating * 20)%>%;"></div>
+                                                  </div>
+                                                  <span class="font-small ml-5 text-muted"> (<%= noOfReviews %> reviews)</span>
+                                                </div>
+                                              <% } else { %>
+                                                <div class="product-rate-cover text-end">
+                                                  <div class="product-rate d-inline-block">
+                                                    <div class="product-rating" style="width: 0%;"></div>
+                                                  </div>
+                                                  <span class="font-small ml-5 text-muted"> (0 reviews)</span>
+                                                </div>
+                                              <% } %>
+                                              
+
                                         </div>
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
@@ -95,18 +118,6 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <!-- <div class="attr-detail attr-color mb-15">
-                                            <strong class="mr-10">Color</strong>
-                                            <ul class="list-filter color-filter">
-                                                <li><a href="#" data-color="Red"><span class="product-color-red"></span></a></li>
-                                                <li><a href="#" data-color="Yellow"><span class="product-color-yellow"></span></a></li>
-                                                <li class="active"><a href="#" data-color="White"><span class="product-color-white"></span></a></li>
-                                                <li><a href="#" data-color="Orange"><span class="product-color-orange"></span></a></li>
-                                                <li><a href="#" data-color="Cyan"><span class="product-color-cyan"></span></a></li>
-                                                <li><a href="#" data-color="Green"><span class="product-color-green"></span></a></li>
-                                                <li><a href="#" data-color="Purple"><span class="product-color-purple"></span></a></li>
-                                            </ul>
-                                        </div> -->
                                         <div class="attr-detail attr-size">
                                             <strong class="mr-10">Size</strong>
                                             <ul class="list-filter size-filter font-small">
@@ -158,7 +169,9 @@
                                                                 onclick="addToCart('<%= product._id %>','<%= product.stock %>')">
                                                                 Add to cart</btton>
                                                             <% } else { %>
-                                                                <span class="out-of-stock">Out of Stock</span>
+                                                                <div class="mt-10" style="color: red;">
+                                                                    <span class="out-of-stock">Out of Stock</span>
+                                                                </div>
                                                                 <% } %>
                                                     </div>
 
@@ -175,14 +188,14 @@
 
                                                             <% if (user && user.wishlist.includes(product._id)) { %>
                                                                 <a id="wishlist-link-<%= product._id %>"
-                                                                    class="action-btn active" href="#"
+                                                                    class="action-btn hover-up active"
                                                                     onclick="toggleWishlist('<%= product._id %>')"
-                                                                    aria-label="Remove from Wishlist">
+                                                                    aria-label="Remove from Wishlist" style="background-color: #088178;">
                                                                     <i class="fi-rs-heart"></i>
                                                                 </a>
                                                                 <% } else { %>
                                                                     <a id="wishlist-link-<%= product._id %>"
-                                                                        class="action-btn" href="#"
+                                                                        class="action-btn hover-up"
                                                                         onclick="toggleWishlist('<%= product._id %>')"
                                                                         aria-label="Add To Wishlist">
                                                                         <i class="fi-rs-heart"></i>
@@ -190,7 +203,6 @@
                                                                     <% } %>
 
 
-                                                                        <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                             </div>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
@@ -207,155 +219,12 @@
                             </div>
                             <div class="tab-style3">
                                 <ul class="nav nav-tabs text-uppercase">
-                                    <!-- <li class="nav-item">
-                                        <a class="nav-link active" id="Description-tab" data-bs-toggle="tab"
-                                            href="#Description">Description</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab"
-                                            href="#Additional-info">Additional info</a>
-                                    </li> -->
                                     <li class="nav-item">
                                         <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab"
                                             href="#Reviews">Reviews (<%=noOfReviews%>)</a>
                                     </li>
                                 </ul>
                                 <div class="tab-content shop_info_tab entry-main-content">
-                                    <!-- <div class="tab-pane fade show active" id="Description">
-                                        <div class="">
-                                            <p>Uninhibited carnally hired played in whimpered dear gorilla koala
-                                                depending and much yikes off far quetzal goodness and from for grimaced
-                                                goodness unaccountably and meadowlark near unblushingly crucial scallop
-                                                tightly neurotic hungrily some and dear furiously this apart.</p>
-                                            <p>Spluttered narrowly yikes left moth in yikes bowed this that grizzly much
-                                                hello on spoon-fed that alas rethought much decently richly and wow
-                                                against the frequent fluidly at formidable acceptably flapped
-                                                besides and much circa far over the bucolically hey precarious goldfinch
-                                                mastodon goodness gnashed a jellyfish and one however because.
-                                            </p>
-                                            <ul class="product-more-infor mt-30">
-                                                <li><span>Type Of Packing</span> Bottle</li>
-                                                <li><span>Color</span> Green, Pink, Powder Blue, Purple</li>
-                                                <li><span>Quantity Per Case</span> 100ml</li>
-                                                <li><span>Ethyl Alcohol</span> 70%</li>
-                                                <li><span>Piece In One</span> Carton</li>
-                                            </ul>
-                                            <hr class="wp-block-separator is-style-dots">
-                                            <p>Laconic overheard dear woodchuck wow this outrageously taut beaver hey
-                                                hello far meadowlark imitatively egregiously hugged that yikes minimally
-                                                unanimous pouted flirtatiously as beaver beheld above forward
-                                                energetic across this jeepers beneficently cockily less a the raucously
-                                                that magic upheld far so the this where crud then below after jeez
-                                                enchanting drunkenly more much wow callously irrespective limpet.</p>
-                                            <h4 class="mt-30">Packaging & Delivery</h4>
-                                            <hr class="wp-block-separator is-style-wide">
-                                            <p>Less lion goodness that euphemistically robin expeditiously bluebird
-                                                smugly scratched far while thus cackled sheepishly rigid after due one
-                                                assenting regarding censorious while occasional or this more crane
-                                                went more as this less much amid overhung anathematic because much held
-                                                one exuberantly sheep goodness so where rat wry well concomitantly.
-                                            </p>
-                                            <p>Scallop or far crud plain remarkably far by thus far iguana lewd
-                                                precociously and and less rattlesnake contrary caustic wow this near
-                                                alas and next and pled the yikes articulate about as less cackled
-                                                dalmatian
-                                                in much less well jeering for the thanks blindly sentimental whimpered
-                                                less across objectively fanciful grimaced wildly some wow and rose
-                                                jeepers outgrew lugubrious luridly irrationally attractively
-                                                dachshund.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="Additional-info">
-                                        <table class="font-md">
-                                            <tbody>
-                                                <tr class="stand-up">
-                                                    <th>Stand Up</th>
-                                                    <td>
-                                                        <p>35″L x 24″W x 37-45″H(front to back wheel)</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="folded-wo-wheels">
-                                                    <th>Folded (w/o wheels)</th>
-                                                    <td>
-                                                        <p>32.5″L x 18.5″W x 16.5″H</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="folded-w-wheels">
-                                                    <th>Folded (w/ wheels)</th>
-                                                    <td>
-                                                        <p>32.5″L x 24″W x 18.5″H</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="door-pass-through">
-                                                    <th>Door Pass Through</th>
-                                                    <td>
-                                                        <p>24</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="frame">
-                                                    <th>Frame</th>
-                                                    <td>
-                                                        <p>Aluminum</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="weight-wo-wheels">
-                                                    <th>Weight (w/o wheels)</th>
-                                                    <td>
-                                                        <p>20 LBS</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="weight-capacity">
-                                                    <th>Weight Capacity</th>
-                                                    <td>
-                                                        <p>60 LBS</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="width">
-                                                    <th>Width</th>
-                                                    <td>
-                                                        <p>24″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="handle-height-ground-to-handle">
-                                                    <th>Handle height (ground to handle)</th>
-                                                    <td>
-                                                        <p>37-45″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="wheels">
-                                                    <th>Wheels</th>
-                                                    <td>
-                                                        <p>12″ air / wide track slick tread</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="seat-back-height">
-                                                    <th>Seat back height</th>
-                                                    <td>
-                                                        <p>21.5″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="head-room-inside-canopy">
-                                                    <th>Head room (inside canopy)</th>
-                                                    <td>
-                                                        <p>25″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="pa_color">
-                                                    <th>Color</th>
-                                                    <td>
-                                                        <p>Black, Blue, Red, White</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="pa_size">
-                                                    <th>Size</th>
-                                                    <td>
-                                                        <p>M, S</p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div> -->
                                     <div class="tab-pane fade" id="Reviews">
                                         <!--Comments-->
                                         <div class="comments-area">
@@ -400,7 +269,7 @@
                                                         <%}%>
                                                 </div>
                                                 
-                                                <div class="col-lg-4">
+                                                <!-- <div class="col-lg-4">
                                                     <h4 class="mb-30">Customer reviews</h4>
                                                     <div class="d-flex mb-30">
                                                         <div class="product-rate d-inline-block mr-15">
@@ -439,9 +308,9 @@
                                                             aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%
                                                         </div>
                                                     </div>
-                                                    <!-- <a href="#" class="font-xs text-muted">How are ratings
-                                                        calculated?</a> -->
-                                                </div>
+                                                    <a href="#" class="font-xs text-muted">How are ratings
+                                                        calculated?</a>
+                                                </div> -->
                                             </div>
                                         </div>
                                         <!--comment form-->
@@ -810,6 +679,13 @@
         })
         .then((response) => {
             if (response.ok) {
+                Swal.fire({
+            icon: "success",
+            title: "success",
+            text: "Product successfully added to cart.",
+        });
+        const qtyValElement = document.getElementById(`qty-val_${productId}`);
+                        qtyValElement.innerHTML = 1;
                 updateCartCount();
                 // alert('Product added to cart successfully!');
             } else {
@@ -834,8 +710,6 @@ function validateComment(productId) {
     if (isValid === true) {
         console.log("hi");
         console.log("Reached inside the if");
-        alert("hi");
-
         fetch(`/addReview?productId=${productId}`, {
             method: 'POST',
             headers: {
@@ -848,18 +722,15 @@ function validateComment(productId) {
                 console.log("data  ===>>>  ",data);
                 if (data.errMsg) {
                     console.log("data.errMsg  ===>>>  ",data.errMsg);
-                    // Show a SweetAlert with the error message
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: data.errMsg,
                     });
                 } else {
-                    // Comment added successfully; reload the page or perform other actions
-                    alert("Comment added successfully.");
                     console.log("Comment added successfully.");
                     console.log(data);
-                    window.location.reload(); // You can also use other methods to reload the page
+                    window.location.reload();
                 }
             })
             .catch(error => {

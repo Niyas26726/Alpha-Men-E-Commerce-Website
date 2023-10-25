@@ -1069,7 +1069,7 @@ const checkOutPage = async (req, res) => {
 
       const categorieData = await category.find({});
       const user_ID = req.session.user_id;
-      const coupons = await coupon.find({})
+      const coupons = await coupon.find({valid: true})
       const userData = await User.findById(user_ID)
          .populate({
             path: 'cart.product',
@@ -1707,12 +1707,14 @@ const processOnlinePayment = async (req, res) => {
       const selectedBillingAddress = req.body.selectedBillingAddress;
       const selectedShippingAddress = req.body.selectedShippingAddress;
       const paymentOption = req.body.paymentOption;
+      const largestShippingFee = req.body.largestShippingFee;
 
-      console.log("selectedBillingAddress " + selectedBillingAddress);
-      console.log("selectedShippingAddress " + selectedShippingAddress);
-      console.log("paymentOption " + paymentOption);
-      console.log("coupon_id " + coupon_id);
-      console.log("couponData " + couponData);
+      console.log("largestShippingFee " , largestShippingFee);
+      console.log("selectedBillingAddress " , selectedBillingAddress);
+      console.log("selectedShippingAddress " , selectedShippingAddress);
+      console.log("paymentOption " , paymentOption);
+      console.log("coupon_id " , coupon_id);
+      console.log("couponData " , couponData);
 
       const items = [];
 
@@ -1740,18 +1742,18 @@ const processOnlinePayment = async (req, res) => {
             );
 
 
-            const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
-               return totalShippingFee + (cartItem.product.shipping_fee || 0);
-            }, 0);
+            const shippingFee = 1*largestShippingFee;
             console.log("shippingFee " + shippingFee);
             const totalAmount = items.reduce((total, item) => {
-               return total + item.quantity * item.sales_price + shippingFee;
+               return total + item.quantity * item.sales_price;
             }, 0);
+            const finalAmount = totalAmount + shippingFee;
+            console.log("finalAmount  ===>>>  ",finalAmount);
 
             const orderData = {
                items,
                shipping_charge: shippingFee,
-               total_amount: totalAmount,
+               total_amount: finalAmount,
                user_id: userId,
                payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
                payment_status: paymentOption == "Online Payment" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
@@ -1779,7 +1781,7 @@ const processOnlinePayment = async (req, res) => {
                   })
                   .catch(error => {
                      console.error('RazorPay error:', error);
-                     res.json({ message: 'Payment processing failed' });
+                     res.json({ err: 'Payment processing failed' });
                   });
             }
          })

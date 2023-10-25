@@ -136,7 +136,7 @@
                         </div> -->
                     </div>
                     <div class="col-lg-9">
-                        <div class="tab-header">
+                        <!-- <div class="tab-header">
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab"
@@ -153,9 +153,9 @@
                                         data-bs-target="#tab-three" type="button" role="tab" aria-controls="tab-three"
                                         aria-selected="false">New added</button>
                                 </li>
-                            </ul>
+                            </ul> -->
                             <!-- <a href="#" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a> -->
-                        </div>
+                        <!-- </div> -->
                         <!--End nav-tabs-->
                         <div class="tab-content wow fadeIn animated" id="myTabContent">
                             <div class="tab-pane fade show active" id="tab-one" role="tabpanel"
@@ -182,7 +182,6 @@
                                                                 <% if (user.wishlist && user.wishlist.includes(product._id)) { %>
                                                                     <a id="wishlist-link-<%= product._id %>"
                                                                        class="action-btn hover-up in-wishlist"
-                                                                       href="#"
                                                                        onclick="toggleWishlist('<%= product._id %>')"
                                                                        aria-label="Remove from Wishlist">
                                                                         <i class="fi-rs-heart"></i>
@@ -190,7 +189,6 @@
                                                                 <% } else { %>
                                                                     <a id="wishlist-link-<%= product._id %>"
                                                                        class="action-btn hover-up"
-                                                                       href="#"
                                                                        onclick="toggleWishlist('<%= product._id %>')"
                                                                        aria-label="Add To Wishlist">
                                                                         <i class="fi-rs-heart"></i>
@@ -199,7 +197,6 @@
                                                             <% } else { %>
                                                                 <a id="wishlist-link-<%= product._id %>"
                                                                    class="action-btn hover-up"
-                                                                   href="#"
                                                                    onclick="toggleWishlist('<%= product._id %>')"
                                                                    aria-label="Add To Wishlist">
                                                                     <i class="fi-rs-heart"></i>
@@ -223,12 +220,31 @@
                                                         <h2><a href="shop-product-right.html">
                                                                 <%= product.product_name %>
                                                             </a></h2>
-                                                        <div class="rating-result" title="<%= product.rating %>">
-                                                            <span>
-                                                                <span>
-                                                                    <%= product.rating %>
-                                                                </span>
-                                                            </span>
+                                                        <div class="rating">
+                                                            <% const productReviews = product.reviews || []; %>
+                                                            <% const numberOfReviews = productReviews.length; %>
+                                                        
+                                                            <% if (numberOfReviews > 0) { %>
+                                                                <% let noOfReviews = numberOfReviews; %>
+                                                                <% let totalRating = 0; %>
+                                                                <% product.reviews.forEach(review => { %>
+                                                                  <% totalRating += review.rating; %>
+                                                                <% }); %>
+                                                                <% const averageRating = totalRating / noOfReviews; %>
+                                                                <div class="product-rate-cover ">
+                                                                  <div class="product-rate d-inline-block">
+                                                                    <div class="product-rating" style="width: <%=(averageRating * 20)%>%;"></div>
+                                                                  </div>
+                                                                  <span class="font-small ml-5 text-muted"> (<%= noOfReviews %> reviews)</span>
+                                                                </div>
+                                                              <% } else { %>
+                                                                <div class="product-rate-cover ">
+                                                                  <div class="product-rate d-inline-block">
+                                                                    <div class="product-rating" style="width: 0%;"></div>
+                                                                  </div>
+                                                                  <span class="font-small ml-5 text-muted"> (0 reviews)</span>
+                                                                </div>
+                                                              <% } %>
                                                         </div>
                                                         <div class="product-price">
                                                             <span>$<%= product.sales_price %> </span>
@@ -243,7 +259,7 @@
                                                                         onclick="getLatestData('<%= product._id %>')"><i class="fi-rs-shopping-bag-add"></i></a>
                                                                      
                                                                 <% } else { %>
-                                                                    <span class="out-of-stock">Out of Stock</span>
+                                                                    <span class="out-of-stock" style="color: red;">Out of Stock</span>
                                                                     <% } %>
                                                         </div>
                                                     </div>

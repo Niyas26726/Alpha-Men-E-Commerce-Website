@@ -238,7 +238,7 @@
                                         </div>
 
                                         
-                                        <table class="table table-striped mt-30">
+                                        <table class="table table-striped mt-30" id="wallet">
                                             <thead>
                                                 <tr>
                                                     <th>ID</th>
@@ -612,4 +612,9 @@ function submitReturnReason(orderId, returnReason) {
         new DataTable('#example');
 
     })
+    $(document).ready(function () {
+        new DataTable('#wallet');
+
+    })
+
        </script>
