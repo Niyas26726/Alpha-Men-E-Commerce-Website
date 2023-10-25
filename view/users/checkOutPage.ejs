@@ -79,254 +79,276 @@
     <main class="main">
         <% if (msg) { %>
             <script>
-               Swal.fire({
-                  icon: 'error',
-                  title: 'Payment Error',
-                  text: '<%= msg %>',
-               });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Error',
+                    text: '<%= msg %>',
+                });
             </script>
-         <% } %>
-            <section class="pt-150 pb-150">
-            <div class="container">
-                <form id="checkoutForm" action="/processPayment" method="post">
-                    <div class="row">
-                        <div class="col-lg-10 m-auto">
+            <% } %>
+                <section class="pt-150 pb-150">
+                    <div class="container">
+                        <form id="checkoutForm" action="/processPayment" method="post">
                             <div class="row">
-                                <div class="col-lg-5">
-                                    <div class="text-center" style="margin-bottom: 30px;">
-                                        <a class="btn btn-primary" href="/addNewAddress">+ Add New Address</a>
-                                    </div>
-                                    <div
-                                        class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
-                                        <div class="padding_eight_all bg-white">
-                                            <div class="heading_s1 text-center">
-                                                <h3 class="mb-30">Choose Your Address</h3>
+                                <div class="col-lg-10 m-auto">
+                                    <div class="row">
+                                        <div class="col-lg-5">
+                                            <div class="text-center" style="margin-bottom: 30px;">
+                                                <a class="btn btn-primary" href="/addNewAddress">+ Add New Address</a>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="address-section">
-                                                        <div class="radio-group">
-                                                            <div class="heading_s1 text-center">
-                                                                <h4 class="mb-30">Billing Address</h4>
-                                                            </div>
-
-                                                            <% user.addresses.forEach(address=> { %>
-                                                                <% if (!address.blocked &&
-                                                                    address.type==='Billing Address' ) { %>
-                                                                    <div class="form-group">
-                                                                        <input type="radio"
-                                                                            name="selectedBillingAddress"
-                                                                            value="<%= address._id %>"
-                                                                            id="billingAddress_<%= address._id %>">
-                                                                        <label for="billingAddress_<%= address._id %>">
-                                                                            <%= address.type %><br>
-                                                                                <%= address.name %><br>
-                                                                                    <%= address.city_town_district %>,
-                                                                                        <%= address.state %>
-                                                                                            <%= address.pincode %><br>
-                                                                                                <%= address.address %>
-                                                                                                    <br>
-                                                                                                    Landmark: <%=
-                                                                                                        address.landmark
-                                                                                                        %><br>
-                                                                                                        Mobile: <%=
-                                                                                                            address.mobile
-                                                                                                            %><br>
-                                                                                                            Alternate
-                                                                                                            Mobile: <%=
-                                                                                                                address.alt_mobile
-                                                                                                                %>
-                                                                        </label>
+                                            <div
+                                                class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
+                                                <div class="padding_eight_all bg-white">
+                                                    <div class="heading_s1 text-center">
+                                                        <h3 class="mb-30">Choose Your Address</h3>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="address-section">
+                                                                <div class="radio-group">
+                                                                    <div class="heading_s1 text-center">
+                                                                        <h4 class="mb-30">Billing Address</h4>
                                                                     </div>
-                                                                    <% } %>
-                                                                        <% }); %>
+
+                                                                    <% user.addresses.forEach(address=> { %>
+                                                                        <% if (!address.blocked &&
+                                                                            address.type==='Billing Address' ) { %>
+                                                                            <div class="form-group">
+                                                                                <input type="radio"
+                                                                                    name="selectedBillingAddress"
+                                                                                    value="<%= address._id %>"
+                                                                                    id="billingAddress_<%= address._id %>">
+                                                                                <label
+                                                                                    for="billingAddress_<%= address._id %>">
+                                                                                    <%= address.type %><br>
+                                                                                        <%= address.name %><br>
+                                                                                            <%= address.city_town_district
+                                                                                                %>,
+                                                                                                <%= address.state %>
+                                                                                                    <%= address.pincode
+                                                                                                        %><br>
+                                                                                                        <%= address.address
+                                                                                                            %>
+                                                                                                            <br>
+                                                                                                            Landmark:
+                                                                                                            <%= address.landmark
+                                                                                                                %><br>
+                                                                                                                Mobile:
+                                                                                                                <%= address.mobile
+                                                                                                                    %>
+                                                                                                                    <br>
+                                                                                                                    Alternate
+                                                                                                                    Mobile:
+                                                                                                                    <%= address.alt_mobile
+                                                                                                                        %>
+                                                                                </label>
+                                                                            </div>
+                                                                            <% } %>
+                                                                                <% }); %>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="address-section">
+                                                                <div class="radio-group">
+                                                                    <div class="heading_s1 text-center">
+                                                                        <h4 class="mb-30">Shipping Address</h4>
+                                                                    </div>
+                                                                    <% user.addresses.forEach(address=> { %>
+                                                                        <% if (!address.blocked &&
+                                                                            address.type==='Shipping Address' ) { %>
+                                                                            <div class="form-group">
+                                                                                <input type="radio"
+                                                                                    name="selectedShippingAddress"
+                                                                                    value="<%= address._id %>"
+                                                                                    id="shippingAddress_<%= address._id %>">
+                                                                                <label
+                                                                                    for="shippingAddress_<%= address._id %>">
+                                                                                    <%= address.type %><br>
+                                                                                        <%= address.name %><br>
+                                                                                            <%= address.city_town_district
+                                                                                                %>,
+                                                                                                <%= address.state %>
+                                                                                                    <%= address.pincode
+                                                                                                        %><br>
+                                                                                                        <%= address.address
+                                                                                                            %>
+                                                                                                            <br>
+                                                                                                            Landmark:
+                                                                                                            <%= address.landmark
+                                                                                                                %><br>
+                                                                                                                Mobile:
+                                                                                                                <%= address.mobile
+                                                                                                                    %>
+                                                                                                                    <br>
+                                                                                                                    Alternate
+                                                                                                                    Mobile:
+                                                                                                                    <%= address.alt_mobile
+                                                                                                                        %>
+                                                                                </label>
+                                                                            </div>
+                                                                            <% } %>
+                                                                                <% }); %>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="address-section">
-                                                        <div class="radio-group">
-                                                            <div class="heading_s1 text-center">
-                                                                <h4 class="mb-30">Shipping Address</h4>
-                                                            </div>
-                                                            <% user.addresses.forEach(address=> { %>
-                                                                <% if (!address.blocked &&
-                                                                    address.type==='Shipping Address' ) { %>
-                                                                    <div class="form-group">
-                                                                        <input type="radio"
-                                                                            name="selectedShippingAddress"
-                                                                            value="<%= address._id %>"
-                                                                            id="shippingAddress_<%= address._id %>">
-                                                                        <label for="shippingAddress_<%= address._id %>">
-                                                                            <%= address.type %><br>
-                                                                                <%= address.name %><br>
-                                                                                    <%= address.city_town_district %>,
-                                                                                        <%= address.state %>
-                                                                                            <%= address.pincode %><br>
-                                                                                                <%= address.address %>
-                                                                                                    <br>
-                                                                                                    Landmark: <%=
-                                                                                                        address.landmark
-                                                                                                        %><br>
-                                                                                                        Mobile: <%=
-                                                                                                            address.mobile
-                                                                                                            %><br>
-                                                                                                            Alternate
-                                                                                                            Mobile: <%=
-                                                                                                                address.alt_mobile
-                                                                                                                %>
-                                                                        </label>
-                                                                    </div>
-                                                                    <% } %>
-                                                                        <% }); %>
-                                                        </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-1"></div>
+                                        <div class="col-lg-6">
+                                            <div class="login_wrap widget-taber-content p-30 background-white border-radius-5"
+                                                style="width: auto;">
+                                                <div class="padding_eight_all bg-white">
+                                                    <div class="heading_s1 text-center">
+                                                        <h3 class="mb-30">Order Details</h3>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-1"></div>
-                                <div class="col-lg-6">
-                                    <div class="login_wrap widget-taber-content p-30 background-white border-radius-5"
-                                        style="width: auto;">
-                                        <div class="padding_eight_all bg-white">
-                                            <div class="heading_s1 text-center">
-                                                <h3 class="mb-30">Order Details</h3>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Product Image</th>
-                                                            <th>Product Name</th>
-                                                            <th>Product Description</th>
-                                                            <th>Quantity</th>
-                                                            <th>Subtotal</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <% user.cart.forEach(cartItem=> { %>
-                                                            <tr class="cart-item">
-                                                                <td class="product-image">
-                                                                    <img src="/admin/productImages/<%= cartItem.product.images[0] %>"
-                                                                        alt="Product Image">
-                                                                </td>
-                                                                <td class="product-name">
-                                                                    <%= cartItem.product.product_name %>
-                                                                </td>
-                                                                <td class="product-description">
-                                                                    <%= cartItem.product.description %>
-                                                                </td>
-                                                                <td class="product-quantity text-center">
-                                                                    <%= cartItem.quantity %>
-                                                                </td>
-                                                                <td class="product-subtotal">$<%= (cartItem.quantity *
-                                                                        cartItem.product.sales_price).toFixed(2) %>
-                                                                </td>
-                                                            </tr>
-                                                            <% }); %>
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="4" class="text-right"><strong>Grand
-                                                                    Total:</strong></td>
-                                                            <td id="grandTotal" class="text-end"><strong>$0.00</strong>
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-30 mt-50 p-15"
-                                        style="background-color: #aeccc5; border: 2px; border-radius: 1rem;  border-color: black;">
-                                        <div class="heading_s1 mb-3 p-10 text-center">
-                                            <h4><u>Apply Coupon</u></h4>
-                                        </div>
-                                        <div class="total-amount">
-                                            <div class="left">
-                                                <div class="coupon">
-                                                    <div class="form-row row justify-content-center p-20">
-                                                        <div class="form-group col-lg-6 text-end"
-                                                            style="background-color: white; border-radius: 0.7rem; padding: 0.5rem;">
-                                                            <select class="font-medium" id="couponSelect">
-                                                                <% coupons.forEach(coupon=> { %>
-                                                                    <option data-coupon-id="<%= coupon._id %>"
-                                                                        value="<%= coupon._id %>">
-                                                                        <%= coupon.coupon_id %>
-                                                                    </option>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Product Image</th>
+                                                                    <th>Product Name</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Subtotal</th>
+                                                                    <th>Shipping Fee</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <% user.cart.forEach(cartItem=> { %>
+                                                                    <tr class="cart-item">
+                                                                        <td class="product-image">
+                                                                            <img src="/admin/productImages/<%= cartItem.product.images[0] %>"
+                                                                                alt="Product Image">
+                                                                        </td>
+                                                                        <td class="product-name">
+                                                                            <%= cartItem.product.product_name %>
+                                                                        </td>
+                                                                        <td class="product-quantity text-center">
+                                                                            <%= cartItem.quantity %>
+                                                                        </td>
+                                                                        <td class="product-subtotal">$<%=
+                                                                                (cartItem.quantity *
+                                                                                cartItem.product.sales_price).toFixed(2)
+                                                                                %>
+                                                                        </td>
+                                                                        <td class="product-quantity text-center">
+                                                                            $<%= cartItem.product.shipping_fee %>
+                                                                        </td>
+                                                                    </tr>
                                                                     <% }); %>
-                                                            </select>
+                                                                <tfoot>
+                                                                    <tr>
+                                                                        <td colspan="4" class="text-right"><strong>Grand
+                                                                                Total:</strong></td>
+                                                                        <td id="grandTotal" class="text-end">
+                                                                            <strong>$0.00</strong>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tfoot>
+                                                            </table>
+                                                    </div>
+                                                    <div>
+                                                        <p colspan="4" class="text-end"><strong>shipping Fee:</strong></p>
+                                                        <p id="shipping" class="text-end">
+                                                            <strong>$<%=largestShippingFee%></strong>
+                                                        </p>
                                                         </div>
-                                                        <div class="form-group col-lg-3 text-center">
-                                                            <button type="button" class="btn btn-sm" id="applyCouponBtn"
-                                                                onclick="applyCoupon()"><i
-                                                                    class="fi-rs-label mr-10"></i>Apply</button>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-30 mt-50 p-15"
+                                                style="background-color: #aeccc5; border: 2px; border-radius: 1rem;  border-color: black;">
+                                                <div class="heading_s1 mb-3 p-10 text-center">
+                                                    <h4><u>Apply Coupon</u></h4>
+                                                </div>
+                                                <div class="total-amount">
+                                                    <div class="left">
+                                                        <div class="coupon">
+                                                            <div class="form-row row justify-content-center p-20">
+                                                                <div class="form-group col-lg-6 text-end"
+                                                                    style="background-color: white; border-radius: 0.7rem; padding: 0.5rem;">
+                                                                    <select class="font-medium" id="couponSelect">
+                                                                        <% coupons.forEach(coupon=> { %>
+                                                                            <option data-coupon-id="<%= coupon._id %>"
+                                                                                value="<%= coupon._id %>">
+                                                                                <%= coupon.coupon_id %>
+                                                                            </option>
+                                                                            <% }); %>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="form-group col-lg-3 text-center">
+                                                                    <button type="button" class="btn btn-sm"
+                                                                        id="applyCouponBtn" onclick="applyCoupon()"><i
+                                                                            class="fi-rs-label mr-10"></i>Apply</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div id="couponDetails" style="display: none;">
+                                                    <div class="row justify-content-center p-20">
+                                                        <div class="col-lg-6 text-end">
+                                                            <p>Maximum Discount: <span id="maxDiscount"></span></p>
+                                                            <p>Discount Percentage: <span
+                                                                    id="discountPercentage"></span>%</p>
+                                                            <p>Maximum use : <span id="limit"></span></p>
+                                                        </div>
+                                                        <div class="col-lg-3 text-center">
+                                                            <button type="button" class="btn btn-sm btn-danger"
+                                                                id="cancelCouponBtn"
+                                                                onclick="cancelCoupon()">Cancel</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Hidden div for displaying coupon details -->
-                                        <div id="couponDetails" style="display: none;">
-                                            <div class="row justify-content-center p-20">
-                                                <div class="col-lg-6 text-end">
-                                                    <p>Maximum Discount: <span id="maxDiscount"></span></p>
-                                                    <p>Discount Percentage: <span id="discountPercentage"></span>%</p>
-                                                    <p>Maximum use : <span id="limit"></span></p>
+
+
+                                            <div
+                                                class="login_wrap widget-taber-content p-30 background-white border-radius-5 mt-40">
+                                                <div class="padding_eight_all bg-white">
+                                                    <div class="heading_s1 text-center">
+                                                        <h3 class="mb-30">Payment</h3>
+                                                    </div>
+                                                    <div class="form-group radio-group">
+                                                        <input type="radio" id="Cash On Delivery" name="paymentOption"
+                                                            value="Cash On Delivery" class="radio-group-input">
+                                                        <label for="Cash On Delivery" class="radio-group-label">Cash On
+                                                            Delivery</label>
+                                                    </div>
+                                                    <div class="form-group radio-group">
+                                                        <input type="radio" id="Wallet Payment" name="paymentOption"
+                                                            value="Wallet Payment" class="radio-group-input">
+                                                        <label for="Wallet Payment" class="radio-group-label">Wallet
+                                                            Payment</label>
+                                                    </div>
+                                                    <div class="form-group radio-group">
+                                                        <input type="radio" id="Online Payment" name="paymentOption"
+                                                            value="Online Payment" class="radio-group-input">
+                                                        <label for="Online Payment" class="radio-group-label">Online
+                                                            Payment</label>
+                                                    </div>
+
+                                                    <div class="form-group text-center">
+                                                        <button type="button" class="btn btn-primary"
+                                                            id="proceedToPayment">Proceed to Payment</button>
+                                                    </div>
                                                 </div>
-                                                <div class="col-lg-3 text-center">
-                                                    <button type="button" class="btn btn-sm btn-danger"
-                                                        id="cancelCouponBtn" onclick="cancelCoupon()">Cancel</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-
-                                    <div
-                                        class="login_wrap widget-taber-content p-30 background-white border-radius-5 mt-40">
-                                        <div class="padding_eight_all bg-white">
-                                            <div class="heading_s1 text-center">
-                                                <h3 class="mb-30">Payment</h3>
-                                            </div>
-                                            <div class="form-group radio-group">
-                                                <input type="radio" id="creditCard" name="paymentOption"
-                                                    value="Cash On Delivery" class="radio-group-input">
-                                                <label for="Cash On Delivery" class="radio-group-label">Cash On
-                                                    Delivery</label>
-                                            </div>
-                                            <div class="form-group radio-group">
-                                                <input type="radio" id="Wallet Payment" name="paymentOption"
-                                                    value="Wallet Payment" class="radio-group-input">
-                                                <label for="Wallet Payment" class="radio-group-label">Wallet Payment</label>
-                                            </div>
-                                            <div class="form-group radio-group">
-                                                <input type="radio" id="Online Payment" name="paymentOption"
-                                                    value="Online Payment" class="radio-group-input">
-                                                <label for="Online Payment" class="radio-group-label">Online Payment</label>
-                                            </div>
-
-                                            <div class="form-group text-center">
-                                                <button type="button" class="btn btn-primary"
-                                                    id="proceedToPayment">Proceed to Payment</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-        </section>
+                </section>
     </main>
     <%-include("footer")-%>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
         <script>
             let selectedCouponId = ''
@@ -395,13 +417,15 @@
                             selectedShippingAddress: selectedShippingAddress.value,
                         }
 
-                        
 
+
+                        const processOnlinePaymentAction = "/processOnlinePayment" + (selectedCouponId ? `?couponId=${selectedCouponId}` : "");
+                    console.log("processOnlinePaymentAction ", processOnlinePaymentAction);
 
                         if (paymentOption.value == "Online Payment") {
                             console.log("Online Payment");
 
-                            fetch('/processOnlinePayment', {
+                            fetch(processOnlinePaymentAction, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -418,49 +442,42 @@
                                 })
                                 .then(data => {
                                     console.log("Parsed response data:", data.message);
-                                    console.log("data.razorpayResponse.receipt:",  data.razorpayResponse.receipt);
+                                    console.log("data.razorpayResponse.receipt:", data.razorpayResponse.receipt);
                                     console.log("data.razorpayResponse.receipt:", typeof data.razorpayResponse.receipt);
-                                    console.log("data.razorpayResponse.amount:",  data.razorpayResponse.amount);
+                                    console.log("data.razorpayResponse.amount:", data.razorpayResponse.amount);
                                     console.log("data.razorpayResponse.amount:", typeof data.razorpayResponse.amount);
 
                                     var options = {
-                            "key": "rzp_test_4iSz5duTC32yBs", // Enter the Key ID generated from the Dashboard
-                            "amount": data.razorpayResponse.amount , // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                            "currency": "INR",
-                            "name": "Alpha Men",
-                            "description": "Test Transaction",
-                            "image": "/assets/imgs/theme/favicon.svg",
-                            "order_id": data.razorpayResponse.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-                            "handler": function (response) {
-                                alert(response.razorpay_payment_id);
-                                alert(response.razorpay_order_id);
-                                alert(response.razorpay_signature)
-                            },
-                            "prefill": {
-                                "name": "<%= user.first_name %>"+" "+"<%= user.last_name %>",
-                                "email": "<%= user.email %>",
-                                "contact": "<%= user.mobile %>"
-                            },
-                            "notes": {
-                                "address": "Razorpay Corporate Office"
-                            },
-                            "theme": {
-                                "color": "#3399cc"
-                            },
-                            debug: true, // Add this option to enable debug logging
+                                        "key": "rzp_test_4iSz5duTC32yBs",
+                                        "amount": data.razorpayResponse.amount,
+                                        "currency": "INR",
+                                        "name": "Alpha Men",
+                                        "description": "Test Transaction",
+                                        "image": "/assets/imgs/theme/favicon.svg",
+                                        "order_id": data.razorpayResponse.id,
+                                        "handler": function (response) {
+                                            verifyPayment(data.razorpayResponse.receipt,"Payment Successfull")
+                                        },
+                                        "prefill": {
+                                            "name": "<%= user.first_name %>" + " " + "<%= user.last_name %>",
+                                            "email": "<%= user.email %>",
+                                            "contact": "<%= user.mobile %>"
+                                        },
+                                        "notes": {
+                                            "address": "Razorpay Corporate Office"
+                                        },
+                                        "theme": {
+                                            "color": "#3399cc"
+                                        },
+                                        debug: true,
 
-                        };
-                        var rzp1 = new Razorpay(options);
-                        rzp1.on('payment.failed', function (response) {
-                            alert(response.error.code);
-                            alert(response.error.description);
-                            alert(response.error.source);
-                            alert(response.error.step);
-                            alert(response.error.reason);
-                            alert(response.error.metadata.order_id);
-                            alert(response.error.metadata.payment_id);
-                        });
-                            rzp1.open();
+                                    };
+                                    var rzp1 = new Razorpay(options);
+                                    rzp1.on('payment.failed', function (response) {
+                                        console.log("Payment Failed Response:", response);
+                                            verifyPayment(data.razorpayResponse.receipt,"Payment Failed")
+                                    });
+                                    rzp1.open();
 
 
                                 })
@@ -475,6 +492,38 @@
                     }
                 });
             });
+
+            function verifyPayment(orderID,status) {
+                console.log("orderID in verifyPayment ===>>> ", orderID);
+
+                fetch('/verifyPayment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ orderID: orderID, status: status }) 
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Failed to verify payment');
+                        }
+                    })
+                    .then(data => {
+                        console.log('Payment verification successful:', data);
+                        if(data.errMsg){
+                            console.log('Payment verification successful data.errMsg:', `${data.errMsg}`);
+                        window.location.href = `/checkOutPage?err=${true}&msg=`+`${data.errMsg}`
+
+                        }else{
+                            window.location.href = `/orderSuccess`
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
 
             function isRadioChecked(radioGroup) {
                 return Array.from(radioGroup).some((radio) => radio.checked);
@@ -562,8 +611,5 @@
 
             updateGrandTotal();
 
-            function razorPayment() {
-
-            }
 
         </script>

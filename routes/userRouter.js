@@ -99,6 +99,7 @@ userRouter.get('/getCouponDetails/:couponId',auth.isBlocked,auth.isLogin,checkCa
 userRouter.get('/orderSuccess',auth.isBlocked,auth.isLogin,userController.orderSuccess);
 userRouter.post('/processPayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.processPayment);
 userRouter.post('/processOnlinePayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.processOnlinePayment);
+userRouter.post('/verifyPayment',auth.isBlocked,auth.isLogin,checkCart.isEmptyCart,userController.verifyPayment);
 
 
 userRouter.get('/getOrderDetails/:orderId',auth.isBlocked,auth.isLogin,userController.getOrderDetails);

@@ -9,7 +9,8 @@ const Order = require('../models/orderModel');
 const Razorpay = require('razorpay');
 const { ObjectId } = require('mongodb'); // Import the ObjectId constructor
 const { default: puppeteer } = require('puppeteer');
-const path = require('path')
+const path = require('path');
+const { log } = require('console');
 
 let generatedOTP = '';
 let globalEmail = '';
@@ -639,48 +640,53 @@ const blocked = async (req, res) => {
 const cart = async (req, res) => {
    console.log("Reached cart");
    try {
-      const categorieData = await category.find({});
-      const err = req.query.err
-      const msg = req.query.msg
-
-      if (req.session.user_id) {
-         const user_id = req.session.user_id;
-         const userData = await User.findById(user_id).populate('cart.product');
-
-         let cartSubtotal = 0;
-         let shippingTotal = 0;
-
-         userData.cart.forEach(cartItem => {
-            const product = cartItem.product;
-            const quantity = cartItem.quantity;
-
-            cartSubtotal += product.sales_price * quantity;
-
-
-            if (product.shipping_fee) {
-               shippingTotal += product.shipping_fee * quantity;
-            }
-         });
-
-         console.log("req.session.user_id is " + req.session.user_id);
-         res.render('cart', {
-            user: userData,
-            categories: categorieData,
-            isAuthenticated: true,
-            cartSubtotal,
-            shippingTotal,
-            message: err == "false" ? msg : "" ,
-            errMessage: err == "true" ? msg : "" 
-         });
-      } else {
-         console.log("else case req.session.user_id is " + req.session.user_id);
-         res.redirect(`/login?err=${true}&msg=Login to see your cart`);
-      }
+     const categorieData = await category.find({});
+     const err = req.query.err;
+     const msg = req.query.msg;
+ 
+     if (req.session.user_id) {
+       const user_id = req.session.user_id;
+       const userData = await User.findById(user_id).populate('cart.product');
+ 
+       let cartSubtotal = 0;
+       let shippingTotal = 0;
+ 
+       const uniqueProductIds = new Set();
+ 
+       userData.cart.forEach(cartItem => {
+         const product = cartItem.product;
+         const quantity = cartItem.quantity;
+ 
+         cartSubtotal += product.sales_price * quantity;
+ 
+         if (!uniqueProductIds.has(product._id)) {
+            uniqueProductIds.add(product._id);
+           if (product.shipping_fee) {
+             shippingTotal += product.shipping_fee;
+           }
+         }
+         console.log("uniqueProductIds  ===>>>  ",uniqueProductIds);
+       });
+ 
+       console.log("req.session.user_id is " + req.session.user_id);
+       res.render('cart', {
+         user: userData,
+         categories: categorieData,
+         isAuthenticated: true,
+         cartSubtotal,
+         shippingTotal,
+         message: err == "false" ? msg : "",
+         errMessage: err == "true" ? msg : ""
+       });
+     } else {
+       console.log("else case req.session.user_id is " + req.session.user_id);
+       res.redirect(`/login?err=${true}&msg=Login to see your cart`);
+     }
    } catch (error) {
-      console.log(error.message);
+     console.log(error.message);
    }
-}
-
+ };
+ 
 const getLatestData = async (req, res) => {
    console.log("Reached getLatestData");
    try {
@@ -732,17 +738,22 @@ const getCartTotals = async (req, res) => {
          let cartSubtotal = 0;
          let shippingTotal = 0;
 
+         const uniqueProductIds = new Set();
+
          userData.cart.forEach(cartItem => {
-            const product = cartItem.product;
-            const quantity = cartItem.quantity;
-
-            cartSubtotal += product.sales_price * quantity;
-
-            if (product.shipping_fee) {
-               shippingTotal += product.shipping_fee * quantity;
-            }
+           const product = cartItem.product;
+           const quantity = cartItem.quantity;
+   
+           cartSubtotal += product.sales_price * quantity;
+   
+           if (!uniqueProductIds.has(product._id)) {
+             if (product.shipping_fee) {
+               shippingTotal += product.shipping_fee;
+             }
+             uniqueProductIds.add(product._id);
+           }
          });
-
+   
          console.log("req.session.user_id is " + req.session.user_id);
 
          res.json({
@@ -1066,14 +1077,35 @@ const checkOutPage = async (req, res) => {
          })
          .populate('addresses');
 
-      console.log("coupons ===> ", coupons);
+         let largestShippingFee = -1; // Initialize with a negative value (assuming all shipping fees are positive)
+         if (userData) {
+            const userCart = userData.cart;
+            
+          
+            userCart.forEach(cartItem => {
+              const product = cartItem.product;
+              const shippingFee = product.shipping_fee;
+          
+              console.log("Product Name:", product.product_name);
+              console.log("Product Description:", product.description);
+              console.log("Product Sales Price:", product.sales_price);
+              console.log("Product Shipping Fee:", shippingFee);
+          
+              if (shippingFee > largestShippingFee) {
+                largestShippingFee = shippingFee;
+              }
+            });
+          
+            console.log("Largest Shipping Fee:", largestShippingFee);
+          }
+         console.log("coupons ===> ", coupons);
 
       if (req.session.user_id) {
          if(err){
-         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true, msg: msg});
+         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true, msg: msg, largestShippingFee: largestShippingFee});
          }else{
          console.log("req.session.user_id is " + req.session.user_id);
-         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true,msg:""});
+         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true,msg:"", largestShippingFee: largestShippingFee});
          }
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
@@ -1091,13 +1123,6 @@ const orderSuccess = async (req, res) => {
       const user_ID = req.session.user_id;
       const coupons = await coupon.find({})
       const userData = await User.findById(user_ID)
-         .populate({
-            path: 'cart.product',
-            model: 'product',
-         })
-         .populate('addresses');
-
-      console.log("coupons ===> ", coupons);
 
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
@@ -1124,17 +1149,19 @@ const getCouponDetails = async (req, res) => {
          const products = await product.findById(cartItem.product);
 
          if (products) {
-            const itemPrice = products.sales_price || products.regular_price;
+            const itemPrice = products.sales_price + products.shipping_fee || products.regular_price + products.shipping_fee;
 
             cartTotal += itemPrice * cartItem.quantity;
          }
       }
 
+      console.log("cartTotal  ===>>>  ",cartTotal);
+
       const userCoupon = user.coupons.find((coupon) => coupon.coupon_id.equals(couponId));
 
       if (cartTotal < coupons.minimum_Amount) {
-         console.log("Cannot use this ");
-         let message = "Cannot use this."
+         console.log("Your grand total dont meet the minimum amount required to use this coupon. ");
+         let message = "Your grand total dont meet the minimum amount required to use this coupon."
          return res.json({ message });
       } else if (userCoupon) {
          const { no_of_times_used } = userCoupon;
@@ -1582,7 +1609,10 @@ const processPayment = async (req, res) => {
             };
             
             if (coupon_id !== null) {
+               console.log("Coupon present");
+               req.session.coupon_id = coupon_id
                console.log("coupon_id ===> ", coupon_id);
+               console.log("req.session.coupon_id  ===> ", req.session.coupon_id );
                orderData.coupon_id = coupon_id;
             }
 
@@ -1591,9 +1621,7 @@ const processPayment = async (req, res) => {
             console.log('Order saved successfully:', saved);
             console.log('Order newOrder successfully:', newOrder);
 
-            if (paymentOption == "Online Payment") {
-               generateRazorPay(newOrder._id, newOrder.total_amount);
-            } else if (paymentOption == "Wallet Payment") {
+            if (paymentOption == "Wallet Payment") {
                if (userData.wallet_Balance >= newOrder.total_amount) {
                   userData.wallet_Balance -= newOrder.total_amount;
             
@@ -1732,6 +1760,8 @@ const processOnlinePayment = async (req, res) => {
             
             if (coupon_id !== null) {
                console.log("coupon_id ===> ", coupon_id);
+               req.session.coupon_id = coupon_id;
+               console.log("req.session.coupon_id  ===> ", req.session.coupon_id );
                orderData.coupon_id = coupon_id;
             }
 
@@ -1753,44 +1783,44 @@ const processOnlinePayment = async (req, res) => {
                   });
             }
          })
-         .then(async savedOrder => {
-            console.log('Order saved successfully:', savedOrder);
+         // .then(async savedOrder => {
+         //    console.log('Order saved successfully:', savedOrder);
 
-            for (const item of items) {
-               console.log("items ==>  ", items);
-               const Product = await product.findById(item.product_id);
-               if (!Product) {
-                  console.error(`Product with ID ${item.product_id} not found.`);
-                  continue;
-               }
-               console.log("Product ==> ", Product);
-               console.log("Product.stock ==> ", Product.stock);
-               console.log("item.quantity ==> ", item.quantity);
-               Product.stock -= item.quantity;
-               console.log("Product.quantity ==> ", Product.stock);
+         //    for (const item of items) {
+         //       console.log("items ==>  ", items);
+         //       const Product = await product.findById(item.product_id);
+         //       if (!Product) {
+         //          console.error(`Product with ID ${item.product_id} not found.`);
+         //          continue;
+         //       }
+         //       console.log("Product ==> ", Product);
+         //       console.log("Product.stock ==> ", Product.stock);
+         //       console.log("item.quantity ==> ", item.quantity);
+         //       Product.stock -= item.quantity;
+         //       console.log("Product.quantity ==> ", Product.stock);
 
-               await Product.save();
-               console.log("await Product.save(); ==> ", await Product.save());
-            }
+         //       await Product.save();
+         //       console.log("await Product.save(); ==> ", await Product.save());
+         //    }
 
-            let userCoupon
+         //    let userCoupon
 
-            if (couponData) {
-               userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
-               if (userCoupon) {
-                  userCoupon.no_of_times_used++;
-               } else {
-                  userData.coupons.push({
-                     coupon_id: couponData._id,
-                     no_of_times_used: 1,
-                  });
-               }
-            }
-            await userData.save();
+         //    if (couponData) {
+         //       userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
+         //       if (userCoupon) {
+         //          userCoupon.no_of_times_used++;
+         //       } else {
+         //          userData.coupons.push({
+         //             coupon_id: couponData._id,
+         //             no_of_times_used: 1,
+         //          });
+         //       }
+         //    }
+         //    await userData.save();
 
-            const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
-            // res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
-         })
+         //    // const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
+         //    // res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
+         // })
          .catch(error => {
             console.error('Error saving order:', error);
          });
@@ -1799,6 +1829,86 @@ const processOnlinePayment = async (req, res) => {
    }
 }
 
+const verifyPayment = async (req, res) => {
+   console.log("Reached verifyPayment");
+   try {
+      const orderID = req.body.orderID;
+      const status = req.body.status;
+      console.log("orderID ===> ", orderID);
+      console.log("status ===> ", status);
+      const user_id = req.session.user_id
+      const coupon_id = req.session.coupon_id
+      console.log("Coupon present");
+      req.session.coupon_id = coupon_id
+      console.log("coupon_id ===> ", coupon_id);
+      console.log("req.session.coupon_id  ===> ", req.session.coupon_id );
+      let couponData;
+      if(status == "Payment Successfull"){
+         if(coupon_id){
+            couponData = await coupon.findById(coupon_id)
+         }
+         const items = [];
+
+         const user = await User.findById(user_id)
+         
+         items.push(
+            ...user.cart.map(cartItem => ({
+               product_id: cartItem.product._id,
+               quantity: cartItem.quantity,
+               sales_price: cartItem.product.sales_price,
+               product_quantity: cartItem.product.stock || 0,
+            }))
+         );
+
+         for (const item of items) {
+            console.log("items ==>  ", items);
+            const Product = await product.findById(item.product_id);
+            if (!Product) {
+               console.error(`Product with ID ${item.product_id} not found.`);
+               continue;
+            }
+            console.log("Product ==> ", Product);
+            console.log("Product.stock ==> ", Product.stock);
+            console.log("item.quantity ==> ", item.quantity);
+            Product.stock -= item.quantity;
+            console.log("Product.quantity ==> ", Product.stock);
+
+            await Product.save();
+            console.log("await Product.save(); ==> ", await Product.save());
+         }
+
+         let userCoupon
+
+         if (couponData) {
+            userCoupon = user.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
+            if (userCoupon) {
+               userCoupon.no_of_times_used++;
+            } else {
+               user.coupons.push({
+                  coupon_id: couponData._id,
+                  no_of_times_used: 1,
+               });
+            }
+         }
+         await user.save();
+         
+         const updatedUser = await User.findByIdAndUpdate(user_id, { cart: [] }, { new: true });
+         const successMsg = "updated product quantity and user data"
+         return res.json({successMsg: successMsg})
+      }else{
+         const order = await Order.findById(orderID)
+         order.payment_status = "Payment Failed"
+         await order.save()
+         const errMsg = "Payment Failed Try Again.";
+         console.log("Saved order in verify in else case is  ===>>>  ",order);
+         return res.json({errMsg: errMsg})
+      }
+   } catch (error) {
+      console.log(error.message);
+      
+   }
+
+}
 
 const generateRazorPay = async (orderID, totalAmount, req, res) => {
    const options = {
@@ -1814,9 +1924,6 @@ const generateRazorPay = async (orderID, totalAmount, req, res) => {
             reject(err);
          } else {
             console.log("RazorPay order ===>>> ", order);
-
-            // You can customize the response as needed
-            // For example, save the RazorPay order response, update the order status, etc.
             resolve(order);
          }
       });
@@ -2382,5 +2489,6 @@ module.exports = {
    downloadInvoice,
    showInvoice,
    addReview,
-   orderSuccess
+   orderSuccess,
+   verifyPayment
 }
