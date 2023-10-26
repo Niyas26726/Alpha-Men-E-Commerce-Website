@@ -131,5 +131,3 @@ userRouter.post('/resetpassword',auth.isBlocked,auth.isLogout,userController.cha
 // userRouter.get('*',(req,res)=>{res.redirect('/')})
 
 module.exports = userRouter;
-
-

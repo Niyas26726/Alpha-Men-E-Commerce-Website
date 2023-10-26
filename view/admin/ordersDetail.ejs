@@ -158,7 +158,16 @@
                     <div class="box shadow-sm bg-light">
                         <h6 class="mb-15">Payment info</h6>
                         <p>
-                            <%= order.payment_method %>
+                            Payment Method :- <%= order.payment_method %>
+                        </p>
+                        <p>
+                            Payment Status :- <%= order.payment_status %>
+                        </p>
+                        <p>
+                            Shipping Charge :- <%= order.shipping_charge %>
+                        </p>
+                        <p>
+                            Total Amount :- <%= order.total_amount %>
                         </p>
                     </div>
                 </div>

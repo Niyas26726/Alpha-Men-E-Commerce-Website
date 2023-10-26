@@ -77,14 +77,19 @@
     </style>
 
     <main class="main">
-        <% if (msg) { %>
+        <% if (msg !="") { %>
+
             <script>
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Payment Error',
                     text: '<%= msg %>',
                 });
+
+
             </script>
+
             <% } %>
                 <section class="pt-150 pb-150">
                     <div class="container">
@@ -459,13 +464,6 @@
                                 })
                                 .then(data => {
                                     console.log("Parsed response data:", data.message);
-                                    
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "Oops...",
-                                        text: data.err,
-                                    });
-
                                     console.log("data.razorpayResponse.receipt:", data.razorpayResponse.receipt);
                                     console.log("data.razorpayResponse.receipt:", typeof data.razorpayResponse.receipt);
                                     console.log("data.razorpayResponse.amount:", data.razorpayResponse.amount);
@@ -492,6 +490,11 @@
                                         },
                                         "theme": {
                                             "color": "#3399cc"
+                                        },
+                                        "modal": {
+                                            "ondismiss": function(){
+                                                verifyPayment(data.razorpayResponse.receipt,"Payment Cancelled")
+                                            }
                                         },
                                         debug: true,
 

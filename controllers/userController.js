@@ -1776,7 +1776,7 @@ const processOnlinePayment = async (req, res) => {
                total_amount: finalAmount,
                user_id: userId,
                payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
-               payment_status: paymentOption == "Online Payment" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
+               payment_status: "Pending",
                address: [billingAddress, shippingAddress],
             };
             
@@ -1898,6 +1898,9 @@ const verifyPayment = async (req, res) => {
             await Product.save();
             console.log("await Product.save(); ==> ", await Product.save());
          }
+         const order = await Order.findById(orderID)
+         order.payment_status = "Paid"
+         await order.save()
 
          let userCoupon
 
@@ -1917,7 +1920,17 @@ const verifyPayment = async (req, res) => {
          const updatedUser = await User.findByIdAndUpdate(user_id, { cart: [] }, { new: true });
          const successMsg = "updated product quantity and user data"
          return res.json({successMsg: successMsg})
-      }else{
+      }else if(status == "Payment Cancelled"){
+         console.log("Reached inside else if Payment Cancelled");
+         const order = await Order.findById(orderID)
+         order.payment_status = "Payment Cancelled"
+         order.order_status = "Canceled"
+         await order.save()
+         const errMsg = "Your Order Has Been Cancelled";
+         console.log("Saved order in verify in else case is  ===>>>  ",order);
+         return res.json({errMsg: errMsg})
+      }
+      else{
          const order = await Order.findById(orderID)
          order.payment_status = "Payment Failed"
          await order.save()
