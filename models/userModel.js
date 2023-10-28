@@ -37,6 +37,9 @@ const userModel = new mongoose.Schema({
    },
    transaction :[
       {
+      user_display_order_id:{
+         type :String,
+      },
       type:{
          type :String,
       },

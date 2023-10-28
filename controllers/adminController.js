@@ -88,16 +88,13 @@ const coupons = async (req, res) => {
        console.log("page  ==> ",page);
  
        
-       // Check if it's an AJAX request
        if (req.xhr) {
-           // Respond with JSON for AJAX requests
-           res.json({ coupons: couponData, totalPages, page });
+           res.json({ coupons: couponData, totalPages: totalPages, page: page });
        } else {
-           // Render the EJS template for normal HTTP requests
            if (err) {
-               res.render('coupons', { coupons: couponData, message: '', errMessage: msg, totalPages, page });
+               res.render('coupons', { coupons: couponData, message: '', errMessage: msg, totalPages: totalPages, page: page });
            } else {
-               res.render('coupons', { coupons: couponData, message: msg, errMessage: '', totalPages, page });
+               res.render('coupons', { coupons: couponData, message: msg, errMessage: '', totalPages: totalPages, page: page });
            }
        }
    } catch (error) {
@@ -109,10 +106,8 @@ const coupons = async (req, res) => {
 const createCoupon = async (req, res) => {
    console.log("Reached createCoupon");
    try {
-      // Extract data from the request body
       const { coupon_id, limit, minimum_Amount, maximum_Discount, discount_Percentage } = req.body;
 
-      // Create a new coupon object
       const newCoupon = new coupon({
           coupon_id,
           limit,
@@ -121,13 +116,10 @@ const createCoupon = async (req, res) => {
           discount_Percentage
       });
 
-      // Save the new coupon to the database
       await newCoupon.save();
 
-      // Redirect to the coupons page with a success message
       res.redirect(`/admin/coupons?err=${""}&msg=Coupon created successfully`);
   } catch (error) {
-      // Handle errors, and redirect to the coupons page with an error message
       console.error(error);
       res.redirect(`/admin/coupons?err=${true}&msg=Failed to create coupon`);
   }
@@ -146,7 +138,6 @@ const editCoupon = async (req, res) => {
         discount_Percentage,
       } = req.body;
   
-      // Use Mongoose to find and update the coupon by its ID
       const updatedCoupon = await coupon.findByIdAndUpdate(
         couponId,
         {
@@ -157,11 +148,10 @@ const editCoupon = async (req, res) => {
           maximum_Discount,
           discount_Percentage,
         },
-        { new: true } // To get the updated document
+        { new: true } 
       );
   
       if (!updatedCoupon) {
-        // Handle coupon not found
         return res.status(404).json({ message: 'Coupon not found' });
       }
   
@@ -212,7 +202,7 @@ const toggleBlockStatusCoupons = async (req, res) => {
         return res.status(404).json({ message: 'Coupon not found' });
       }
     
-      couponData.valid = blockStatus; // Toggle coupon validity
+      couponData.valid = blockStatus; 
       
       await couponData.save();
       console.log("couponData.valid ===> ",couponData.valid);
@@ -652,6 +642,7 @@ const userList = async (req, res) => {
 const orderList = async (req, res) => {
    const itemsPerPage = 10;
    const page = parseInt(req.query.page) || 1;
+   const i =1;
 
    try {
       const skipCount = (page - 1) * itemsPerPage;
@@ -663,7 +654,7 @@ const orderList = async (req, res) => {
       .skip(skipCount)
       .limit(itemsPerPage)
       .populate('user_id', 'first_name last_name email')
-      .select('_id total_amount order_status created_on')
+      .select('_id total_amount order_status created_on user_display_order_id shipping_charge discount')
       // .sort({ created_on: 1 });
       // console.log("orders before reverse ===>>> ",orders);
       // orders.reverse();
@@ -673,13 +664,15 @@ const orderList = async (req, res) => {
       if (req.xhr) {
          console.log("skipCount in ajax",skipCount);
          console.log("itemsPerPage in ajax ",itemsPerPage);
+         console.log("orders.user_display_order_id  ===>>>  ",orders.user_display_order_id);
 
-         res.json({ orders, totalPages, page });
+
+         res.json({ orders, totalPages, page, i });
       } else {
          console.log("itemsPerPage in normal rendering ",itemsPerPage);
 
 
-         res.render('orderList',{orders,totalPages, page});
+         res.render('orderList',{orders,totalPages, page, i});
       }
    } catch (error) {
       console.error(error);
@@ -702,8 +695,10 @@ const orders = async (req, res) => {
            .skip(skipCount)
            .limit(itemsPerPage)
            .populate('user_id', 'first_name last_name email')
-           .select('_id total_amount order_status created_on')
+           .select('_id total_amount order_status created_on user_display_order_id')
            .sort({ created_on: -1 });
+
+           console.log("ordersData.user_display_order_id  ===>>>  ",ordersData.user_display_order_id);
 
        res.json({ orders: ordersData, totalPages, page });
    } catch (error) {
@@ -777,7 +772,25 @@ const updateOrderStatus = async (req, res) => {
             date: new Date(),
           };
 
+          function generateRandomString() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomString = '';
+         
+            for (let i = 0; i < 25; i++) {
+              const randomIndex = Math.floor(Math.random() * characters.length);
+              randomString += characters.charAt(randomIndex);
+            }
+         
+            return randomString;
+         }
+
+          const user_display_order_id = generateRandomString();
+          newTransaction.user_display_order_id = user_display_order_id;
+
+
           user.transaction.push(newTransaction);
+
+          console.log("user.transaction[-1] ====>>>  ",user.transaction[-1]);
 
          await user.save();
 

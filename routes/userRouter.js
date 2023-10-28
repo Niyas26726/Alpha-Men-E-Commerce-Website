@@ -63,10 +63,12 @@ userRouter.get('/category',auth.isBlocked,userController.filteredByCatagoryFromH
 userRouter.get('/categoryOther',auth.isBlocked,userController.filteredByCatagoryFromOther )
 userRouter.get('/userAccount',auth.isBlocked,auth.isLogin,userController.userAccount);
 userRouter.post('/userAccount',auth.isBlocked,auth.isLogin,upload.single('profileImage'),userController.updateUserAccount);
-userRouter.get('/search',auth.isBlocked,userController.search)
+// userRouter.get('/search',auth.isBlocked,userController.search)
+userRouter.get('/integratedFilter',auth.isBlocked,userController.integratedFilter)
 
 
 
+"/integratedFilter?<% if (catagoryid) { %>catagoryid=<%= catagoryid %><% } %><% if (catagoryid && sort) { %>&<% } %><% if (sort) { %>sort=<%= sort %><% } %><% if ((catagoryid || sort) && page) { %>&<% } %><% if (page) { %>page=<%= page %><% } %><% if ((catagoryid || sort || page) && searchquery) { %>&<% } %><% if (searchquery) { %>searchquery=<%= searchquery %><% } %>"
 
 userRouter.get('/formals',auth.isBlocked,userController.formals);
 userRouter.get('/special',auth.isBlocked,userController.special);

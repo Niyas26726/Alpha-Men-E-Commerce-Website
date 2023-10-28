@@ -95,18 +95,30 @@ const loadHome = async (req, res) => {
    console.log("Reached loadHome");
    try {
       const categorieData = await category.find({});
-      const productData = await product.find({})
-
+      const categoryId = req.body.catagoryid;
+      const sort = req.body.sort;
+      const page = req.query.page || 1;
+      const searchQuery = req.body.searchquery;
       const user = { wishlist: [] };
+      const itemsPerPage = 9;
+      const productsCount = await product.countDocuments({blocked: false}); 
+      const totalPages = Math.ceil(productsCount / itemsPerPage);
+      console.log("productsCount   ===>>>  ",productsCount);
+      const skipCount = (page - 1) * itemsPerPage;
+
+      const productData = await product.find({blocked: false})
+          .skip(skipCount)
+          .limit(itemsPerPage);
+
 
       if (req.session.user_id) {
          const user_ID = req.session.user_id;
          const userData = await User.findById({ _id: user_ID });
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, categoryId: categoryId, sort: sort, page: page, searchQuery: searchQuery, page: page || '', totalPages: totalPages || '' });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-         res.render('home', { user, product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user, product: productData, categories: categorieData, isAuthenticated: false, categoryId: categoryId, sort: sort, page: page, searchQuery: searchQuery, page: page || '', totalPages: totalPages || '' });
       }
    } catch (error) {
       console.log(error.message)
@@ -270,24 +282,26 @@ const userAccount = async (req, res) => {
       const msg = req.query.msg;
       const userData = await User.findOne({ _id: user_id }).populate('addresses');
 
-      const userOrders = await Order.find({ user_id: user_id });
+      const userOrders = await Order.find({ user_id: user_id }).sort({ created_on_For_Sales_Report: -1 }); // Sort by date in ascending order (oldest first)
 
 
       console.log("userData " + userData);
 
       if (req.session.user_id) {
          const walletBalance = userData.wallet_Balance;
-         const transactions = userData.transaction;
+         // const transactions = userData.transaction;
+         const transactions = userData.transaction.sort((a, b) => b.date - a.date);
+
 
          console.log("req.session.user_id is " , req.session.user_id);
          console.log("walletBalance is " , walletBalance);
          console.log("transactions is " , transactions);
          if (err == true) {
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: "", errMessage: msg, userOrders: userOrders, walletBalance: walletBalance, transactions: transactions});
+            return res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: "", errMessage: msg, userOrders: userOrders, walletBalance: walletBalance, transactions: transactions});
          } else {
             console.log("else case req.session.user_id is " + req.session.user_id);
 
-            res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg, errMessage: "", userOrders: userOrders });
+            return res.render('userAccount', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, message: msg, errMessage: "", userOrders: userOrders });
          }
       }
    } catch (error) {
@@ -395,7 +409,55 @@ const special = async (req, res) => {
    }
 }
 
-const search = async (req, res) => {
+
+const integratedFilter = async (req, res) => {
+   try {
+    console.log("Reached integratedFilter");
+
+     const { catagoryId, sort, page, searchquery } = req.query;
+     console.log("catagoryid   ===>>>  ",catagoryId);
+     console.log("sort   ===>>>  ",sort);
+     console.log("page   ===>>>  ",page);
+     console.log("searchquery   ===>>>  ",searchquery);
+      
+     // Construct a filter object based on query parameters
+     const filter = {};
+ 
+     if (catagoryId) {
+       filter.categoryId = catagoryId;
+     }
+ 
+     if (searchquery) {
+       filter.product_name = { $regex: new RegExp(searchquery, 'i') };
+     }
+ 
+     // Define the sort order based on the "sort" parameter
+ 
+     console.log("filter   ===>>>  ",filter);
+     // Define pagination options based on the "page" parameter
+     const itemsPerPage = 9; // Number of items per page
+     const pageNumber = page ? parseInt(page, 9) : 1;
+     const skipCount = (pageNumber - 1) * itemsPerPage;
+     const user = {}
+     const categorieData = await category.find({})
+
+     
+
+     // Query the products based on the filter and sort
+     const products = await product.find(filter)
+       .sort(sort)
+       .skip(skipCount)
+       .limit(itemsPerPage);
+       res.render('home', { user, product: products, categories: categorieData, isAuthenticated: true, catagoryid: catagoryId, sort: sort, page: page, searchquery: searchquery });
+ 
+   //   res.json(products);
+   } catch (error) {
+     console.error(error);
+     res.status(500).json({ error: 'Internal server error' });
+   }
+ };
+
+ const search = async (req, res) => {
    console.log("Reached search");
    try {
       const categorieData = await category.find({});
@@ -1043,18 +1105,38 @@ const getWishlistCount = async (req, res) => {
 const loadHomeAfterLogin = async (req, res) => {
    console.log("Reached loadHomeAfterLogin");
    try {
-      const categorieData = await category.find({});
-      const productData = await product.find({})
+      // const categorieData = await category.find({});
+      // const productData = await product.find({})
       const user_ID = req.session.user_id
       const userData = await User.findById({ _id: user_ID })
 
+      const categorieData = await category.find({});
+      // const productData = await product.find({})
+      const categoryId = req.body.catagoryid;
+      const sort = req.body.sort;
+      const page = req.query.page;
+      const searchQuery = req.body.searchquery;
+      const user = { wishlist: [] };
+      const itemsPerPage = 9; // Define the number of items per page
+      const productsCount = await product.countDocuments({blocked: false}); // Count all matching products
+      const totalPages = Math.ceil(productsCount / itemsPerPage);
+      console.log("productsCount   ===>>>  ",productsCount);
+      const skipCount = (page - 1) * itemsPerPage;
+
+      const productData = await product.find({blocked: false})
+         //  .sort(sortCriteria)
+          .skip(skipCount)
+          .limit(itemsPerPage);
+
+
+
       if (req.session.user_id) {
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, categoryId: categoryId || '', sort: sort, page: page, searchQuery: searchQuery, page: page || '', totalPages: totalPages || ''  });
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user: userData, product: productData, categories: categorieData, isAuthenticated: false, categoryId: categoryId || '', sort: sort, page: page, searchQuery: searchQuery, page: page || '', totalPages: totalPages || ''  });
       }
    } catch (error) {
       console.log(error.message)
@@ -1158,12 +1240,32 @@ const getCouponDetails = async (req, res) => {
       console.log("cartTotal  ===>>>  ",cartTotal);
 
       const userCoupon = user.coupons.find((coupon) => coupon.coupon_id.equals(couponId));
+      const currentDate = new Date();
+      const couponExpiryDateParts = coupons.expiry_Date.split('-');
+      const year = parseInt(couponExpiryDateParts[2]);
+      const month = parseInt(couponExpiryDateParts[1]-1); // Months are zero-based (0-11)
+      const day = parseInt(couponExpiryDateParts[0])+1;
+      
+      const couponExpiryDate = new Date(year, month, day);
+      
+      console.log("Parsed couponExpiryDate is:", couponExpiryDate);
+      console.log("coupons is   ====>>>   " , coupons);
+      console.log("currentDate is   ====>>>   " , currentDate);
+      console.log("couponExpiryDate is   ====>>>   " , couponExpiryDate);
 
+      
       if (cartTotal < coupons.minimum_Amount) {
          console.log("Your grand total dont meet the minimum amount required to use this coupon. ");
          let message = "Your grand total dont meet the minimum amount required to use this coupon."
          return res.json({ message });
-      } else if (userCoupon) {
+      }else if(currentDate > couponExpiryDate){
+         console.log("coupons is   ====>>>   " , coupons);
+         console.log("currentDate is   ====>>>   " , currentDate);
+         console.log("couponExpiryDate is   ====>>>   " , couponExpiryDate);
+         console.log("This coupon has expired");
+         let message = "This coupon has expired"
+         return res.json({ message });
+      }else if (userCoupon) {
          const { no_of_times_used } = userCoupon;
          const { limit } = coupons;
 
@@ -1445,11 +1547,13 @@ const getOrderDetails = async (req, res) => {
                         </div>
             <div style="flex: 1;">
             <h2 class="p-30">Order details:</h2>
-            <p>Order ID: ${orderDetails._id}</p>
+            <p>Order ID: ${orderDetails.user_display_order_id ? orderDetails.user_display_order_id : orderDetails._id}</p>
             <p>Created On: ${orderDetails.created_on || 'N/A'}</p>
             <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
-            <p>Shipping Charge: ${orderDetails.shipping_charge || 'N/A'}</p>
-            <p>Total Amount: ${orderDetails.total_amount || 'N/A'}</p>
+            <p>Shipping Charge: $${orderDetails.shipping_charge || 'N/A'}</p>
+            <p>Total Amount: $${orderDetails.total_amount || 'N/A'}</p>
+            <p>Discount: $${orderDetails.discount || 0}</p>
+            <p>Final Amount: $${((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) || (orderDetails.total_amount + orderDetails.shipping_charge)}</p>
          </div>
       </div>
       
@@ -1506,8 +1610,8 @@ const getOrderDetails = async (req, res) => {
                         </div>
                      </td>
                      <td class="text-center">${item.quantity}</td>
-                     <td class="text-center">${item.product_id.shipping_fee || 'N/A'}</td>
-                     <td class="text-center">${item.sales_price}</td>
+                     <td class="text-center">$${item.product_id.shipping_fee || 'N/A'}</td>
+                     <td class="text-center">$${item.sales_price}</td>
                   </tr>
             `).join('')}
          </tbody>
@@ -1515,14 +1619,16 @@ const getOrderDetails = async (req, res) => {
             <tr>
                   <td><strong>Total</strong></td>
                   <td class="text-center" id="quantity-total">${quantityTotal}</td>
-                  <td class="text-center" id="shipping-fee-total">${shippingFeeTotal}</td>
-                  <td class="text-center" id="sales-price-total">${salesPriceTotal}</td>
+                  <td class="text-center" id="shipping-fee-total">$${shippingFeeTotal}</td>
+                  <td class="text-center" id="sales-price-total">$${salesPriceTotal}</td>
             </tr>
          </tfoot>
       </table>
       <div>
       <strong>Grand Total:</strong>
-      <span id="grand-total" class="float-right"><strong>${grandTotal}</strong></span>
+      <span id="grand-total" class="float-right"><strong>$${grandTotal}</strong></span>
+      <p class="text-end"><strong>Final Amount: $${((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) || (orderDetails.total_amount + orderDetails.shipping_charge)}</strong></p>
+
    </div>
    `;
 
@@ -1557,7 +1663,9 @@ const processPayment = async (req, res) => {
       const selectedBillingAddress = req.body.selectedBillingAddress;
       const selectedShippingAddress = req.body.selectedShippingAddress;
       const paymentOption = req.body.paymentOption;
+      const largestShippingFee = req.body.largestShippingFee;
 
+      console.log("largestShippingFee " , largestShippingFee);
       console.log("selectedBillingAddress " + selectedBillingAddress);
       console.log("selectedShippingAddress " + selectedShippingAddress);
       console.log("paymentOption " + paymentOption);
@@ -1590,44 +1698,83 @@ const processPayment = async (req, res) => {
             );
 
 
-            const shippingFee = user.cart.reduce((totalShippingFee, cartItem) => {
-               return totalShippingFee + (cartItem.product.shipping_fee || 0);
-            }, 0);
+            const shippingFee = 1*largestShippingFee;
             console.log("shippingFee " + shippingFee);
-            const totalAmount = items.reduce((total, item) => {
-               return total + item.quantity * item.sales_price + shippingFee;
+            let totalAmount = items.reduce((total, item) => {
+               return total + item.quantity * item.sales_price;
             }, 0);
+            let finalAmount = totalAmount + shippingFee;
+            console.log("finalAmount  ===>>>  ",finalAmount);
 
             if (couponData) {
                const currentDate = new Date();
                const couponExpiryDate = new Date(couponData.expiry_Date);
 
+               console.log("currentDate   ===>>>  ",currentDate);
                console.log("couponExpiryDate   ===>>>  ",couponExpiryDate);
+               console.log("couponData   ===>>>  ",couponData);
              
-               if (couponData.minimum_Amount <= totalAmount && currentDate <= couponExpiryDate) {
+               if (couponData.minimum_Amount <= totalAmount) {
                  const discountPercentage = couponData.discount_Percentage / 100;
                  const maxDiscount = couponData.maximum_Discount;
                  
-                 let discountAmount = totalAmount * discountPercentage;
+                 let discountAmount = finalAmount * discountPercentage;
+                 console.log("discountAmount in if couponData ===>>>  ",discountAmount);
+                 console.log("req.session.discountAmount in if couponData ===>>>  ",req.session.discountAmount);
+
                  if (discountAmount > maxDiscount) {
                    discountAmount = maxDiscount;
                  }
+                 req.session.discountAmount = discountAmount;
                  
-                 totalAmount -= discountAmount;
+                 finalAmount -= discountAmount;
+                 console.log("finalAmount in if couponData ===>>>  ",finalAmount);
+                 console.log("totalAmount in if couponData ===>>>  ",totalAmount);
+                 console.log("discountAmount in if couponData ===>>>  ",discountAmount);
+     
                }
+               console.log("finalAmount in if couponData ===>>>  ",finalAmount);
+               console.log("totalAmount in if couponData ===>>>  ",totalAmount);
+               console.log("discountAmount in if couponData ===>>>  ",req.session.discountAmount);
+
              }
-             
+             console.log("finalAmount outside if couponData ===>>>  ",finalAmount);
+             console.log("totalAmount outside if couponData ===>>>  ",totalAmount);
+             console.log("req.session.discountAmount outside if couponData ===>>>  ",req.session.discountAmount);
+ 
+ 
+             console.log("couponData   ===>>>  ",couponData);
+
 
             const orderData = {
                items,
+               discount : req.session.discountAmount ? req.session.discountAmount : 0,
                shipping_charge: shippingFee,
                total_amount: totalAmount,
                user_id: userId,
                payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
-               payment_status: paymentOption == "Online Payment" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
+               payment_status: paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
                address: [billingAddress, shippingAddress],
             };
+
+            req.session.discountAmount = null;
+            function generateRandomString() {
+               const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+               let randomString = '';
             
+               for (let i = 0; i < 25; i++) {
+                 const randomIndex = Math.floor(Math.random() * characters.length);
+                 randomString += characters.charAt(randomIndex);
+               }
+            
+               return randomString;
+            }
+            
+            const user_display_order_id = generateRandomString();
+            orderData.user_display_order_id = user_display_order_id;
+            
+            console.log("user_display_order_id   ====>>>  ", user_display_order_id);
+                        
             if (coupon_id !== null) {
                console.log("Coupon present");
                req.session.coupon_id = coupon_id
@@ -1637,8 +1784,7 @@ const processPayment = async (req, res) => {
             }
 
             const newOrder = new Order(orderData);
-            const saved = newOrder.save();
-            console.log('Order saved successfully:', saved);
+            // console.log('Order saved successfully:', saved);
             console.log('Order newOrder successfully:', newOrder);
 
             if (paymentOption == "Wallet Payment") {
@@ -1650,16 +1796,36 @@ const processPayment = async (req, res) => {
                      amount: newOrder.total_amount,
                      date: new Date(),
                   };
+
+                  function generateRandomString() {
+                     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                     let randomString = '';
+                  
+                     for (let i = 0; i < 25; i++) {
+                       const randomIndex = Math.floor(Math.random() * characters.length);
+                       randomString += characters.charAt(randomIndex);
+                     }
+                  
+                     return randomString;
+                  }
+         
+                   const user_display_order_id = generateRandomString();
+                   newTransaction.user_display_order_id = user_display_order_id;
+         
             
                   userData.transaction.push(newTransaction);
             
                } else {
+                  newOrder.payment_status = "Pending"
+                  newOrder.order_status = "Failed"
                   errMsg = true;
                   console.error('Insufficient wallet balance');
                return res.redirect(`/checkOutPage?err=${true}&msg=Insufficient wallet balance`);
 
                }
             }
+            const saved = newOrder.save();
+
             
          })
          .then(async savedOrder => {
@@ -1764,14 +1930,52 @@ const processOnlinePayment = async (req, res) => {
 
             const shippingFee = 1*largestShippingFee;
             console.log("shippingFee " + shippingFee);
-            const totalAmount = items.reduce((total, item) => {
+            let totalAmount = items.reduce((total, item) => {
                return total + item.quantity * item.sales_price;
             }, 0);
-            const finalAmount = totalAmount + shippingFee;
+            let finalAmount = totalAmount + shippingFee;
             console.log("finalAmount  ===>>>  ",finalAmount);
 
+
+            if (couponData) {
+               const currentDate = new Date();
+               const couponExpiryDate = new Date(couponData.expiry_Date);
+
+               console.log("currentDate   ===>>>  ",currentDate);
+               console.log("couponExpiryDate   ===>>>  ",couponExpiryDate);
+               console.log("couponData   ===>>>  ",couponData);
+             
+               if (couponData.minimum_Amount <= totalAmount) {
+                 const discountPercentage = couponData.discount_Percentage / 100;
+                 const maxDiscount = couponData.maximum_Discount;
+                 
+                 let discountAmount = finalAmount * discountPercentage;
+                 if (discountAmount > maxDiscount) {
+                   discountAmount = maxDiscount;
+                 }
+                 req.session.discountAmount = discountAmount;
+                 
+                 finalAmount -= discountAmount;
+            console.log("finalAmount in if couponData ===>>>  ",finalAmount);
+            console.log("totalAmount in if couponData ===>>>  ",totalAmount);
+            console.log("discountAmount in if couponData ===>>>  ",discountAmount);
+
+               }
+               console.log("finalAmount in if couponData ===>>>  ",finalAmount);
+               console.log("totalAmount in if couponData ===>>>  ",totalAmount);
+               console.log("discountAmount in if couponData ===>>>  ",req.session.discountAmount);
+
+             }
+             console.log("finalAmount outside if couponData ===>>>  ",finalAmount);
+             console.log("totalAmount outside if couponData ===>>>  ",totalAmount);
+             console.log("req.session.discountAmount outside if couponData ===>>>  ",req.session.discountAmount);
+ 
+ 
+             console.log("couponData   ===>>>  ",couponData);
+             
             const orderData = {
                items,
+               discount : req.session.discountAmount ? req.session.discountAmount : 0,
                shipping_charge: shippingFee,
                total_amount: finalAmount,
                user_id: userId,
@@ -1779,6 +1983,24 @@ const processOnlinePayment = async (req, res) => {
                payment_status: "Pending",
                address: [billingAddress, shippingAddress],
             };
+
+            req.session.discountAmount = null;
+            function generateRandomString() {
+               const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+               let randomString = '';
+            
+               for (let i = 0; i < 25; i++) {
+                 const randomIndex = Math.floor(Math.random() * characters.length);
+                 randomString += characters.charAt(randomIndex);
+               }
+            
+               return randomString;
+            }
+            
+            const user_display_order_id = generateRandomString();
+            orderData.user_display_order_id = user_display_order_id;
+
+            console.log("user_display_order_id   ====>>>  ", user_display_order_id);
             
             if (coupon_id !== null) {
                console.log("coupon_id ===> ", coupon_id);
@@ -1805,44 +2027,6 @@ const processOnlinePayment = async (req, res) => {
                   });
             }
          })
-         // .then(async savedOrder => {
-         //    console.log('Order saved successfully:', savedOrder);
-
-         //    for (const item of items) {
-         //       console.log("items ==>  ", items);
-         //       const Product = await product.findById(item.product_id);
-         //       if (!Product) {
-         //          console.error(`Product with ID ${item.product_id} not found.`);
-         //          continue;
-         //       }
-         //       console.log("Product ==> ", Product);
-         //       console.log("Product.stock ==> ", Product.stock);
-         //       console.log("item.quantity ==> ", item.quantity);
-         //       Product.stock -= item.quantity;
-         //       console.log("Product.quantity ==> ", Product.stock);
-
-         //       await Product.save();
-         //       console.log("await Product.save(); ==> ", await Product.save());
-         //    }
-
-         //    let userCoupon
-
-         //    if (couponData) {
-         //       userCoupon = userData.coupons.find((userCoupon) => userCoupon.coupon_id.equals(couponData._id));
-         //       if (userCoupon) {
-         //          userCoupon.no_of_times_used++;
-         //       } else {
-         //          userData.coupons.push({
-         //             coupon_id: couponData._id,
-         //             no_of_times_used: 1,
-         //          });
-         //       }
-         //    }
-         //    await userData.save();
-
-         //    // const updatedUser = await User.findByIdAndUpdate(userId, { cart: [] }, { new: true });
-         //    // res.render('orderPlacedPage', { user: updatedUser, product: productData, categories: categorieData, isAuthenticated: true });
-         // })
          .catch(error => {
             console.error('Error saving order:', error);
          });
@@ -1970,83 +2154,66 @@ const generateRazorPay = async (orderID, totalAmount, req, res) => {
 const filteredByCatagoryFromHome = async (req, res) => {
    console.log("Reached filteredByCatagoryFromHome");
    try {
-      const sort = req.query.sort
-      
-      const categoryId = req.query.categoryId;
-      const categorieData = await category.find({});
-      const productData = await product.find({});
-      let filteredProducts;
 
-      if (categoryId && sort) {
-         req.session.categoryId = categoryId;
-         req.session.sort = sort;
-         const id = req.session.categoryId;
-         console.log("categoryId && sort");
-         console.log("categoryId ===>>>  ",categoryId);
-         console.log("sort ===>>>  ",sort);
-         console.log("id ===>>>  ",id);
-         console.log("sort ===>>>  ",sort);
-         console.log("req.session.sort ===>>>  ",req.session.sort);
-         console.log("req.session.categoryId ===>>>  ",req.session.categoryId);
-
-         filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
-      }else if(sort && req.session.categoryId){
-         const id = req.session.categoryId;
-         filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort });
-      }else if(categoryId && req.session.sort){
-         const sortno = req.session.sort
-         filteredProducts = await product.find({ categoryId: categoryId }).sort({ sales_price: sort });
-      } else {
-         if(categoryId || sort){
-            req.session.categoryId = categoryId;
-            req.session.sort = sort;
-            if(categoryId){
-          req.session.categoryId = categoryId;
-          filteredProducts = await product.find({ categoryId: categoryId });
-            }else if(! req.session.categoryId && sort){
-               filteredProducts = await product.find().sort({ sales_price: sort })
-            }
-            else{
-               const id = req.session.categoryId;
-               console.log("id ===>>>  ",id);
-               filteredProducts = await product.find({ categoryId: id }).sort({ sales_price: sort })
-            }
+         // const categoryId = req.query.categoryId;
+         // const categorieData = await category.find({});
+         // const productData = await product.find({});
+         // const filteredProducts = await product.find({ categoryId });
+         const user = 1;
+         const itemsPerPage = 9; // Define the number of items per page
+         const page = req.query.page || 1; // Get the page number from the query parameters
+     
+         const categoryId = req.query.categoryId;
+         const sort = req.query.sort;
+         const searchQuery = req.query.searchQuery;
+ 
+         const filter = {};
+ 
+         if (categoryId) {
+             filter.categoryId = categoryId;
          }
-      }
-      const filter = {};
+ 
+         // Construct the sort criteria based on the "sort" parameter
+         let sortCriteria = {};
+ 
+         if (sort === '1') {
+             sortCriteria = { sales_price: 1 }; // Sort by price low to high
+         } else if (sort === '-1') {
+             sortCriteria = { sales_price: -1 }; // Sort by price high to low
+         }
+ 
+         if (searchQuery) {
+             filter.product_name = { $regex: new RegExp(searchQuery, 'i') };
+         }
+         
+         filter.blocked = false
+         const categorieData = await category.find({});
+ 
+         // const products = await product.find(filter).sort(sortCriteria);
+         const productsCount = await product.countDocuments(filter); // Count all matching products
+         const totalPages = Math.ceil(productsCount / itemsPerPage);
 
-      if (req.session.searchQuery) {
-     
-      if (req.session.searchQuery) {
-         filter.product_name = { $regex: new RegExp(req.session.searchQuery, 'i') };
-     }
-     
-     if (req.session.categoryId || categoryId && req.session.sort || sort) {
-         filter.categoryId = req.session.categoryId || categoryId;
-         filteredProducts = await product.find(filter).sort({ sales_price: req.session.sort|| sort });
-     } else if (req.session.categoryId || categoryId) {
-         filter.categoryId = req.session.categoryId || categoryId;
-         filteredProducts = await product.find(filter);
-     } else if (req.session.sort || sort) {
-         filteredProducts = await product.find(filter).sort({ sales_price: req.session.sort|| sort });
-     } else {
-         filteredProducts = await product.find(filter);
-     }
-   }
-     
+         const skipCount = (page - 1) * itemsPerPage;
 
-         const user = 1;     
-
+         const products = await product.find(filter)
+             .sort(sortCriteria)
+             .skip(skipCount)
+             .limit(itemsPerPage);
+ 
+ 
+ 
 
       if (req.session.user_id) {
          const user_id = req.session.user_id
          const userData = await User.findById({ _id: user_id })
          console.log("req.session.user_id is " + req.session.user_id);
-         res.render('home', { user: userData, product: filteredProducts, categories: categorieData, isAuthenticated: true });
+         res.render('home', { user: userData, product: products, categories: categorieData, isAuthenticated: true, categoryId: categoryId || '', sort: sort || '', searchQuery: searchQuery || '', page: page || '', totalPages: totalPages || ''});
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
 
-         res.render('home', { user, product: filteredProducts, categories: categorieData, isAuthenticated: false });
+         // res.render('home', { user, product: products, categories: categorieData, isAuthenticated: false });
+         res.render('home', { user, product: products, categories: categorieData, isAuthenticated: false, categoryId: categoryId || '', sort: sort || '', searchQuery: searchQuery || '', page: page || '', totalPages: totalPages || ''});
+
       }
    } catch (error) {
       console.log(error.message)
@@ -2172,18 +2339,36 @@ const cancelOrder = async (req, res) => {
          }
       }
 
-      if (order.payment_method === "Wallet Payment" || order.payment_method === "Online Payment" || order.payment_method === "Cash On Delivery") {
+      if (order.payment_method === "Wallet Payment" || order.payment_method === "Online Payment") {
          const userId = order.user_id;
          const user = await User.findById(userId);
        
          if (user) {
+
+            function generateRandomString() {
+               const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+               let randomString = '';
+            
+               for (let i = 0; i < 25; i++) {
+                 const randomIndex = Math.floor(Math.random() * characters.length);
+                 randomString += characters.charAt(randomIndex);
+               }
+            
+               return randomString;
+            }
+   
+             const user_display_order_id = generateRandomString();
+
            user.wallet_Balance += order.total_amount;
        
            user.transaction.push({
              type: "Credit",
              amount: order.total_amount,
              date: new Date(),
+             user_display_order_id : user_display_order_id
+
            });
+
        
            await user.save();
          }
@@ -2539,10 +2724,10 @@ module.exports = {
    getLatestData,
    generateRazorPay,
    processOnlinePayment,
-   search,
    downloadInvoice,
    showInvoice,
    addReview,
    orderSuccess,
-   verifyPayment
+   verifyPayment,
+   integratedFilter
 }

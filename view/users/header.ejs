@@ -9,7 +9,7 @@
     <meta http-equiv="Expires" content="0">
 
     <meta charset="utf-8">
-    <title>Evara - eCommerce HTML Template</title>
+    <title>Alpha Men - Cloths For The Real Men</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +18,7 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/theme/favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="admin-assets/imgs/icons/Cloths For Real Men.png">
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
@@ -251,20 +251,22 @@
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
-                            <form action="/search" method="GET">
+                            <form id="search-form" method="GET">
                                 <select name="categoryId" class="form-select" style="margin-right: -20px;">
                                     <option value="">search All</option>
                                     <% categories.forEach(function(category) { %>
-                                        <%if(category.blocked == false){%>
+                                        <% if (category.blocked == false) { %>
                                             <option value="<%= category._id %>"><a>
                                                 <%= category.name %>
                                             </a></option>
-                                            <%}%>
-                                        <% }); %>
-                                    </select>
-                                    <input type="text" name="searchQuery" placeholder="Search for items">
+                                        <% } %>
+                                    <% }); %>
+                                </select>
+                                <input type="text" name="searchQuery" id="searchQuery" placeholder="Search for items">
+                                <!-- <button type="submit">Search</button> -->
                             </form>
                         </div>
+                                                
                         <div class="header-action-right">
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">

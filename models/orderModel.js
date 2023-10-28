@@ -18,6 +18,9 @@
         },
       },
     ],
+    user_display_order_id: {
+      type: String,
+    },
     payment_method: {
       type: String,
       required: true,
@@ -60,6 +63,10 @@
         const year = now.getFullYear().toString();
         return `${day}-${month}-${year}`;
       },
+    },
+    created_on_For_Sales_Report: {
+      type: Date,
+      default: Date.now,
     },
     expected_delivery_on: {
       type: String,

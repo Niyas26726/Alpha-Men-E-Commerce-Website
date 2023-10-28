@@ -5,7 +5,7 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Order detail</h2>
-            <p>Details for Order ID: <%= order._id %></p>
+            <p>Details for Order ID: <%= order.user_display_order_id || order._id %></p>
         </div>
     </div>
     <div class="card">
@@ -14,7 +14,7 @@
                 <span>
                     <i class="material-icons md-calendar_today"></i> <b><%= order.created_on %></b>
                 </span> <br>
-                <small class="text-muted">Order ID: <%= order._id %></small>
+                <small class="text-muted">Order ID: <%=order.user_display_order_id || order._id %></small>
                 <input id="order_id" type="hidden" value="<%= order._id %>">
                 
                 <% if (order.return_Reason) { %>
@@ -164,10 +164,16 @@
                             Payment Status :- <%= order.payment_status %>
                         </p>
                         <p>
-                            Shipping Charge :- <%= order.shipping_charge %>
+                            Shipping Charge :- $<%= order.shipping_charge %>
                         </p>
                         <p>
-                            Total Amount :- <%= order.total_amount %>
+                            Total Amount :- $<%= order.total_amount + order.shipping_charge %>
+                        </p>
+                        <p>
+                            Discount Amount :- $<%= order.discount || 0 %>
+                        </p>
+                        <p>
+                            Final Amount :- $<%= ((order.total_amount + order.shipping_charge) - order.discount) || (order.total_amount + order.shipping_charge) %>
                         </p>
                     </div>
                 </div>

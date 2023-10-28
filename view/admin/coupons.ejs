@@ -135,22 +135,22 @@
     </div> <!-- card .// -->
 </section>
 
-<!-- JavaScript code to handle form submission and editing -->
+
 <script>
 function editCoupon(couponId, coupon_id, limit, expiry_Date, minimum_Amount, maximum_Discount, discount_Percentage) {
-    // Set values in the coupon creation form for editing
+
     document.getElementById('coupon_id').value = coupon_id;
     document.getElementById('limit').value = limit;
     document.getElementById('minimum_Amount').value = minimum_Amount;
     document.getElementById('maximum_Discount').value = maximum_Discount;
     document.getElementById('discount_Percentage').value = discount_Percentage;
     document.getElementById('expiry_Date').value = expiry_Date;
-    // Toggle button visibility
+
     document.getElementById('expiry_Date_Div').style.display = 'block';
     document.getElementById('createCouponBtn').style.display = 'none';
     document.getElementById('editCouponBtn').style.display = 'block';
 
-    // Update the form action to include couponId for editing
+
     document.getElementById('createCouponForm').action = `/admin/editCoupon/${couponId}`;
     document.getElementById('createCouponForm').onsubmit = function() {
     return editCouponValidation();
@@ -159,7 +159,7 @@ function editCoupon(couponId, coupon_id, limit, expiry_Date, minimum_Amount, max
 }
 
 function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, maximum_Discount, discount_Percentage) {
-    // Display details in input fields
+
     document.getElementById('coupon_id').value = coupon_id;
     document.getElementById('limit').value = limit;
     document.getElementById('expiry_Date').value = expiry_Date;
@@ -167,17 +167,17 @@ function viewDetails(couponId, coupon_id, limit, expiry_Date, minimum_Amount, ma
     document.getElementById('maximum_Discount').value = maximum_Discount;
     document.getElementById('discount_Percentage').value = discount_Percentage;
 
-    // Toggle button visibility back to "Create Coupon" button
+
     document.getElementById('expiry_Date_Div').style.display = 'block';
     document.getElementById('createCouponBtn').style.display = 'none';
     document.getElementById('editCouponBtn').style.display = 'none';
 }
   
 function toggleCouponValidity(couponId, blockStatus) {
-    // Create an object to send in the request body
+
     const requestData = { blocked: blockStatus };
 
-    // Send a POST request to update coupon validity
+
     fetch(`/admin/toggleBlockStatusCoupons/${couponId}`, {
     method: 'POST',
     headers: {
@@ -222,10 +222,11 @@ function toggleCouponValidity(couponId, blockStatus) {
 });
 
 }
-  // Function to fetch coupons with pagination
+
+
   function fetchCoupons(page) {
       $.ajax({
-          url: `/admin/coupons?page=${page}`, // Update the URL to match your backend endpoint
+          url: `/admin/coupons?page=${page}`,
           method: 'GET',
           dataType: 'json',
           headers: {
@@ -233,8 +234,11 @@ function toggleCouponValidity(couponId, blockStatus) {
           },
           success: function (data) {
             const coupons = data.coupons;
+            const totalPages = data.totalPages;
+            const currentPage = data.page;
+
             console.log("coupons  ==> ",coupons);
-              $('#couponListContainer').empty(); // Clear existing coupons
+              $('#couponListContainer').empty();
   
               coupons.forEach(coupon => {
                   const couponRow = `
@@ -264,10 +268,11 @@ function toggleCouponValidity(couponId, blockStatus) {
   
                   $('#couponListContainer').append(couponRow);
               });
+              updatePagination(totalPages, currentPage);
   
-              // Update the active page
               $('#pagination .page-item').removeClass('active');
               $(`#pagination .page-item:nth-child(${page})`).addClass('active');
+
           },
           error: function (error) {
               console.error(error);
@@ -275,7 +280,38 @@ function toggleCouponValidity(couponId, blockStatus) {
       });
   }
 
+    function updatePagination(totalPages, currentPage) {
+        console.log("currentPage   ====>>>  ",currentPage);
+        console.log("totalPages   ====>>>  ",totalPages);
+        const pagination = $('#pagination');
+
+        localStorage.setItem('currentPage', currentPage);
+        const currentPages = localStorage.getItem('currentPage');
+
+        pagination.empty();
+            for (let i = 1; i <= totalPages; i++) {
+               const pageLink = `<li class="page-item ${i === currentPage ? 'active' : ''}">
+               <a class="page-link" href="javascript:void(0);" onclick="fetchCoupons(${i})">${i}</a>
+            </li>`;
+               pagination.append(pageLink);
+            }
+    }
+
  </script>
   
 
 <%- include("footer") %>
+<script>
+    
+    $(document).ready(function () {
+            const currentPage = localStorage.getItem('currentPage');
+            if (currentPage) {
+
+               fetchCoupons(parseInt(currentPage, 10));
+            } else {
+
+               fetchCoupons(1);
+            }
+         })
+
+</script>

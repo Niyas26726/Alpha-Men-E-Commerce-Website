@@ -119,7 +119,6 @@
     
 
     function toggleBlockUnblock(productId, blockStatus) {
-    // Send an AJAX request to toggle the block status
     fetch(`/admin/toggleBlockStatusProducts/${productId}`, {
         method: 'POST',
         headers: {
@@ -129,27 +128,22 @@
     })
     .then(response => {
         if (response.ok) {
-            // Toggle the button text, color, and data-blocked attribute
             const productElement = document.querySelector(`[data-product-id="${productId}"]`);
             const statusElement = productElement.querySelector('.col-status .badge');
             const actionElement = productElement.querySelector('.col-action button');
 
-            // Update the button text
             const newText = blockStatus ? 'Activate' : 'Deactivate';
             actionElement.textContent = newText;
 
-            // Toggle the button color
             const newColorClass = blockStatus ? 'btn-danger' : 'btn-success';
             actionElement.classList.remove('btn-success', 'btn-danger');
             actionElement.classList.add(newColorClass);
 
-            // Update the status badge
             const newStatusText = blockStatus ? 'Inactive' : 'Active';
             statusElement.textContent = newStatusText;
             statusElement.classList.toggle('alert-danger', blockStatus);
             statusElement.classList.toggle('alert-success', !blockStatus);
 
-            // Update the data-blocked attribute
             productElement.setAttribute('data-blocked', blockStatus);
         } else {
             alert('Failed to toggle block status');
@@ -162,7 +156,6 @@
 }
 
     
-    // Get a reference to the select element
     const filterSelect = document.getElementById('filterSelect');
 
     filterSelect.addEventListener('change', function () {
@@ -171,13 +164,10 @@
 
         products.forEach((product) => {
             if (selectedOption === 'all') {
-                // Show all products
                 product.style.display = 'block';
             } else {
-                // Get the blocked status of the product
                 const isBlocked = product.getAttribute('data-blocked') === 'true';
 
-                // Show/hide products based on the selected option
                 if ((selectedOption === 'blocked' && isBlocked) || (selectedOption === 'unblocked' && !isBlocked)) {
                     product.style.display = 'block';
                 } else {
@@ -189,7 +179,6 @@
 
     function fetchProducts(page) {
         console.log("Reached fetchProducts");
-        // Send an AJAX request to fetch products based on the page
         fetch(`/admin/productsList?page=${page}`, {
             method: 'GET',
             headers: {
@@ -205,11 +194,9 @@
             console.log("totalPages  ===>> ",data.totalPages);
             console.log("currentPage  ===>> ",data.page);
             
-            // Clear the existing product list
             const productListContainer = document.querySelector('#productListContainer');
             productListContainer.innerHTML = '';
 
-            // Populate the product list with the new products
             products.forEach(product => {
                 const productRow = `
         <article class="itemlist product" data-product-id="${product._id}" data-blocked="${product.blocked}">
@@ -256,7 +243,6 @@
                 productListContainer.innerHTML += productRow;
             });
 
-            // Update the pagination links
             updatePagination(totalPages, currentPage);
         })
         .catch(error => {
@@ -264,9 +250,10 @@
         });
     }
 
-    // // Function to update the pagination links
     function updatePagination(totalPages, currentPage) {
         const pagination = document.querySelector('#pagination');
+        localStorage.setItem('currentPage', currentPage);
+
         pagination.innerHTML = '';
 
         for (let i = 1; i <= totalPages; i++) {
@@ -280,8 +267,13 @@
         }
     }
 
-    // Initial fetch for the first page of products
-    document.addEventListener('DOMContentLoaded', function () {
-        fetchProducts(1);
-    });
+         $(document).ready(function () {
+            const currentPage = localStorage.getItem('currentPage');
+
+            if (currentPage) {
+               fetchProducts(parseInt(currentPage, 10));
+            } else {
+               fetchProducts(1);
+            }
+         });
 </script>

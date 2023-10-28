@@ -7376,7 +7376,7 @@ span.fi-rs-apps {
 
 /*Pagination*/
 .pagination-area .page-item {
-  margin: 0 5px;
+  margin: 5px;
 }
 
 .pagination-area .page-item:first-child {
