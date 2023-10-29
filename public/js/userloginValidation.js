@@ -54,6 +54,6 @@ function userloginValidation() {
   // Validate fields one by one
   validateEmail();
   if (isValid) validateEmail();
-  if (isValid) validatePassword();
+//   if (isValid) validatePassword();
   return isValid;
 }

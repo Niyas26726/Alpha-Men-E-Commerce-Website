@@ -69,8 +69,8 @@ const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
 
   // Function to validate display name
   function validateDisplayName() {
-      if (displayName.value.trim() === '') {
-          displayNameError.innerHTML = 'Display name cannot be empty';
+      if (!lastName.value.trim() === '' && !nameRegex.test(displayName.value)) {
+          displayNameError.innerHTML = 'First letter should be capital';
           clearErrorWithDelay(displayNameError);
           isValid = false;
       } else {
@@ -121,11 +121,7 @@ const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
 
   // Function to validate password
   function validateNewPassword() {
-      if (newPassword.value.trim() === '') {
-          newPasswordError.innerHTML = 'Password cannot be empty';
-          clearErrorWithDelay(newPasswordError);
-          isValid = false;
-      } else if (!passwordRegex.test(newPassword.value)) {
+ if (newPassword.value.trim() !== '' && !passwordRegex.test(newPassword.value)) {
           newPasswordError.innerHTML = 'Enter a strong password (Must contain 8 characters; should include at least one special character, one uppercase letter, and one number)';
           clearErrorWithDelay(newPasswordError);
           isValid = false;
@@ -136,7 +132,7 @@ const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
 
   // Function to validate confirm password
   function validateConfirmPassword() {
-      if (confirmPassword.value.trim() === '') {
+      if (newPassword.value.trim() !== '' && confirmPassword.value.trim() === '') {
           confirmPasswordError.innerHTML = 'Confirm Password cannot be empty';
           clearErrorWithDelay(confirmPasswordError);
           isValid = false;

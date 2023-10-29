@@ -232,7 +232,7 @@
                                             </div>
                                             <div class="card-body contact-form-area">
                                                 <div class="row">
-                                                    <h3>Balance: $ <%= user.wallet_Balance %></h3>
+                                                    <h3>Balance: $ <%= user.wallet_Balance || 0 %></h3>
                                                 </div>
                                             </div>
                                         </div>
@@ -248,6 +248,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                <%if(user.transaction && user.transaction.length !=0){%>
                                                 <% user.transaction.forEach(transaction => { %>
                                                     <tr>
                                                         <td><%=transaction.user_display_order_id ||transaction._id %></td>
@@ -263,6 +264,11 @@
                                                         <td><%= transaction.date.toDateString() %></td>
                                                     </tr>
                                                 <% }); %>
+                                                <%}else{%>
+                                                    <div class="text-center">
+                                                        <h2>No transactions made</h2>
+                                                    </div>
+                                                    <%}%>
                                             </tbody>
                                         </table>
                                         
@@ -334,6 +340,17 @@
                                                                     <small id="profileImageError" class="text-danger"></small>
                                                                 </div>
                                                                 <div class="form-group col-md-6">
+                                                                    <label>Referal ID <span
+                                                                            class="required"></span></label>
+                                                                            <small>*Pass your referal id to friends to get a $10 price money in Wallet*</small>
+
+                                                                    <input value="<%=user.referal_ID%>"
+                                                                        class="form-control square" name="referal_ID" readonly
+                                                                        type="text" id="">
+                                                                    <small id=""
+                                                                        class="text-danger"></small>
+                                                                </div>
+                                                                <div class="form-group col-md-6">
                                                                     <label>First Name <span
                                                                             class="required"></span></label>
                                                                     <input value="<%=user.first_name%>"
@@ -393,6 +410,7 @@
                                                                 <div class="form-group col-md-12">
                                                                     <label>New Password <span
                                                                             class="required"></span></label>
+                                                                            <p><small>*Only if you want to change old password*</small></p>
                                                                     <input value="" class="form-control square"
                                                                         name="npassword" type="password"
                                                                         id="newPassword">

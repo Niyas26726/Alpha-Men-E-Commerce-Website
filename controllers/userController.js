@@ -321,12 +321,13 @@ const updateUserAccount = async (req, res) => {
 
       const uploadedFile = req.file;
       let updatedUserData = {
+         user_profile : userData.user_profile ?userData.user_profile : null,
          first_name: req.body.name,
          last_name: req.body.lName,
-         display_name: req.body.dname,
+         display_name: req.body.dname ? req.body.dname : null,
          email: req.body.email,
          mobile: req.body.mobile,
-         password: req.body.npassword
+         password: req.body.npassword ? req.body.npassword : userData.password
       };
 
       if (uploadedFile) {

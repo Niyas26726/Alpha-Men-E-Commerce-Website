@@ -15,6 +15,14 @@ const userModel = new mongoose.Schema({
    display_name: {
       type: String,
    },
+   referal_ID: {
+      type: Number,
+      default: generateSixDigitRandomNumber
+   },
+   used_Referal_ID: {
+      type: String,
+      default: null,
+   },
    mobile: {
       type: Number,
       required: true
@@ -90,3 +98,9 @@ const userModel = new mongoose.Schema({
 
    module.exports = mongoose.model('user', userModel, 'user');
 
+   function generateSixDigitRandomNumber() {
+      const min = 100000;
+      const max = 999999;
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
