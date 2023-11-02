@@ -41,7 +41,8 @@ const loadRegister = async (req, res) => {
 
 const insertUser = async (req, res) => {
    try {
-      const email = req.body.email
+      const email = req.body.email;
+      const referalId = req.body.referalID;
       const checkData = await User.findOne({ email: email });
       console.log("insert User");
       console.log(email);
@@ -60,6 +61,20 @@ const insertUser = async (req, res) => {
                password: req.body.password,
                mobile: req.body.mobile
             });
+
+            if(referalId){
+               const referedUser = await User.findOne({referal_ID : referalId})
+               if(referedUser){
+                  referedUser.wallet_Balance = (referedUser.wallet_Balance || 0) + 500;
+                  user.wallet_Balance = (user.wallet_Balance || 0) + 200;
+                  user.used_Referal_ID = referalId;
+                  await user.save();
+                  await referedUser.save();
+               }else{
+               res.redirect(`/register?err=${true}&msg=Incorrect Referal Code`);
+               }
+            }
+            
             const userData = await user.save();
             if (userData) {
                res.redirect(`/register?err=${false}&msg=Sign Up Successfull click the link bellow to Login`);
@@ -421,7 +436,6 @@ const integratedFilter = async (req, res) => {
      console.log("page   ===>>>  ",page);
      console.log("searchquery   ===>>>  ",searchquery);
       
-     // Construct a filter object based on query parameters
      const filter = {};
  
      if (catagoryId) {
@@ -432,11 +446,9 @@ const integratedFilter = async (req, res) => {
        filter.product_name = { $regex: new RegExp(searchquery, 'i') };
      }
  
-     // Define the sort order based on the "sort" parameter
  
      console.log("filter   ===>>>  ",filter);
-     // Define pagination options based on the "page" parameter
-     const itemsPerPage = 9; // Number of items per page
+     const itemsPerPage = 9;
      const pageNumber = page ? parseInt(page, 9) : 1;
      const skipCount = (pageNumber - 1) * itemsPerPage;
      const user = {}
@@ -444,14 +456,12 @@ const integratedFilter = async (req, res) => {
 
      
 
-     // Query the products based on the filter and sort
      const products = await product.find(filter)
        .sort(sort)
        .skip(skipCount)
        .limit(itemsPerPage);
        res.render('home', { user, product: products, categories: categorieData, isAuthenticated: true, catagoryid: catagoryId, sort: sort, page: page, searchquery: searchquery });
  
-   //   res.json(products);
    } catch (error) {
      console.error(error);
      res.status(500).json({ error: 'Internal server error' });
@@ -1160,11 +1170,10 @@ const checkOutPage = async (req, res) => {
          })
          .populate('addresses');
 
-         let largestShippingFee = -1; // Initialize with a negative value (assuming all shipping fees are positive)
+         let largestShippingFee = -1;
          if (userData) {
             const userCart = userData.cart;
             
-          
             userCart.forEach(cartItem => {
               const product = cartItem.product;
               const shippingFee = product.shipping_fee;
@@ -1178,7 +1187,6 @@ const checkOutPage = async (req, res) => {
                 largestShippingFee = shippingFee;
               }
             });
-          
             console.log("Largest Shipping Fee:", largestShippingFee);
           }
          console.log("coupons ===> ", coupons);
@@ -2572,8 +2580,8 @@ const sendOtp = async (req, res) => {
 
          setTimeout(() => {
             generatedOTP = null;
-            console.log("OTP invalidated after 1 minute");
-         }, 1 * 60 * 1000);
+            console.log("OTP invalidated after 5 minute");
+         }, 5 * 60 * 1000);
       }
       sendOTP();
 

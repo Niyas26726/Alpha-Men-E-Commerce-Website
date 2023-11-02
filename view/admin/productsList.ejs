@@ -269,10 +269,12 @@
 
          $(document).ready(function () {
             const currentPage = localStorage.getItem('currentPage');
-
+            console.log("currentPage  ===  >>>  ",currentPage);
             if (currentPage) {
                fetchProducts(parseInt(currentPage, 10));
             } else {
+            console.log("currentPage fetchProducts  ===  >>>  ",currentPage);
+
                fetchProducts(1);
             }
          });

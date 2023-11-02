@@ -52,6 +52,7 @@ adminRouter.get('/categories',auth.isLogin,adminController.categories);
 adminRouter.post('/categories',auth.isLogin,adminController.addCategories);
 adminRouter.post('/editCategory',auth.isLogin, adminController.editCategory);
 adminRouter.post('/toggleBlockStatus/:categoryId',auth.isLogin, adminController.toggleBlockStatus);
+adminRouter.post('/toggleActivateDeactivate/:categoryId',auth.isLogin, adminController.toggleActivateDeactivate);
 adminRouter.post('/toggleBlockStatusUsers/:userID',auth.isLogin, adminController.toggleBlockStatusUsers);
 adminRouter.post('/toggleBlockStatusProducts/:categoryId',auth.isLogin, adminController.toggleBlockStatusProducts);
 

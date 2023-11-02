@@ -217,52 +217,80 @@ const toggleBlockStatusCoupons = async (req, res) => {
 }
 
 const addCategories = async (req, res) => {
-  console.log("Reached addCategories");
+   console.log("Reached addCategories");
 
    try {
-      const categoryName = req.body.categoryName.trim();
-  console.log("categoryName is "+categoryName);
-      const newCategory = new category({
-        name: categoryName,
-      });
+      const categoryName = req.body.categoryName;
+      const categoryOffer = req.body.categoryOffer;
+      const categoryMaximumDiscount = req.body.categoryMaximumDiscount;
+      const categoryMinimumAmount = req.body.categoryMinimumAmount;
+      const categoryExpiryDate = req.body.categoryExpiryDate;
+      console.log("categoryName is ", categoryName);
+      console.log("categoryOffer is ", categoryOffer);
+      console.log("categoryMinimumAmount is ", categoryMinimumAmount);
+      console.log("categoryMaximumDiscount is ", categoryMaximumDiscount);
+      console.log("categoryExpiryDate is ", categoryExpiryDate);
 
       const existingCategory = await category.findOne({ name: categoryName });
-  
+
       if (existingCategory) {
          res.redirect(`/admin/categories?err=${true}&msg=Category name already exists`);
-      }else{
-  
-      const savedCategory = await newCategory.save();
-  
-      res.redirect(`/admin/categories?err=${""}&msg=Category created successfully`);
+      } else {
+         const newCategory = new category({
+            name: categoryName,
+            offer_Persentage: categoryOffer,
+            minimum_Amount: categoryMinimumAmount,
+            maximum_Discount: categoryMaximumDiscount,
+            expiry_Date: categoryExpiryDate,
+         });
 
+         const savedCategory = await newCategory.save();
+
+         res.redirect(`/admin/categories?err=${''}&msg=Category created successfully`);
       }
-    } catch (error) {
+   } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
-    }
+   }
 }
 
 const editCategory = async (req, res) => {
    console.log("Reached editCategory");
 
-   const categoryId = req.body.editCategoryId.trim();
-   const newName = req.body.editCategoryName.trim();   
-   console.log("newName "+newName);
-   console.log("categoryId "+categoryId);
+   const categoryId = req.body.editCategoryId;
+   const categoryName = req.body.editCategoryName;
+   const categoryOffer = req.body.editCategoryOffer;
+   const categoryMinimumAmount = req.body.editCategoryMinimumAmount;
+   const categoryMaximumDiscount = req.body.editCategoryMaximumDiscount;
+   const categoryExpiryDate = req.body.editCategoryExpiryDate;
+   console.log("categoryName is ", categoryName);
+   console.log("categoryOffer is ", categoryOffer);
+   console.log("categoryMinimumAmount is ", categoryMinimumAmount);
+   console.log("categoryMaximumDiscount is ", categoryMaximumDiscount);
+   console.log("categoryExpiryDate is ", categoryExpiryDate);
+   
+   console.log("newName " + categoryName);
+   console.log("categoryId " + categoryId);
+
    try {
-
-      const existingCategory = await category.findOne({ name: newName });
+      const existingCategory = await category.findOne({ name: categoryName });
   
-      if (existingCategory) {
+      if (existingCategory && existingCategory._id != categoryId) {
          res.redirect(`/admin/categories?err=${true}&msg=Category name already exists`);
-      }else{
-       const updatedCategory = await category.findByIdAndUpdate(categoryId, { name: newName }, { new: true });
-       console.log("Reached editCategory and finished updating the category name");
+      } else {
+         const updatedCategory = await category.findByIdAndUpdate(categoryId, {
+            name: categoryName,
+            offer_Persentage: categoryOffer,
+            minimum_Amount: categoryMinimumAmount,
+            maximum_Discount: categoryMaximumDiscount,
+            expiry_Date: categoryExpiryDate,
+         }, { new: true });
 
-       res.redirect(`/admin/categories?err=${""}msg=Category updated successfully`);
+         console.log("Reached editCategory and finished updating the category");
+
+         res.redirect(`/admin/categories?err=${''}&msg=Category updated successfully`);
       }
    } catch (error) {
-       res.redirect(`/admin/categories?err=${true}&msg=Failed to update category`);
+      res.redirect(`/admin/categories?err=${true}&msg=Failed to update category`);
    }
 }
 
@@ -285,6 +313,35 @@ const toggleBlockStatus = async (req, res) => {
       }
   
       categoryData.blocked = blockStatus;
+  
+      await categoryData.save();
+  
+      return res.status(200).json({ message: 'Block status updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+const toggleActivateDeactivate = async (req, res) => {
+   console.log("Reached toggleBlockStatus");
+   try {
+
+      const categoryId = req.params.categoryId;
+      const blockStatus = req.body.blocked;
+      console.log("categoryId is "+categoryId);
+      console.log("blockStatus is "+blockStatus);
+      console.log(typeof blockStatus);
+  
+      const categoryData = await category.findById(categoryId);
+
+      console.log("categoryData "+categoryData);
+  
+      if (!categoryData) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+  
+      categoryData.offer_Blocked = blockStatus;
   
       await categoryData.save();
   
@@ -933,6 +990,7 @@ module.exports = {
    coupons,
    createCoupon,
    editCoupon,
-   toggleBlockStatusCoupons
+   toggleBlockStatusCoupons,
+   toggleActivateDeactivate
 }
 

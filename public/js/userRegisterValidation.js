@@ -1,5 +1,6 @@
 function userRegisterValidation() {
    // Input fields
+   const referalID = document.getElementById('referalID');
    const firstName = document.getElementById('firstName');
    const lastName = document.getElementById('lastName');
    const email = document.getElementById('email');
@@ -9,6 +10,7 @@ function userRegisterValidation() {
    const otp = document.getElementById('otp');
 
    // Error fields
+   const referalIDError = document.getElementById('referalIDError');
    const firstNameError = document.getElementById('firstNameError');
    const lastNameError = document.getElementById('lastNameError');
    const emailError = document.getElementById('emailError');
@@ -23,6 +25,7 @@ function userRegisterValidation() {
    const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
    const mobileRegex = /^[0-9]{10}$/;
+   const referalIDRegex = /^[0-9]{6}$/;
 
    let isValid = true; // A flag to track overall validation
 
@@ -32,6 +35,18 @@ function userRegisterValidation() {
          errorField.innerHTML = '';
       }, 5000); // 5000 milliseconds = 5 seconds
    }
+
+      // Function to validate first name
+      function validateReferalID() {
+          if (referalID.value.trim() !== '' && !referalIDRegex.test(referalID.value)) {
+            referalIDError.innerHTML = 'Please enter a valid Referal Code';
+            clearErrorWithDelay(referalIDError);
+            isValid = false;
+         } else {
+            referalIDError.innerHTML = ''; // Clear error message
+         }
+      }
+      
 
    // Function to validate first name
    function validateFirstName() {
@@ -139,7 +154,8 @@ function userRegisterValidation() {
    }
 
    // Validate fields one by one
-   validateFirstName();
+   validateReferalID();
+   if (isValid) validateFirstName();
    if (isValid) validateLastName();
    if (isValid) validateMobile();
    if (isValid) validateEmail();

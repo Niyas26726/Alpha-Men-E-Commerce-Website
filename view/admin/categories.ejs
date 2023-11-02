@@ -26,10 +26,34 @@
                     <% } %>
                     <form method="post" action="/admin/categories" id="createCategoryForm" onsubmit="return categoryErrorValidation()">
                         <div class="mb-4">
-                            <label for="categoryName" class="form-label">New Category Name</label>
+                            <label for="categoryName" class="form-label">Category Name</label>
                             <input type="text" placeholder="Type here" name="categoryName" class="form-control"
                                 id="categoryName">
                             <small id="categoryNameError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="categoryOffer" class="form-label">Category Offer</label>
+                            <input type="text" placeholder="Type here" name="categoryOffer" class="form-control"
+                                id="categoryOffer">
+                            <small id="categoryOfferError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="categoryMinimumAmount" class="form-label">Minimum Amount</label>
+                            <input type="text" placeholder="Type here" name="categoryMinimumAmount" class="form-control"
+                                id="categoryMinimumAmount">
+                            <small id="categoryMinimumAmountError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="categoryMaximumDiscount" class="form-label">Maximum Discount</label>
+                            <input type="text" placeholder="Type here" name="categoryMaximumDiscount" class="form-control"
+                                id="categoryMaximumDiscount">
+                            <small id="categoryMaximumDiscountError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="categoryExpiryDate" class="form-label">Expiry Date</label>
+                            <input type="text" placeholder="dd-mm-yyy" name="categoryExpiryDate" class="form-control"
+                                id="categoryExpiryDate">
+                            <small id="categoryExpiryDateError"></small>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Create category</button>
@@ -38,10 +62,34 @@
                     <form method="post" action="/admin/editCategory" id="editCategoryForm" style="display: none;" onsubmit="return editCategoryErrorValidation()">
                         <input type="hidden" id="editCategoryId" name="editCategoryId">
                         <div class="mb-4">
-                            <label for="editCategoryName" class="form-label">Edit Category Name</label>
-                            <input type="text" placeholder="Type here" name="editCategoryName"
-                                class="form-control" id="editCategoryName">
+                            <label for="editCategoryName" class="form-label">Category Name</label>
+                            <input type="text" placeholder="Type here" name="editCategoryName" class="form-control"
+                                id="editCategoryName">
                             <small id="editCategoryNameError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editCategoryOffer" class="form-label">Category Offer</label>
+                            <input type="text" placeholder="Type here" name="editCategoryOffer" class="form-control"
+                                id="editCategoryOffer">
+                            <small id="editCategoryOfferError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editCategoryMinimumAmount" class="form-label">Minimum Amount</label>
+                            <input type="text" placeholder="Type here" name="editCategoryMinimumAmount" class="form-control"
+                                id="editCategoryMinimumAmount">
+                            <small id="editCategoryMinimumAmountError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editCategoryMaximumDiscount" class="form-label">Maximum Discount</label>
+                            <input type="text" placeholder="Type here" name="editCategoryMaximumDiscount" class="form-control"
+                                id="editCategoryMaximumDiscount">
+                            <small id="editCategoryMaximumDiscountError"></small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editCategoryExpiryDate" class="form-label">Expiry Date</label>
+                            <input type="text" placeholder="dd-mm-yyy" name="editCategoryExpiryDate" class="form-control"
+                                id="editCategoryExpiryDate">
+                            <small id="editCategoryExpiryDateError"></small>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -57,6 +105,7 @@
                                     <th>Name</th>
                                     <th>Edit</th>
                                     <th>Action</th>
+                                    <th>Offer</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,7 +116,7 @@
                                         </td>
                                         <td>
                                             <button class="btn btn-light rounded btn-sm font-sm"
-                                            onclick="showEditCategoryForm('<%= category._id %>', '<%= category.name %>')">Edit</button>
+                                            onclick="showEditCategoryForm('<%= category._id %>', '<%= category.name %>', '<%= category.offer_Persentage %>', '<%= category.minimum_Amount %>', '<%= category.maximum_Discount %>', '<%= category.expiry_Date %>')">Edit</button>
                                         </td>
                                         <td>
                                             <% if (category.blocked) { %>
@@ -77,6 +126,16 @@
                                                 <!-- Block Button -->
                                                 <button class="btn btn-danger rounded btn-sm font-sm"
                                                     onclick="toggleBlockUnblock('<%= category._id %>', true)">Block</button>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (category.offer_Blocked) { %>
+                                                <button class="btn btn-success rounded btn-sm font-sm"
+                                                    onclick="toggleActivateDeactivate('<%= category._id %>', false)">Activate</button>
+                                            <% } else { %>
+                                                <!-- Block Button -->
+                                                <button class="btn btn-danger rounded btn-sm font-sm"
+                                                    onclick="toggleActivateDeactivate('<%= category._id %>', true)">Deactivate</button>
                                             <% } %>
                                         </td>
                         
@@ -92,11 +151,15 @@
 </section> 
 
 <script>
-    function showEditCategoryForm(categoryId, categoryName) {
+    function showEditCategoryForm(categoryId, categoryName, categoryOffer, categoryMinimumAmount, categoryMaximumDiscount, categoryExpiryDate) {
     document.getElementById('createCategoryForm').style.display = 'none';
     document.getElementById('editCategoryForm').style.display = 'block';
-    document.getElementById('editCategoryName').value = categoryName;
     document.getElementById('editCategoryId').value = categoryId;
+    document.getElementById('editCategoryName').value = categoryName;
+    document.getElementById('editCategoryOffer').value = categoryOffer;
+    document.getElementById('editCategoryMinimumAmount').value = categoryMinimumAmount;
+    document.getElementById('editCategoryMaximumDiscount').value = categoryMaximumDiscount;
+    document.getElementById('editCategoryExpiryDate').value = categoryExpiryDate;
     }
     function toggleBlockUnblock(categoryId, blockStatus) {
         fetch(`/admin/toggleBlockStatus/${categoryId}`, {
@@ -108,7 +171,28 @@
         })
         .then(response => {
             if (response.ok) {
-                location.reload(); // Reload the page to reflect the updated status
+                location.reload();
+            } else {
+                alert('Failed to toggle block status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while toggling block status');
+        });
+    }
+
+    function toggleActivateDeactivate(categoryId, blockStatus) {
+        fetch(`/admin/toggleActivateDeactivate/${categoryId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ blocked: blockStatus })
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
             } else {
                 alert('Failed to toggle block status');
             }

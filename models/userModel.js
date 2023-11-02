@@ -20,7 +20,7 @@ const userModel = new mongoose.Schema({
       default: generateSixDigitRandomNumber
    },
    used_Referal_ID: {
-      type: String,
+      type: Number,
       default: null,
    },
    mobile: {
