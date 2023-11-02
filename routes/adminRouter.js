@@ -66,6 +66,8 @@ adminRouter.post('/editProducts/:productId',auth.isLogin, upload.array('images')
 
 adminRouter.get('/userList',auth.isLogin,adminController.userList);
 adminRouter.get('/orderList',auth.isLogin,adminController.orderList);
+adminRouter.get('/salesReport',auth.isLogin,adminController.salesReport);
+adminRouter.get('/downloadReport',auth.isLogin,adminController.downloadReport);
 adminRouter.get('/orders',auth.isLogin,adminController.orders);
 adminRouter.get('/ordersDetail/:orderId',auth.isLogin,adminController.ordersDetail);
 adminRouter.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus);

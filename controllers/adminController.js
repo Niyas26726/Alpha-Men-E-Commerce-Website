@@ -4,6 +4,7 @@ const coupon = require('../models/couponModel');
 const product = require('../models/productModel'); 
 const admin = require('../models/adminModel'); 
 const order = require('../models/orderModel'); 
+const ExcelJS = require("exceljs");
 
 
 const loadLogin = async (req, res) => {
@@ -47,15 +48,65 @@ const verifyUser = async (req, res) => {
 
 const loadhome = async (req, res) => {
    try {
-      if(req.session.admin_id){
-         res.render('home');
-      }else{
-         res.redirect('/admin')
-      }
+       if (req.session.admin_id) {
+            console.log("Reached loadhome loadhome ");
+            // Get the current year
+           if (req.xhr) {
+              const currentYear = new Date().getFullYear();
+            console.log("Reached inside the fetch in load home ");
+
+           const orders = await order.aggregate([
+               {
+                   $match: {
+                       // Filter by the year (replace '2023' with currentYear)
+                       created_on_For_Sales_Report: {
+                           $gte: new Date(`${currentYear}-01-01`),
+                           $lt: new Date(`${currentYear + 1}-01-01`)
+                       }
+                   }
+               },
+               {
+                   $project: {
+                       created_on_For_Sales_Report: 1,
+                       total_amount: 1
+                   }
+               }
+           ])
+
+           // Extracting the necessary data for the chart
+           const salesData = orders.map(order => ({
+               date: order.created_on_For_Sales_Report,
+               amount: order.total_amount,
+           }));
+
+           const chartData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [
+                {
+                    label: 'Visitors',
+                    tension: 0.3,
+                    fill: true,
+                    backgroundColor: 'rgba(4, 209, 130, 0.2)',
+                    borderColor: 'rgb(4, 209, 130)',
+                    data: salesData.amount
+                }
+            ]
+        };
+        console.log("chartData    =======>>>>>>>   ",chartData);
+        return res.json(chartData);
+    
+
+         } else {
+            return res.render('home');
+        }
+    
+       } else {
+           return res.redirect('/admin');
+       }
    } catch (error) {
-      console.log(error.message)
+       console.log(error.message);
    }
-}
+};
 
 const logout = async (req, res) => {
    try {
@@ -426,8 +477,8 @@ const productsList = async (req, res) => {
         .skip(skipCount)
         .limit(itemsPerPage);
      if (req.xhr) {
-        // Handle AJAX request for paginated products
-        console.log("inside if ajax req");
+
+      console.log("inside if ajax req");
         res.json({ categories, products: productData, totalPages, page });
      } else {
         console.log("inside else normal req");
@@ -693,6 +744,90 @@ const userList = async (req, res) => {
          res.render('userList', {users:userData})
    } catch (error) {
       console.log(error.message)
+   }
+}
+
+const downloadReport = async (req, res) => {
+   try {
+      const orders = await order
+        .find({})
+        .populate('user_id', 'first_name last_name email')
+        .select('_id total_amount order_status created_on user_display_order_id shipping_charge discount payment_method');
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Orders');
+
+      worksheet.columns = [
+        { header: 'Order ID', key: 'orderID', width: 30 },
+        { header: 'Name', key: 'name', width: 30 },
+        { header: 'Email', key: 'email', width: 30 },
+        { header: 'Total', key: 'total', width: 30 },
+        { header: 'Status', key: 'status', width: 30 },
+        { header: 'Date', key: 'date', width: 30 },
+        { header: 'Payment Method', key: 'paymentMethod', width: 30 },
+      ];
+
+      orders.forEach(order => {
+        worksheet.addRow({
+          orderID: order.user_display_order_id || order._id,
+          name: `${order.user_id.first_name} ${order.user_id.last_name}`,
+          email: order.user_id.email,
+          total: `$${((order.total_amount + order.shipping_charge) - order.discount) || (order.total_amount + order.shipping_charge)}`,
+          status: order.order_status,
+          date: order.created_on,
+          paymentMethod: order.payment_method,
+        });
+      });
+
+      res.setHeader(
+         "Content-Type",
+         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+
+      res.setHeader(
+         "Content-Disposition",
+         "attachment;filename=" + "SalesReport.xlsx"
+      );
+
+      await workbook.xlsx.write(res);
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+   }
+}
+
+const salesReport = async (req, res) => {
+   const itemsPerPage = 10;
+   const page = parseInt(req.query.page) || 1;
+   const i = 1;
+
+   try {
+      const skipCount = (page - 1) * itemsPerPage;
+      const totalOrders = await order.countDocuments({});
+      const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+      const orders = await order
+         .find({})
+         .skip(skipCount)
+         .limit(itemsPerPage)
+         .populate('user_id', 'first_name last_name email')
+         .select('_id total_amount order_status created_on user_display_order_id shipping_charge discount payment_method') // Include payment_method
+         console.log("orders after reverse ===>>> ", orders);
+
+      if (req.xhr) {
+         console.log("skipCount in ajax", skipCount);
+         console.log("itemsPerPage in ajax ", itemsPerPage);
+         console.log("orders.user_display_order_id  ===>>>  ", orders.user_display_order_id);
+
+         res.json({ orders, totalPages, page, i });
+      } else {
+         console.log("itemsPerPage in normal rendering ", itemsPerPage);
+
+         res.render('report', { orders, totalPages, page, i });
+      }
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
    }
 }
 
@@ -991,6 +1126,8 @@ module.exports = {
    createCoupon,
    editCoupon,
    toggleBlockStatusCoupons,
-   toggleActivateDeactivate
+   toggleActivateDeactivate,
+   salesReport,
+   downloadReport,
 }
 
