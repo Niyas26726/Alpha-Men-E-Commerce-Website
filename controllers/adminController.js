@@ -48,63 +48,184 @@ const verifyUser = async (req, res) => {
 
 const loadhome = async (req, res) => {
    try {
-       if (req.session.admin_id) {
-            console.log("Reached loadhome loadhome ");
-            // Get the current year
-           if (req.xhr) {
-              const currentYear = new Date().getFullYear();
-            console.log("Reached inside the fetch in load home ");
+      console.log("Reached loadhome");
+      if (req.session.admin_id) {
+         console.log("Reached inside if");
+         const type = req.query.type; 
+         console.log('type:', type);
 
-           const orders = await order.aggregate([
-               {
-                   $match: {
-                       // Filter by the year (replace '2023' with currentYear)
-                       created_on_For_Sales_Report: {
-                           $gte: new Date(`${currentYear}-01-01`),
-                           $lt: new Date(`${currentYear + 1}-01-01`)
-                       }
-                   }
-               },
-               {
-                   $project: {
-                       created_on_For_Sales_Report: 1,
-                       total_amount: 1
-                   }
-               }
-           ])
+         if(req.xhr){
+         const getDataByTimeFrame = async (timeFrame) => {
+            console.log("timeFrame   ====>>>>  ",timeFrame);
+            let time  = timeFrame ? timeFrame : 'monthly'
+            console.log("time   ====>>>>  ",time);
+            try {
+                let start, end;
+        
+                const today = new Date();
+                if (time === 'daily') {
+                    start = new Date(today);
+                    end = new Date(today);
+                    start.setHours(0, 0, 0, 0); 
+                    end.setHours(23, 59, 59, 999);
+                    console.log('start:', start);
+                    console.log('end:', end);
 
-           // Extracting the necessary data for the chart
-           const salesData = orders.map(order => ({
-               date: order.created_on_For_Sales_Report,
-               amount: order.total_amount,
-           }));
+                } else if (time === 'weekly') {
+                    start = new Date(today);
+                    start.setDate(start.getDate() - (start.getDay() + 1) % 7);
+                    start.setHours(0, 0, 0, 0);
+                    end = new Date(start);
+                    end.setDate(end.getDate() + 6);
+                    end.setHours(23, 59, 59, 999);
+                    console.log('start:', start);
+                    console.log('end:', end);
 
-           const chartData = {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [
-                {
-                    label: 'Visitors',
-                    tension: 0.3,
-                    fill: true,
-                    backgroundColor: 'rgba(4, 209, 130, 0.2)',
-                    borderColor: 'rgb(4, 209, 130)',
-                    data: salesData.amount
+                } else if (time === 'monthly') {
+                    start = new Date(today.getFullYear(), today.getMonth(), 1); 
+                    end = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
+                    end.setHours(23, 59, 59, 999);
+                    console.log('start:', start);
+                    console.log('end:', end);
+
+                  } else if (time === 'yearly') {
+                     start = new Date(2020, 0, 1); 
+                     end = new Date(2027, 11, 31); 
+                     end.setHours(23, 59, 59, 999);
+                     console.log('start:', start);
+                     console.log('end:', end);
+                     
                 }
-            ]
-        };
-        console.log("chartData    =======>>>>>>>   ",chartData);
-        return res.json(chartData);
-    
+        
+                const data = await order.find({
+                    created_on_For_Sales_Report: {
+                        $gte: start,
+                        $lte: end
+                    }
+                });
 
-         } else {
-            return res.render('home');
-        }
+                console.log('start:', start);
+                console.log('end:', end);
+                console.log('data.length :', data.length );
+        
+        
+                return data;
+            } catch (error) {
+                console.error("Error:", error.message);
+                throw error;
+            }
+        };
+        
+        getDataByTimeFrame(type)
+               .then((result) => {
+                  let orderCount = {};
+                if (type === 'daily') {
+
+                  orderCount = {
+                      0 : 0, 1 : 0, 2 : 0, 3 : 0, 4 : 0, 5 : 0, 6 : 0,
+                      7 : 0, 8 : 0, 9 : 0, 10 : 0,11 : 0, 12 : 0, 13 : 0, 14 : 0, 15 : 0,
+                      16 : 0, 17 : 0, 18 : 0, 19 : 0, 20 : 0, 21 : 0, 22 : 0, 23 : 0, 
+                  }
+
+               } else if (type === 'weekly') {
+
+                  orderCount= {
+                     Sun : 0,
+                     Mon : 0,
+                     Tue : 0,
+                     Wed : 0,
+                     Thu : 0,
+                     Fri : 0,
+                     Sat : 0,
+                  }
+
+               } else if (type === 'monthly') {
+
+                  orderCount = {
+                     Jan: 0,
+                     Feb: 0,
+                     Mar: 0,
+                     Apr: 0,
+                     May: 0,
+                     Jun: 0,
+                     Jul: 0,
+                     Aug: 0,
+                     Sep: 0,
+                     Oct: 0,
+                     Nov: 0,
+                     Dec: 0,
+                 };
+         
+
+               } else if (type === 'yearly') {
+
+                  orderCount = {
+                     2020: 0,
+                     2021: 0,
+                     2022: 0,
+                     2023: 0,
+                     2024: 0,
+                     2025: 0,
+                     2026: 0,
+                     2027: 0,
+                 };
+
+               }
+               let hour;
+               let day;
+               let month;
+               let year;
+               result.forEach(order => {
+                  const orderDate = order.created_on_For_Sales_Report;
+                  if (type === 'daily') {
+                     hour = orderDate.getHours();
+                      orderCount[hour.toString()]++;
+                  } else if (type === 'weekly') {
+                     day = orderDate.toLocaleString('en-US', { weekday: 'short' });
+                      orderCount[day]++;
+                  } else if (type === 'monthly') {
+                     month = orderDate.toLocaleString('en-US', { month: 'short' });
+                      orderCount[month]++;
+                  } else if (type === 'yearly') {
+                     year = orderDate.getFullYear();
+                      orderCount[year.toString()]++;
+                  }
+                  console.log('hour:', hour);
+                  console.log('day:', day);
+                  console.log('month:', month);
+                  console.log('year:', year);
     
-       } else {
-           return res.redirect('/admin');
-       }
+              });
+                    
+              console.log('Monthly order count:', orderCount);
+              console.log('hour:', hour);
+              console.log('day:', day);
+              console.log('month:', month);
+              console.log('year:', year);
+      
+               // console.log('Monthly order count:', result)
+               console.log('type:', type);
+               console.log('result.length:', result.length);
+               console.log('orderCount.length:', orderCount.length);
+   
+               return res.json({ orderCount: orderCount})
+   
+                })
+            .catch((error) => {
+                // Handle the error
+                console.error('Error:', error);
+            });
+        
+
+         }else{
+            return res.render('home');
+         }
+      } else {
+         console.log("Reached inside else");
+         return res.redirect('/admin');
+      }
    } catch (error) {
-       console.log(error.message);
+      console.log(error.message);
    }
 };
 
@@ -112,6 +233,29 @@ const logout = async (req, res) => {
    try {
       req.session.admin_id = null;
       res.redirect('/admin')
+   } catch (error) {
+      console.log(error.message)
+   }
+}
+
+const chart = async (req, res) => {
+   try {
+            // Get the current year
+            const currentYear = new Date().getFullYear();
+            console.log("Reached inside the fetch in load home ");
+
+           const orders = await order.find({})
+           const months = orders.map((order) => order.created_on_For_Sales_Report.getMonth() + 1); // Adding 1 to convert 0-indexed month to a normal month number
+           const totalAmounts = orders.map((order) => order.total_amount);
+           const visitors = orders.map((data) => data.visitors);
+           const products = orders.map((data) => data.products);
+           console.log("months  ==> ",months);
+           console.log("sales  ==> ",totalAmounts);
+         
+           // Send the extracted data to the client-side
+           res.json({ months, totalAmounts});
+             
+
    } catch (error) {
       console.log(error.message)
    }
@@ -1129,5 +1273,6 @@ module.exports = {
    toggleActivateDeactivate,
    salesReport,
    downloadReport,
+   chart,
 }
 

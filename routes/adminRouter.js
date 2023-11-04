@@ -43,6 +43,7 @@ adminRouter.get('/',auth.isLogout,adminController.loadLogin);
 adminRouter.post('/',auth.isLogout,adminController.verifyUser);
 
 adminRouter.get('/home',auth.isLogin,adminController.loadhome);
+adminRouter.get('/chart',auth.isLogin,adminController.chart);
 adminRouter.get('/logout',auth.isLogin,adminController.logout);
 adminRouter.get('/coupons',auth.isLogin,adminController.coupons);
 adminRouter.post('/coupons',auth.isLogin,adminController.createCoupon);
