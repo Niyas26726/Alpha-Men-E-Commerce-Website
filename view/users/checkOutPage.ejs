@@ -255,6 +255,12 @@
                                                             </table>
                                                     </div>
                                                     <div>
+                                                        <p colspan="4" class="text-end"><strong>Catagory Discount:</strong></p>
+                                                        <p id="shipping" class="text-end">
+                                                            <strong>$<%=final_Discount%></strong>
+                                                        </p>
+                                                    </div>
+                                                    <div>
                                                         <p colspan="4" class="text-end"><strong>shipping Fee:</strong></p>
                                                         <p id="shipping" class="text-end">
                                                             <strong>$<%=largestShippingFee%></strong>
@@ -356,6 +362,7 @@
                                 </div>
                             </div>
                             <input type="hidden" value="<%=largestShippingFee%>" id="largestShippingFee" name="largestShippingFee">
+                            <input type="hidden" value="<%=final_Discount%>" id="final_Discount" name="final_Discount">
                         </form>
                     </div>
                 </section>
@@ -364,8 +371,10 @@
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
         <script>
+            
             let selectedCouponId = ''
             document.addEventListener("DOMContentLoaded", function () {
+
                 const checkoutForm = document.getElementById("checkoutForm");
                 const proceedToPaymentBtn = document.getElementById("proceedToPayment");
                 const paymentRadios = document.querySelectorAll("input[name='paymentOption']");
@@ -424,10 +433,13 @@
                         const selectedBillingAddress = document.querySelector("input[name='selectedBillingAddress']:checked");
                         const selectedShippingAddress = document.querySelector("input[name='selectedShippingAddress']:checked");
                         let data = {};
+                       
+
                         data = {
                             paymentOption: paymentOption.value,
                             selectedBillingAddress: selectedBillingAddress.value,
                             selectedShippingAddress: selectedShippingAddress.value,
+                            final_Discount: "<%=final_Discount %>" ? "<%=final_Discount %>" : 0,
                         }
 
                         if("<%=largestShippingFee %>"){
@@ -436,10 +448,11 @@
                             selectedBillingAddress: selectedBillingAddress.value,
                             selectedShippingAddress: selectedShippingAddress.value,
                             largestShippingFee: "<%=largestShippingFee %>",
+                            final_Discount: "<%=final_Discount %>" ? "<%=final_Discount %>" : 0,
                         }  
                         }
 
-
+                        console.log("paymentOption.value   ====>>>>   ",data)
 
                         const processOnlinePaymentAction = "/processOnlinePayment" + (selectedCouponId ? `?couponId=${selectedCouponId}` : "");
                     console.log("processOnlinePaymentAction ", processOnlinePaymentAction);

@@ -308,13 +308,10 @@ imageContainers.style.display = "none";
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // Get the file input element and image preview container
 const imageInput = document.getElementById('imageInput');
 const imagePreview = document.getElementById('imagePreview');
 
-// Add an event listener to the file input
 imageInput.addEventListener('change', function () {
-    // Clear any existing image previews
     imagePreview.innerHTML = '';
     const numImages = imageInput.files.length;
     console.log("numImages  ===>>  ",numImages);
@@ -328,40 +325,31 @@ imageInput.addEventListener('change', function () {
     console.log("numericArray_Length  ===>>>  ",numericArray_Length);
     const inputUpload = document.querySelector('.input-upload');
 
-// Check if 'input-upload' contains the 'row' div
 const rowDiv = inputUpload.querySelector('.row');
 
 
     const imageCount = rowDiv.querySelectorAll('.image-container').length;
     console.log(`Number of images: ${imageCount}`);
-    // Loop through the selected files
     for (let i = 0; i < numImages; i++) {
-        // Create a container div for each image with remove button
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('image-container');
 
-        // Create an image element for the selected file
         const imgElement = document.createElement('img');
         imgElement.classList.add('preview-image');
         imgElement.src = URL.createObjectURL(imageInput.files[i]);
 
-        // Create a remove button for the image
         const removeButton = document.createElement('button');
         removeButton.innerText = 'Remove';
         removeButton.classList.add('remove-button');
 
-        // Add a click event listener to remove the image
         removeButton.addEventListener('click', function () {
             imageContainer.remove(); // Remove the image container
-            // Remove the corresponding file from the input's files array
             imageInput.files = [...imageInput.files].filter((_, index) => index !== i);
         });
 
-        // Append the image and remove button to the image container
         imageContainer.appendChild(imgElement);
         imageContainer.appendChild(removeButton);
 
-        // Append the image container to the image preview container
         imagePreview.appendChild(imageContainer);
     }
 });

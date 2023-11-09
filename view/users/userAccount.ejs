@@ -162,7 +162,7 @@
                                                                 <span class="badge rounded-pill alert-info status-badge"><%= order.order_status %></span>
                                                             <% } %>
                                                         </td>
-                                                        <td>$<%= ((order.total_amount + order.shipping_charge) - order.discount).toFixed(2) || (order.total_amount + order.shipping_charge).toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
+                                                        <td>$<%= order.total_amount.toFixed(2) %> &nbsp;&nbsp; for &nbsp;&nbsp; <%= order.items.length %> items</td>
                                                         <td>
                                                             <a class="btn-small d-block view-details" data-order-id="<%= order._id %>">View Details</a>
                                                         </td>

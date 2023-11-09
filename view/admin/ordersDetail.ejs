@@ -170,10 +170,13 @@
                             Total Amount :- $<%= order.total_amount + order.shipping_charge %>
                         </p>
                         <p>
-                            Discount Amount :- $<%= order.discount || 0 %>
+                            Coupon Discount Amount :- $<%= order.discount || 0 %>
                         </p>
                         <p>
-                            Final Amount :- $<%= ((order.total_amount + order.shipping_charge) - order.discount) || (order.total_amount + order.shipping_charge) %>
+                            Catagory Discount Amount :- $<%= order.catagory_Discount || 0 %>
+                        </p>
+                        <p>
+                            Final Amount :- $<%= order.total_amount%>
                         </p>
                     </div>
                 </div>

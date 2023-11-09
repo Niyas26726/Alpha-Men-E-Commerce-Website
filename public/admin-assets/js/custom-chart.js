@@ -148,6 +148,6 @@ $(document).ready(function() {
     });
 });
 $(document).ready(function() {
-    sendDataToServer('yearly');
+    sendDataToServer('monthly');
 });
 })(jQuery);

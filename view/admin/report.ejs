@@ -89,7 +89,7 @@
                   <td>${order.user_display_order_id || order._id}</td>
                   <td><b>${order.user_id.first_name} ${order.user_id.last_name}</b></td>
                   <td>${order.user_id.email}</td>
-                  <td>$${((order.total_amount + order.shipping_charge) - order.discount) || (order.total_amount + order.shipping_charge)}</td>
+                  <td>$${order.total_amount}</td>
                   <td>
                      <span class="badge rounded-pill ${orderBadgeClass(order.order_status)}">
                         ${order.order_status}

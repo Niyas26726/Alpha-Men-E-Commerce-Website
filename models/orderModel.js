@@ -40,6 +40,11 @@
       required: true,
       default:0
     },
+    catagory_Discount: {
+      type: Number,
+      required: true,
+      default:0
+    },
     total_amount: {
       type: Number,
       required: true,

@@ -68,8 +68,50 @@ const insertUser = async (req, res) => {
                   referedUser.wallet_Balance = (referedUser.wallet_Balance || 0) + 500;
                   user.wallet_Balance = (user.wallet_Balance || 0) + 200;
                   user.used_Referal_ID = referalId;
-                  await user.save();
-                  await referedUser.save();
+
+                  const newTransaction_referedUser = {
+                     type: 'Credit',
+                     amount: 500,
+                     date: new Date(),
+                   };
+
+                  const newTransaction = {
+                     type: 'Credit',
+                     amount: 200,
+                     date: new Date(),
+                   };
+
+                   function generateRandomString() {
+                     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                     let randomString = '';
+                  
+                     for (let i = 0; i < 25; i++) {
+                       const randomIndex = Math.floor(Math.random() * characters.length);
+                       randomString += characters.charAt(randomIndex);
+                     }
+                  
+                     return randomString;
+                  }
+         
+                   let user_display_order_id = generateRandomString();
+                   newTransaction.user_display_order_id = user_display_order_id;
+                   console.log("newTransaction.user_display_order_id ===>>>   ",newTransaction.user_display_order_id);
+
+                   user_display_order_id = generateRandomString();
+                   newTransaction_referedUser.user_display_order_id = user_display_order_id;
+                   console.log("newTransaction_referedUser.user_display_order_id ===>>>   ",newTransaction_referedUser.user_display_order_id);
+
+                   referedUser.transaction.push(newTransaction_referedUser);
+                   user.transaction.push(newTransaction);
+
+                   await user.save();
+                   await referedUser.save();
+ 
+                   console.log("newTransaction_referedUser ===>>>   ",newTransaction_referedUser);
+                   console.log("newTransaction ===>>>   ",newTransaction);
+
+                   console.log("referedUser.transaction ===>>>   ",referedUser.transaction);
+                   console.log("user.transaction ===>>>   ",user.transaction);
                }else{
                res.redirect(`/register?err=${true}&msg=Incorrect Referal Code`);
                }
@@ -77,7 +119,10 @@ const insertUser = async (req, res) => {
             
             const userData = await user.save();
             if (userData) {
-               res.redirect(`/register?err=${false}&msg=Sign Up Successfull click the link bellow to Login`);
+               req.session.user_id = userData._id
+               console.log(" req.session.user_id  ====>>>>  ",req.session.user_id);
+               console.log(" userData._id  ====>>>>  ",userData._id);
+               return res.redirect('/home');
             }
          }
       }
@@ -123,10 +168,18 @@ const loadHome = async (req, res) => {
 
       const productData = await product.find({blocked: false})
           .skip(skipCount)
-          .limit(itemsPerPage);
-
-
-      if (req.session.user_id) {
+          .limit(itemsPerPage)
+          .populate('categoryId');
+          
+          console.log("Product data with categories: ", productData);
+          productData.forEach(product => {
+            if (product.categoryId) {
+                console.log("Category ID:", product.categoryId._id);
+                console.log("Category Maximum Discount:", product.categoryId.maximum_Discount);
+                console.log("Category offer_Persentage:", product.categoryId.offer_Persentage);
+            }
+        });
+         if (req.session.user_id) {
          const user_ID = req.session.user_id;
          const userData = await User.findById({ _id: user_ID });
          console.log("req.session.user_id is " + req.session.user_id);
@@ -139,6 +192,7 @@ const loadHome = async (req, res) => {
       console.log(error.message)
    }
 }
+
 const addNewAddress = async (req, res) => {
    console.log("Reached addNewAddress");
    try {
@@ -606,6 +660,9 @@ const displayProduct = async (req, res) => {
 
       let hasOrdered = false;
 
+      const categoryDataForProduct = await category.findById(productData.categoryId);
+
+      console.log("categoryDataForProduct    ====>>>>>   ",categoryDataForProduct);
       
       if (req.session.user_id) {
          const user_id = req.session.user_id;
@@ -623,10 +680,10 @@ const displayProduct = async (req, res) => {
          if(hasOrderedProduct.length != 0){
             hasOrdered = true;
          }
-         res.render('displayProduct', { user: userData, product: productData, categories: categorieData, isAuthenticated: true, quantityInCart, noOfReviews: noOfReviews, hasOrdered});
+         res.render('displayProduct', { user: userData, product: productData, categories: categorieData, categoryDataForProduct: categoryDataForProduct, isAuthenticated: true, quantityInCart, noOfReviews: noOfReviews, hasOrdered});
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-         res.render('displayProduct', { user, product: productData, categories: categorieData, isAuthenticated: false, noOfReviews: noOfReviews, hasOrdered });
+         res.render('displayProduct', { user, product: productData, categories: categorieData, categoryDataForProduct: categoryDataForProduct, isAuthenticated: false, noOfReviews: noOfReviews, hasOrdered });
       }
    } catch (error) {
       console.log(error.message);
@@ -1164,13 +1221,19 @@ const checkOutPage = async (req, res) => {
       const user_ID = req.session.user_id;
       const coupons = await coupon.find({valid: true})
       const userData = await User.findById(user_ID)
-         .populate({
-            path: 'cart.product',
-            model: 'product',
-         })
-         .populate('addresses');
-
+      .populate({
+        path: 'cart.product',
+        model: 'product',
+        populate: {
+          path: 'categoryId',
+          model: 'category'
+        }
+      })
+      .populate('addresses');
+    
          let largestShippingFee = -1;
+         let final_Discount = 0;
+
          if (userData) {
             const userCart = userData.cart;
             
@@ -1187,20 +1250,75 @@ const checkOutPage = async (req, res) => {
                 largestShippingFee = shippingFee;
               }
             });
+
+            userCart.forEach(cartItem => {
+               const product = cartItem.product;
+              const quantity = cartItem.quantity;
+              console.log("Product:", product);
+               console.log("Outside if.");
+           
+               if (product.categoryId && product.categoryId.offer_Persentage > 0) {
+                  const currentDate = new Date();
+                  const categoryExpiryDate = new Date(product.categoryId.expiry_Date);
+                  // console.log("Inside if.");
+                  // console.log("product.categoryId.offer_Persentage:", product.categoryId.offer_Persentage); // Logging category name if categoryId exists
+                  // console.log("product.categoryId.maximum_Discount:", product.categoryId.maximum_Discount); // Logging category name if categoryId exists
+                  // console.log("product.categoryId.expiry_Date:", product.categoryId.expiry_Date); // Logging category name if categoryId exists
+                  // console.log("((product.categoryId.offer_Persentage)/100):", ((product.categoryId.offer_Persentage)/100)); // Logging category name if categoryId exists
+                  // console.log("((product.sales_price )*(product.categoryId.offer_Persentage)/100):", (product.sales_price )*((product.categoryId.offer_Persentage)/100)); // Logging category name if categoryId exists
+                  // console.log("currentDate:", currentDate); // Logging category name if categoryId exists
+                  // console.log("categoryExpiryDate:", categoryExpiryDate); // Logging category name if categoryId exists
+                  // console.log("product.sales_price:", product.sales_price); // Logging category name if categoryId exists
+                  // console.log("quantity:", quantity); // Logging category name if categoryId exists
+                  // console.log("product.sales_price * quantity:", product.sales_price * quantity); // Logging category name if categoryId exists
+          
+                  // Check if the category is valid and the current date is not after the expiry date
+                  if (product.sales_price * quantity >= product.categoryId.minimum_Amount &&
+                      currentDate < categoryExpiryDate) {
+                      var discount = Math.min(
+                          ((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100)),
+                          product.categoryId.maximum_Discount
+                      );
+                      discount = Number(discount.toFixed(2)); // Limit to two decimal places
+
+                      product.sales_price -= discount;
+                      console.log("Inside if if.");
+          
+                      console.log(`Discount applied for product '${product.product_name}': ${discount}`);
+                      console.log(`((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100))` , ((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100)));
+                  }
+              }
+          
+
+               if (product.categoryId) {
+                  // console.log("Category Name:", product.categoryId); // Logging category name if categoryId exists
+                   console.log("Category Name:", product.categoryId.name); // Logging category name if categoryId exists
+                   console.log("Category Maximum Discount:", product.categoryId.maximum_Discount);
+               } else {
+                   console.log("Category not found for the product.");
+               }
+               final_Discount = 0
+               console.log("final_Discount:", final_Discount);
+               final_Discount += discount
+            console.log("discount:", discount);
+
+            });           
+
             console.log("Largest Shipping Fee:", largestShippingFee);
+            console.log("final_Discount:", final_Discount);
           }
-         console.log("coupons ===> ", coupons);
+         // console.log("coupons ===> ", coupons);
 
       if (req.session.user_id) {
          if(err){
-         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true, msg: msg, largestShippingFee: largestShippingFee});
+         return res.render('checkOutPage', { user: userData, final_Discount: final_Discount, categories: categorieData, coupons, isAuthenticated: true, msg: msg, largestShippingFee: largestShippingFee});
          }else{
          console.log("req.session.user_id is " + req.session.user_id);
-         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: true,msg:"", largestShippingFee: largestShippingFee});
+         return res.render('checkOutPage', { user: userData, final_Discount: final_Discount, categories: categorieData, coupons, isAuthenticated: true,msg:"", largestShippingFee: largestShippingFee});
          }
       } else {
          console.log("else case req.session.user_id is " + req.session.user_id);
-         return res.render('checkOutPage', { user: userData, categories: categorieData, coupons, isAuthenticated: false });
+         return res.render('checkOutPage', { user: userData, final_Discount: final_Discount, categories: categorieData, coupons, isAuthenticated: false });
       }
    } catch (error) {
       console.log(error.message)
@@ -1561,8 +1679,9 @@ const getOrderDetails = async (req, res) => {
             <p>Expected Delivery On: ${orderDetails.expected_delivery_on || 'N/A'}</p>
             <p>Shipping Charge: $${orderDetails.shipping_charge || 'N/A'}</p>
             <p>Total Amount: $${orderDetails.total_amount || 'N/A'}</p>
-            <p>Discount: $${orderDetails.discount || 0}</p>
-            <p>Final Amount: $${((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) || (orderDetails.total_amount + orderDetails.shipping_charge)}</p>
+            <p>Coupon Discount: $${orderDetails.discount || 0}</p>
+            <p>Catagory Discount: $${orderDetails.catagory_Discount || 0}</p>
+            <p>Final Amount: $${(((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) - orderDetails.catagory_Discount ) || (orderDetails.total_amount + orderDetails.shipping_charge)}</p>
          </div>
       </div>
       
@@ -1636,7 +1755,7 @@ const getOrderDetails = async (req, res) => {
       <div>
       <strong>Grand Total:</strong>
       <span id="grand-total" class="float-right"><strong>$${grandTotal}</strong></span>
-      <p class="text-end"><strong>Final Amount: $${((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) || (orderDetails.total_amount + orderDetails.shipping_charge)}</strong></p>
+      <p class="text-end"><strong>Final Amount: $${(((orderDetails.total_amount + orderDetails.shipping_charge) - orderDetails.discount) - orderDetails.catagory_Discount ) || (orderDetails.total_amount + orderDetails.shipping_charge)}</strong></p>
 
    </div>
    `;
@@ -1655,7 +1774,7 @@ const getOrderDetails = async (req, res) => {
 
 
 const processPayment = async (req, res) => {
-   console.log("Reached processPayment");
+   console.log("data is",req.body); 
    try {
       let errMsg = false;
       const userId = req.session.user_id;
@@ -1672,8 +1791,10 @@ const processPayment = async (req, res) => {
       const selectedBillingAddress = req.body.selectedBillingAddress;
       const selectedShippingAddress = req.body.selectedShippingAddress;
       const paymentOption = req.body.paymentOption;
-      const largestShippingFee = req.body.largestShippingFee;
+      const largestShippingFee = req.body.largestShippingFee ? req.body.largestShippingFee : 0;
+      const final_Discount = req.body.final_Discount ? req.body.final_Discount : 0;
 
+      console.log("final_Discount " , final_Discount);
       console.log("largestShippingFee " , largestShippingFee);
       console.log("selectedBillingAddress " + selectedBillingAddress);
       console.log("selectedShippingAddress " + selectedShippingAddress);
@@ -1713,7 +1834,11 @@ const processPayment = async (req, res) => {
                return total + item.quantity * item.sales_price;
             }, 0);
             let finalAmount = totalAmount + shippingFee;
-            console.log("finalAmount  ===>>>  ",finalAmount);
+            console.log("finalAmount before redusing discount  ===>>>  ",finalAmount);
+            finalAmount = (totalAmount + shippingFee) - final_Discount;
+            console.log("finalAmount after redusing discount  ===>>>  ",finalAmount);
+            console.log("shippingFee  ===>>>  ",shippingFee);
+            console.log("final_Discount  ===>>>  ",final_Discount);
 
             if (couponData) {
                const currentDate = new Date();
@@ -1758,13 +1883,15 @@ const processPayment = async (req, res) => {
             const orderData = {
                items,
                discount : req.session.discountAmount ? req.session.discountAmount : 0,
+               catagory_Discount : final_Discount ? final_Discount : 0,
                shipping_charge: shippingFee,
-               total_amount: totalAmount,
+               total_amount: finalAmount,
                user_id: userId,
                payment_method: paymentOption == "Online Payment" || paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? paymentOption : "",
                payment_status: paymentOption == "Cash On Delivery" || paymentOption == "Wallet Payment" ? "Paid" : "Pending",
                address: [billingAddress, shippingAddress],
             };
+            console.log("orderData   ====>>>  ", orderData);
 
             req.session.discountAmount = null;
             function generateRandomString() {
@@ -1903,7 +2030,9 @@ const processOnlinePayment = async (req, res) => {
       const selectedShippingAddress = req.body.selectedShippingAddress;
       const paymentOption = req.body.paymentOption;
       const largestShippingFee = req.body.largestShippingFee;
+      const final_Discount = req.body.final_Discount ? req.body.final_Discount : 0;
 
+      console.log("final_Discount " , final_Discount);
       console.log("largestShippingFee " , largestShippingFee);
       console.log("selectedBillingAddress " , selectedBillingAddress);
       console.log("selectedShippingAddress " , selectedShippingAddress);
@@ -1976,15 +2105,20 @@ const processOnlinePayment = async (req, res) => {
 
              }
              console.log("finalAmount outside if couponData ===>>>  ",finalAmount);
+             console.log("finalAmount outside if couponData after redusing the ctagory discount ===>>>  ",finalAmount - final_Discount);
              console.log("totalAmount outside if couponData ===>>>  ",totalAmount);
              console.log("req.session.discountAmount outside if couponData ===>>>  ",req.session.discountAmount);
  
+             finalAmount -= final_Discount;
+             console.log("finalAmount after redusing final_Discount ===>>>  ",finalAmount);
+             console.log("finalAmount after redusing final_Discount ===>>>  ",final_Discount);
  
              console.log("couponData   ===>>>  ",couponData);
              
             const orderData = {
                items,
                discount : req.session.discountAmount ? req.session.discountAmount : 0,
+               catagory_Discount : final_Discount ? final_Discount : 0,
                shipping_charge: shippingFee,
                total_amount: finalAmount,
                user_id: userId,
