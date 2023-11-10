@@ -1233,7 +1233,7 @@ const checkOutPage = async (req, res) => {
     
          let largestShippingFee = -1;
          let final_Discount = 0;
-
+         let discount = 0;
          if (userData) {
             const userCart = userData.cart;
             
@@ -1275,16 +1275,15 @@ const checkOutPage = async (req, res) => {
                   // Check if the category is valid and the current date is not after the expiry date
                   if (product.sales_price * quantity >= product.categoryId.minimum_Amount &&
                       currentDate < categoryExpiryDate) {
-                      var discount = Math.min(
+                        discount = Math.min(
                           ((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100)),
                           product.categoryId.maximum_Discount
                       );
                       discount = Number(discount.toFixed(2)); // Limit to two decimal places
 
-                      product.sales_price -= discount;
                       console.log("Inside if if.");
           
-                      console.log(`Discount applied for product '${product.product_name}': ${discount}`);
+                      console.log(`Discount applied for product ${product.product_name} : ${discount}`);
                       console.log(`((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100))` , ((product.sales_price * quantity) * (product.categoryId.offer_Persentage / 100)));
                   }
               }
@@ -1297,9 +1296,9 @@ const checkOutPage = async (req, res) => {
                } else {
                    console.log("Category not found for the product.");
                }
-               final_Discount = 0
                console.log("final_Discount:", final_Discount);
                final_Discount += discount
+               console.log("final_Discount:", final_Discount);
             console.log("discount:", discount);
 
             });           

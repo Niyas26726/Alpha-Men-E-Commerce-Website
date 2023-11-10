@@ -5,12 +5,31 @@
          <div>
             <h2 class="content-title card-title">Sales Report</h2>
             <p>Lorem ipsum dolor sit amet.</p>
-         </div>
-         <div>
+            
+          </div>
+          <div>
             <!-- <input type="text" placeholder="Search order ID" class="form-control bg-white"> -->
             <button onclick="downloadReport()" class="btn btn-primary">Download Report</button>
           </div>
-      </div>
+        </div>
+        <div class="pb-30" style="display: flex; justify-content: space-evenly;" id="filter_Btns">
+          <button class="text-end btn btn-primary" id="customBtn">Custom</button>
+          <button class="text-end btn btn-primary" id="dailyBtn">Daily</button>
+          <button class="text-end btn btn-primary" id="weeklyBtn">Weekly</button>
+          <button class="text-end btn btn-primary" id="monthlyBtn">Monthly</button>
+          <button class="text-end btn btn-primary" id="yearlyBtn">Yearly</button>
+        </div>
+
+      <form class="pb-30" style="display: flex; display: none; justify-content: space-evenly;" id="select_Date">
+        <div class="pb-30" style="display: flex; justify-content: space-evenly;">
+          <label for="From">From</label>
+          <input type="date" placeholder="Start Date" class="form-control" id="startDate" style="justify-content: space-between;">
+          <label for="To">To</label>
+          <input type="date" placeholder="End Date" class="form-control" id="endDate">
+          <button class="text-end btn btn-primary" id="custom_Date_Submit" type="button" onclick="customDateSubmit()">Submit</button>
+        </div>
+      </form>
+      
       <div class="card mb-4">
          <div class="card-body">
             <div class="table-responsive">
@@ -153,5 +172,105 @@
                fetchOrders(1);
             }
          });
-      </script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const filterBtns = document.getElementById('filter_Btns');
+
+    filterBtns.addEventListener('click', async function(event) {
+        if (event.target.tagName === 'BUTTON' && event.target.id !== 'customBtn') {
+            const clickedBtnId = event.target.id;
+            
+            const requestData = {
+                buttonClicked: clickedBtnId
+            };
+            $.ajax({
+                url: `/admin/salesReport`,
+                method: 'GET',
+                data: { requestData: JSON.stringify(requestData) },
+                contentType: 'application/json',
+                success: function (data) {
+                    console.log('Data sent to the server:', data);
+                    // Perform actions with the data received, if needed
+                },
+                error: function () {
+                    console.error('Failed to send data to the server.');
+                }
+            });
+            // try {
+            //     const response = await fetch(`/admin/salesReport?requestData=${requestData}`, {
+            //         method: 'GET',
+            //         headers: {
+            //             'Content-Type': 'application/json'
+            //         },
+            //     });
+
+            //     if (response.ok) {
+            //         const data = await response.json();
+            //         console.log('Data sent to the server:', data);
+            //         // Perform actions with the data received, if needed
+            //     } else {
+            //         console.error('Failed to send data to the server.');
+            //     }
+            // } catch (error) {
+            //     console.error('Error:', error);
+            // }
+        }
+    });
+});
+
+
+async function customDateSubmit() {
+    const fromDate = document.getElementById('startDate').value;
+    const toDate = document.getElementById('endDate').value;
+
+    console.log("fromDate   ====>>>>   ", fromDate);
+    console.log("toDate   ====>>>>   ", toDate);
+
+    const requestData = {
+        fromDate: fromDate,
+        toDate: toDate,
+        buttonClicked: "customBtn"
+    };
+          $.ajax({
+          url: `/admin/salesReport`,
+          method: 'GET',
+          data: { requestData: JSON.stringify(requestData) },
+          contentType: 'application/json',
+          success: function (data) {
+              console.log('Data sent to the server:', data);
+              // Perform actions with the data received, if needed
+          },
+          error: function () {
+              console.error('Failed to send data to the server.');
+          }
+      });
+    // try {
+    //     const response = await fetch(`/admin/salesReport?requestData=${requestData}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //     });
+
+    //     if (response.ok) {
+    //         const data = await response.json();
+    //         console.log('Data sent to the server:', data);
+    //         // Perform actions with the data received, if needed
+    //     } else {
+    //         console.error('Failed to send data to the server.');
+    //     }
+    // } catch (error) {
+    //     console.error('Error:', error);
+    // }
+}
+          const customBtn = document.getElementById('customBtn');
+          const filterBtnsDiv = document.getElementById('filter_Btns');
+          const selectDateDiv = document.getElementById('select_Date');
+
+          customBtn.addEventListener('click', async () => {
+              filterBtnsDiv.style.display = 'none';
+              selectDateDiv.style.display = 'block';
+          });
+
+</script>
 

@@ -943,6 +943,7 @@ const downloadReport = async (req, res) => {
 const salesReport = async (req, res) => {
    const itemsPerPage = 10;
    const page = parseInt(req.query.page) || 1;
+   let time = req.body.buttonClicked;
    const i = 1;
 
    try {
@@ -956,12 +957,89 @@ const salesReport = async (req, res) => {
          .limit(itemsPerPage)
          .populate('user_id', 'first_name last_name email')
          .select('_id total_amount order_status created_on user_display_order_id shipping_charge discount payment_method') // Include payment_method
-         console.log("orders after reverse ===>>> ", orders);
+         // console.log("orders after reverse ===>>> ", orders);
 
       if (req.xhr) {
-         console.log("skipCount in ajax", skipCount);
-         console.log("itemsPerPage in ajax ", itemsPerPage);
-         console.log("orders.user_display_order_id  ===>>>  ", orders.user_display_order_id);
+         let fromDate = 0;
+         let toDate = 0;
+         console.log("here");
+         const requestData = JSON.parse(req.query.requestData);
+         const buttonClicked = requestData.buttonClicked;
+            if(buttonClicked == "customBtn"){
+               fromDate = requestData.fromDate;
+               toDate = requestData.toDate; 
+               console.log("fromDate   ====>>>   ",fromDate);
+               console.log("toDate   ====>>>   ",toDate);
+            }
+         console.log("requestData   ====>>>   ",requestData);
+         console.log("buttonClicked   ====>>>   ",buttonClicked);
+         const time = buttonClicked;
+         console.log("time   ====>>>   ",time);
+
+         
+      let start, end;
+        
+      const today = new Date();
+      if (time === 'dailyBtn') {
+          start = new Date(today);
+          end = new Date(today);
+          start.setHours(0, 0, 0, 0); 
+          end.setHours(23, 59, 59, 999);
+          console.log('start:', start);
+          console.log('end:', end);
+
+      } else if (time === 'weeklyBtn') {
+          start = new Date(today);
+          start.setDate(start.getDate() - (start.getDay() + 1) % 7);
+          start.setHours(0, 0, 0, 0);
+          end = new Date(start);
+          end.setDate(end.getDate() + 6);
+          end.setHours(23, 59, 59, 999);
+          console.log('start:', start);
+          console.log('end:', end);
+
+      } else if (time === 'monthlyBtn') {
+          start = new Date(today.getFullYear(), today.getMonth(), 1); 
+          end = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
+          end.setHours(23, 59, 59, 999);
+          console.log('start:', start);
+          console.log('end:', end);
+
+      } else if (time === 'yearlyBtn') {
+         start = new Date(today.getFullYear(), 0, 1); 
+         end = new Date(today.getFullYear(), 11, 31); 
+         end.setHours(23, 59, 59, 999);
+         console.log('start:', start);
+         console.log('end:', end);
+      } else if(time === 'customBtn'){
+         // const submittedDate = new Date(dateInputValue + 'T00:00:00Z'); // Assuming you want to compare only the date part
+
+         const fromDateObj = new Date(fromDate + 'T00:00:00Z');
+         const toDateObj = new Date(toDate + 'T00:00:00Z');
+         if (!isNaN(fromDateObj.getTime()) && !isNaN(toDateObj.getTime())) {
+            start = fromDateObj;
+            end = toDateObj;
+            console.log('start:', start);
+            console.log('end:', end);
+        } else {
+            console.error('Invalid fromDate or toDate');
+        }
+      }
+
+      const orders = await order.find({
+          created_on_For_Sales_Report: {
+              $gte: start,
+              $lte: end
+          }
+      });
+
+      console.log('start:', start);
+      console.log('end:', end);
+      console.log('data.length :', orders.length );
+
+         // console.log("skipCount in ajax", skipCount);
+         // console.log("itemsPerPage in ajax ", itemsPerPage);
+         // console.log("orders.user_display_order_id  ===>>>  ", orders.user_display_order_id);
 
          res.json({ orders, totalPages, page, i });
       } else {
