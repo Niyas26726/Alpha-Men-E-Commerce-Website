@@ -128,7 +128,7 @@ userRouter.post('/resetpassword',auth.isBlocked,auth.isLogout,userController.cha
 
 
 
-// userRouter.get('*',(req,res)=>{res.render('page-404')})
+userRouter.get('*',(req,res)=>{res.render('404_ErrorPage')})
 // userRouter.get('*',(req,res)=>{res.redirect('/')})
 
 module.exports = userRouter;
