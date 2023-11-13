@@ -163,7 +163,7 @@ const loadHome = async (req, res) => {
       const itemsPerPage = 9;
       const productsCount = await product.countDocuments({blocked: false}); 
       const totalPages = Math.ceil(productsCount / itemsPerPage);
-      console.log("productsCount   ===>>>  ",productsCount);
+      // console.log("productsCount   ===>>>  ",productsCount);
       const skipCount = (page - 1) * itemsPerPage;
 
       const productData = await product.find({blocked: false})
@@ -171,13 +171,8 @@ const loadHome = async (req, res) => {
           .limit(itemsPerPage)
           .populate('categoryId');
           
-          console.log("Product data with categories: ", productData);
+         //  console.log("Product data with categories: ", productData);
           productData.forEach(product => {
-            if (product.categoryId) {
-                console.log("Category ID:", product.categoryId._id);
-                console.log("Category Maximum Discount:", product.categoryId.maximum_Discount);
-                console.log("Category offer_Persentage:", product.categoryId.offer_Persentage);
-            }
         });
          if (req.session.user_id) {
          const user_ID = req.session.user_id;

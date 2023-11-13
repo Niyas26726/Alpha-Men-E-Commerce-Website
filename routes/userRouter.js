@@ -68,7 +68,6 @@ userRouter.get('/integratedFilter',auth.isBlocked,userController.integratedFilte
 
 
 
-"/integratedFilter?<% if (catagoryid) { %>catagoryid=<%= catagoryid %><% } %><% if (catagoryid && sort) { %>&<% } %><% if (sort) { %>sort=<%= sort %><% } %><% if ((catagoryid || sort) && page) { %>&<% } %><% if (page) { %>page=<%= page %><% } %><% if ((catagoryid || sort || page) && searchquery) { %>&<% } %><% if (searchquery) { %>searchquery=<%= searchquery %><% } %>"
 
 userRouter.get('/formals',auth.isBlocked,userController.formals);
 userRouter.get('/special',auth.isBlocked,userController.special);
